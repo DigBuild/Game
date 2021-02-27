@@ -1,0 +1,13 @@
+.vs/
+bin/
+bin-int/
+obj/
+
+*.sln
+*.csproj
+*.vcxproj
+*.vcxproj.filters
+Makefile
+launchSettings.json
+
+*.DotSettings.user
