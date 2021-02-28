@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
+using DigBuild.Blocks;
+using DigBuild.Render;
+using DigBuildEngine.Math;
 using DigBuildEngine.Render;
 using DigBuildEngine.Voxel;
 using DigBuildPlatformCS;
@@ -19,7 +22,8 @@ namespace DigBuild
             Position = new Vector2(x, y);
         }
     }
-    internal class RenderResources
+    
+    public class RenderResources
     {
         public readonly RenderStage MainRenderStage;
 
@@ -102,14 +106,25 @@ namespace DigBuild
         );
 
         private readonly TickManager _tickManager;
+        private readonly ICamera _camera;
         private readonly WorldRenderManager _worldRenderManager;
-
-        private RenderResources? _resources;
-
+        
+        private readonly List<IWorldRenderLayer> _renderLayers = new()
+        {
+            WorldRenderLayer.Opaque
+        };
+        
         public GameWindow(TickManager tickManager, ICamera camera)
         {
             _tickManager = tickManager;
-            _worldRenderManager = new WorldRenderManager(camera);
+            _camera = camera;
+            
+            var blockModels = new Dictionary<Block, IBlockModel>()
+            {
+                [GameBlocks.Terrain] = new CuboidBlockModel(AABB.FullBlock, new Vector2(0.9f, 0.8f)),
+                [GameBlocks.Water] = new CuboidBlockModel(AABB.FullBlock, new Vector2(0.2f, 0.7f)),
+            };
+            _worldRenderManager = new WorldRenderManager(blockModels, _renderLayers, BufferPool);
         }
 
         public async Task OpenWaitClosed()
@@ -129,27 +144,30 @@ namespace DigBuild
             _worldRenderManager.QueueChunkUpdate(chunk);
         }
 
+        public static RenderResources? Resources;
+
         private void Update(RenderSurfaceContext surface, RenderContext context)
         {
-            if (_resources == null)
+            if (Resources == null)
             {
-                _resources = new RenderResources(surface, context, ResourceManager, BufferPool);
-                ChunkRenderData.Initialize(context, _resources.MainRenderStage, ResourceManager, BufferPool);
+                Resources = new RenderResources(surface, context, ResourceManager, BufferPool);
+                foreach (var layer in _renderLayers)
+                    layer.Initialize(context, ResourceManager);
             }
 
             lock (_tickManager)
             {
-                _worldRenderManager.UpdateChunks(context);
+                _worldRenderManager.UpdateChunks();
 
-                var cmd = _resources.MainCommandBuffer.BeginRecording(_resources.Framebuffer.Format, BufferPool);
+                var cmd = Resources.MainCommandBuffer.BeginRecording(Resources.Framebuffer.Format, BufferPool);
                 {
-                    cmd.SetViewportAndScissor(_resources.Framebuffer);
-                    _worldRenderManager.SubmitGeometry(cmd, surface.Width / (float)surface.Height, _tickManager.PartialTick);
+                    cmd.SetViewportAndScissor(Resources.Framebuffer);
+                    _worldRenderManager.SubmitGeometry(context, cmd, _camera, surface.Width / (float)surface.Height, _tickManager.PartialTick);
                 }
                 cmd.Commit(context);
 
-                context.Enqueue(_resources.Framebuffer, _resources.MainCommandBuffer);
-                context.Enqueue(surface, _resources.CompCommandBuffer);
+                context.Enqueue(Resources.Framebuffer, Resources.MainCommandBuffer);
+                context.Enqueue(surface, Resources.CompCommandBuffer);
             }
         }
         
