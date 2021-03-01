@@ -11,14 +11,14 @@ project "DigBuild"
     -- resourcesdir "Resources"
 
     dependson {
-		"DigBuildEngine",
-		"DigBuildPlatformSourceGen"
+		"DigBuild.Engine",
+		"DigBuild.Platform.SourceGen"
 	}
     links {
-		"DigBuildEngine"
+		"DigBuild.Engine"
 	}
 	analyzer {
-		"DigBuildPlatformSourceGen"
+		"DigBuild.Platform.SourceGen"
 	}
 
     filter "configurations:Debug"
