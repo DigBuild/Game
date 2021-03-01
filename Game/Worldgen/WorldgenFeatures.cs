@@ -1,8 +1,7 @@
 ﻿using DigBuild.Blocks;
-using DigBuildEngine.Reg;
-using DigBuildEngine.Util;
-using DigBuildEngine.Worldgen;
-using DigBuildPlatformCS.Resource;
+using DigBuild.Engine.Reg;
+using DigBuild.Engine.Worldgen;
+using DigBuild.Platform.Resource;
 
 namespace DigBuild.Worldgen
 {

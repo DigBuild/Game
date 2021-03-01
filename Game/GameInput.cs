@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
-using DigBuildPlatformCS;
-using DigBuildPlatformCS.Input;
+using DigBuild.Platform.Input;
 
 namespace DigBuild
 {
@@ -13,8 +12,8 @@ namespace DigBuild
 
         public void Update()
         {
-            Platform.InputContext.Update();
-            _controller ??= Platform.InputContext.Controllers.FirstOrDefault();
+            Platform.Platform.InputContext.Update();
+            _controller ??= Platform.Platform.InputContext.Controllers.FirstOrDefault();
             if (_controller == null)
                 return;
         

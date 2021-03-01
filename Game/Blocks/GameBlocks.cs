@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Numerics;
-using DigBuildEngine.Math;
-using DigBuildEngine.Reg;
-using DigBuildEngine.Voxel;
-using DigBuildPlatformCS.Resource;
+using DigBuild.Engine.Math;
+using DigBuild.Engine.Reg;
+using DigBuild.Engine.Voxel;
+using DigBuild.Platform.Resource;
 
 namespace DigBuild.Blocks
 {

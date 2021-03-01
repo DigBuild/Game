@@ -2,14 +2,13 @@
 using System.Numerics;
 using System.Threading.Tasks;
 using DigBuild.Blocks;
+using DigBuild.Engine.Math;
+using DigBuild.Engine.Render;
+using DigBuild.Engine.Voxel;
+using DigBuild.Platform.Render;
+using DigBuild.Platform.Resource;
+using DigBuild.Platform.Util;
 using DigBuild.Render;
-using DigBuildEngine.Math;
-using DigBuildEngine.Render;
-using DigBuildEngine.Voxel;
-using DigBuildPlatformCS;
-using DigBuildPlatformCS.Render;
-using DigBuildPlatformCS.Resource;
-using DigBuildPlatformCS.Util;
 
 namespace DigBuild
 {
@@ -129,7 +128,7 @@ namespace DigBuild
 
         public async Task OpenWaitClosed()
         {
-            var surface = await Platform.RequestRenderSurface(
+            var surface = await Platform.Platform.RequestRenderSurface(
                 Update,
                 titleHint: "DigBuild",
                 widthHint: 1280,

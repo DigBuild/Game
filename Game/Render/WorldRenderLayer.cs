@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Numerics;
+using DigBuild.Engine.Render;
+using DigBuild.Platform.Render;
+using DigBuild.Platform.Util;
 using DigBuild.Render.GeneratedUniforms;
-using DigBuildEngine.Render;
-using DigBuildPlatformCS.Render;
-using DigBuildPlatformCS.Util;
 
 namespace DigBuild.Render
 {

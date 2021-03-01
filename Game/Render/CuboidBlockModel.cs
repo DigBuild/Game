@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using DigBuildEngine.Math;
-using DigBuildEngine.Render;
+using DigBuild.Engine.Math;
+using DigBuild.Engine.Render;
 
 namespace DigBuild.Render
 {
@@ -16,7 +16,7 @@ namespace DigBuild.Render
                 _vertices[(int) face] = GenerateFaceVertices(bounds, face, funnyUv).ToArray();
         }
 
-        public void AddGeometry(BlockFaceFlags faces, DigBuildEngine.Render.GeometryBufferSet buffers)
+        public void AddGeometry(BlockFaceFlags faces, GeometryBufferSet buffers)
         {
             var buf = buffers.Get(WorldRenderLayer.Opaque);
             foreach (var face in BlockFaces.All)

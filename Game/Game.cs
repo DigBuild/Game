@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
-using DigBuildEngine.Math;
-using DigBuildEngine.Reg;
-using DigBuildEngine.Voxel;
-using DigBuildEngine.Worldgen;
 using DigBuild.Blocks;
+using DigBuild.Engine.Math;
+using DigBuild.Engine.Reg;
+using DigBuild.Engine.Voxel;
+using DigBuild.Engine.Worldgen;
+using DigBuild.Platform.Resource;
 using DigBuild.Worldgen;
-using DigBuildPlatformCS.Resource;
 
 namespace DigBuild
 {

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Immutable;
-using DigBuildEngine.Math;
-using DigBuildEngine.Worldgen;
+using DigBuild.Engine.Math;
+using DigBuild.Engine.Voxel;
+using DigBuild.Engine.Worldgen;
+using IWorldgenFeature = DigBuild.Engine.Worldgen.IWorldgenFeature;
 
 namespace DigBuild.Worldgen
 {
@@ -11,7 +13,7 @@ namespace DigBuild.Worldgen
 
         private readonly FastNoiseLite _terrainHeightNoise = new();
 
-        private readonly DigBuildEngine.Voxel.Block _terrainBlock;
+        private readonly Block _terrainBlock;
 
         public IImmutableSet<IWorldgenAttribute> InputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>();
 
@@ -19,7 +21,7 @@ namespace DigBuild.Worldgen
             WorldgenAttributes.TerrainHeight, WorldgenAttributes.TerrainType
         );
 
-        public TerrainWorldgenFeature(DigBuildEngine.Voxel.Block terrainBlock)
+        public TerrainWorldgenFeature(Block terrainBlock)
         {
             _terrainBlock = terrainBlock;
 

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using DigBuildEngine.Math;
-using DigBuildEngine.Render;
-using DigBuildEngine.Voxel;
+using DigBuild.Engine.Math;
+using DigBuild.Engine.Render;
+using DigBuild.Engine.Voxel;
 
 namespace DigBuild
 {
