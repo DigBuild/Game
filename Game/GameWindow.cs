@@ -161,7 +161,7 @@ namespace DigBuild
                 var cmd = Resources.MainCommandBuffer.BeginRecording(Resources.Framebuffer.Format, BufferPool);
                 {
                     cmd.SetViewportAndScissor(Resources.Framebuffer);
-                    _worldRenderManager.SubmitGeometry(context, cmd, _camera, surface.Width / (float)surface.Height, _tickManager.PartialTick);
+                    _worldRenderManager.SubmitGeometry(context, cmd, _camera, _tickManager.PartialTick);
                 }
                 cmd.Commit(context);
 
