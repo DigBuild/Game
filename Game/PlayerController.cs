@@ -53,6 +53,17 @@ namespace DigBuild
                 Matrix4x4.CreateRotationX(PrevPitch + AngularVelocityPitch * partialTick);
         }
 
+        public RayCaster.Ray GetInterpolatedRay(float partialTick)
+        {
+            var start = PrevPosition + PrevVelocity * partialTick + Vector3.UnitY * 1.75f;
+            var direction = Vector3.TransformNormal(
+                new Vector3(0, 0, 1),
+                Matrix4x4.CreateRotationX(PrevPitch + AngularVelocityPitch * partialTick)
+                * Matrix4x4.CreateRotationY(MathF.PI - (PrevYaw + AngularVelocityYaw * partialTick))
+            );
+            return new RayCaster.Ray(start, start + direction * 5f);
+        }
+
         public PlayerController(IWorld world, Vector3 position)
         {
             _world = world;

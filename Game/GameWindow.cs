@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Numerics;
 using System.Threading.Tasks;
 using DigBuild.Blocks;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Voxel;
+using DigBuild.GeneratedUniforms;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Resource;
 using DigBuild.Platform.Util;
@@ -21,6 +24,12 @@ namespace DigBuild
             Position = new Vector2(x, y);
         }
     }
+
+    public interface IOutlineTransform : IUniform<OutlineTransform>
+    {
+        Matrix4x4 Matrix { get; set; }
+        Matrix4x4 Matrix2 { get; set; }
+    }
     
     public class RenderResources
     {
@@ -30,6 +39,11 @@ namespace DigBuild
 
         public readonly CommandBuffer MainCommandBuffer;
         public readonly CommandBuffer CompCommandBuffer;
+
+        public readonly RenderPipeline<SimplerVertex> OutlinePipeline;
+        public readonly VertexBuffer<SimplerVertex> OutlineVertexBuffer;
+        public readonly PooledNativeBuffer<OutlineTransform> NativeOutlineUniformBuffer;
+        public readonly UniformBuffer<OutlineTransform> OutlineUniformBuffer;
 
         internal RenderResources(RenderSurfaceContext surface, RenderContext context, ResourceManager resourceManager, NativeBufferPool bufferPool)
         {
@@ -79,6 +93,15 @@ namespace DigBuild
                 Framebuffer.Get(colorAttachment)
             );
             
+            IResource cursorResource = resourceManager.GetResource(new ResourceName(Game.Domain, "textures/cursor.png"))!;
+            Texture cursorTexture = context.CreateTexture(
+                new Bitmap(cursorResource.OpenStream())
+            );
+            TextureBinding cursorTextureBinding = context.CreateTextureBinding(
+                colorTextureHandle,
+                sampler,
+                cursorTexture
+            );
             
             // Record commandBuffers
             MainCommandBuffer = context.CreateCommandBuffer();
@@ -88,7 +111,43 @@ namespace DigBuild
             ccmd.SetViewportAndScissor(surface);
             ccmd.Using(compPipeline, fbTextureBinding);
             ccmd.Draw(compPipeline, compVertexBuffer);
+            ccmd.Using(compPipeline, cursorTextureBinding);
+            ccmd.Draw(compPipeline, compVertexBuffer);
             ccmd.Commit(context);
+
+
+            // Outline stuff idk
+            IResource vsOutlineResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/outline.vert.spv"))!;
+            IResource fsOutlineResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/outline.frag.spv"))!;
+            
+            VertexShader vsOutline = context
+                .CreateVertexShader(vsOutlineResource)
+                .WithUniform<OutlineTransform>(out var outlineUniform);
+            FragmentShader fsOutline = context.CreateFragmentShader(fsOutlineResource);
+            OutlinePipeline = context.CreatePipeline<SimplerVertex>(
+                vsOutline, fsOutline,
+                MainRenderStage,
+                Topology.LineStrips
+            ).WithStandardBlending(surface.ColorAttachment);
+            
+            using var outlineVertexData = bufferPool.Request<SimplerVertex>();
+            outlineVertexData.Add(
+                new SimplerVertex(0, 0.005f, 0),
+                new SimplerVertex(0, 0.005f, 1),
+                new SimplerVertex(1, 0.005f, 1),
+                new SimplerVertex(1, 0.005f, 0),
+                new SimplerVertex(0, 0.005f, 0)
+            );
+            OutlineVertexBuffer = context.CreateVertexBuffer(outlineVertexData);
+
+            NativeOutlineUniformBuffer = bufferPool.Request<OutlineTransform>();
+            NativeOutlineUniformBuffer.Add(new OutlineTransform()
+            {
+                Matrix = Matrix4x4.Identity,
+                Matrix2 = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2, 1280 / 720f, 0.001f, 10000f)
+                          * Matrix4x4.CreateScale(1, -1, 1)
+            });
+            OutlineUniformBuffer = context.CreateUniformBuffer(outlineUniform, NativeOutlineUniformBuffer);
         }
     }
     
@@ -106,18 +165,20 @@ namespace DigBuild
 
         private readonly TickManager _tickManager;
         private readonly ICamera _camera;
+        private readonly WorldRayCastContext _rayCastContext;
         private readonly WorldRenderManager _worldRenderManager;
         
         private readonly List<IWorldRenderLayer> _renderLayers = new()
         {
             WorldRenderLayer.Opaque
         };
-        
-        public GameWindow(TickManager tickManager, ICamera camera)
+
+        public GameWindow(TickManager tickManager, ICamera camera, WorldRayCastContext rayCastContext)
         {
             _tickManager = tickManager;
             _camera = camera;
-            
+            _rayCastContext = rayCastContext;
+
             var blockModels = new Dictionary<Block, IBlockModel>()
             {
                 [GameBlocks.Terrain] = new CuboidBlockModel(AABB.FullBlock, new Vector2(0.9f, 0.8f)),
@@ -157,11 +218,24 @@ namespace DigBuild
             lock (_tickManager)
             {
                 _worldRenderManager.UpdateChunks();
+                
+                var hit = RayCaster.Cast(_rayCastContext, _camera.GetInterpolatedRay(_tickManager.PartialTick));
 
                 var cmd = Resources.MainCommandBuffer.BeginRecording(Resources.Framebuffer.Format, BufferPool);
                 {
                     cmd.SetViewportAndScissor(Resources.Framebuffer);
                     _worldRenderManager.SubmitGeometry(context, cmd, _camera, _tickManager.PartialTick);
+                    
+                    if (hit != null)
+                    {
+                        Resources.NativeOutlineUniformBuffer[0].Matrix =
+                            Matrix4x4.CreateTranslation(hit.Position + Vector3.UnitY)
+                            * _camera.GetInterpolatedTransform(_tickManager.PartialTick);
+                        Resources.OutlineUniformBuffer.Write(Resources.NativeOutlineUniformBuffer);
+                        
+                        cmd.Using(Resources.OutlinePipeline, Resources.OutlineUniformBuffer, 0);
+                        cmd.Draw(Resources.OutlinePipeline, Resources.OutlineVertexBuffer);
+                    }
                 }
                 cmd.Commit(context);
 

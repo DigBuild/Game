@@ -40,7 +40,7 @@ namespace DigBuild
             _player = new PlayerController(_world, new Vector3(0, 15, 0));
             
             _tickManager = new TickManager(Tick);
-            _window = new GameWindow(_tickManager, _player);
+            _window = new GameWindow(_tickManager, _player, new WorldRayCastContext(_world));
         }
 
         private void CreateRegistries(RegistryManager manager)
