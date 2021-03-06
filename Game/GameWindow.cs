@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
@@ -13,6 +13,7 @@ using DigBuild.Platform.Render;
 using DigBuild.Platform.Resource;
 using DigBuild.Platform.Util;
 using DigBuild.Render;
+using DigBuild.Voxel;
 
 namespace DigBuild
 {
@@ -200,7 +201,7 @@ namespace DigBuild
             await surface.Closed;
         }
 
-        public void OnChunkChanged(Chunk chunk)
+        public void OnChunkChanged(IChunk chunk)
         {
             _worldRenderManager.QueueChunkUpdate(chunk);
         }

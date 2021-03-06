@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Immutable;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
@@ -53,7 +53,7 @@ namespace DigBuild.Worldgen
             context.Submit(WorldgenAttributes.TerrainType, terrainType.Build());
         }
 
-        public void PopulateChunk(WorldSliceDescriptor descriptor, ChunkPrototype chunk)
+        public void PopulateChunk(WorldSliceDescriptor descriptor, IChunk chunk)
         {
             var height = descriptor.Get(WorldgenAttributes.TerrainHeight);
             for (int x = 0; x < ChunkSize; x++)

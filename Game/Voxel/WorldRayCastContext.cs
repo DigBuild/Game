@@ -3,7 +3,7 @@ using System.Numerics;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Voxel;
 
-namespace DigBuild
+namespace DigBuild.Voxel
 {
     public sealed class WorldRayCastContext : IGridAlignedRayCastingContext<WorldRayCastContext.Hit>
     {

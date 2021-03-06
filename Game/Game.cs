@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -8,7 +8,7 @@ using DigBuild.Engine.Math;
 using DigBuild.Engine.Reg;
 using DigBuild.Engine.Voxel;
 using DigBuild.Engine.Worldgen;
-using DigBuild.Platform.Resource;
+using DigBuild.Voxel;
 using DigBuild.Worldgen;
 
 namespace DigBuild
@@ -36,7 +36,7 @@ namespace DigBuild
                 WorldgenFeatures.Terrain,
                 WorldgenFeatures.Water
             };
-            var generator = new WorldGenerator(features, 0);
+            var generator = new WorldGenerator(features, 0, pos => new ChunkPrototype(pos));
             _world = new World(generator);
             _player = new PlayerController(_world, new Vector3(0, 15, 0));
 
