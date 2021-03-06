@@ -12,7 +12,7 @@ namespace DigBuild.Worldgen
 
         internal static void Register(RegistryBuilder<IWorldgenFeature> builder)
         {
-            Terrain = builder.Add(new ResourceName(Game.Domain, "terrain"), new TerrainWorldgenFeature(GameBlocks.Terrain));
+            Terrain = builder.Add(new ResourceName(Game.Domain, "terrain"), new TerrainWorldgenFeature(GameBlocks.Dirt, GameBlocks.Grass));
             Water = builder.Add(new ResourceName(Game.Domain, "water"), new WaterWorldgenFeature(GameBlocks.Water));
         }
     }

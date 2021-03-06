@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Immutable;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
@@ -87,7 +87,7 @@ namespace DigBuild.Worldgen
                     var localHeight = waterHeight[x, z] - chunk.Position.Y * ChunkSize;
                     if (localHeight < 0 || localHeight >= ChunkSize)
                         continue;
-                    chunk.BlockStorage.Blocks[x, (int) localHeight, z] = _waterBlock;
+                    chunk.BlockStorage.Blocks[x, (int) localHeight - 1, z] = _waterBlock;
                 }
             }
         }

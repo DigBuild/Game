@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
@@ -7,6 +7,7 @@ using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
+using DigBuild.Engine.Textures;
 using DigBuild.Engine.Voxel;
 using DigBuild.GeneratedUniforms;
 using DigBuild.Platform.Render;
@@ -47,7 +48,9 @@ namespace DigBuild
         public readonly PooledNativeBuffer<OutlineTransform> NativeOutlineUniformBuffer;
         public readonly UniformBuffer<OutlineTransform> OutlineUniformBuffer;
 
-        internal RenderResources(RenderSurfaceContext surface, RenderContext context, ResourceManager resourceManager, NativeBufferPool bufferPool)
+        public readonly Texture BlockTexture;
+
+        internal RenderResources(RenderSurfaceContext surface, RenderContext context, ResourceManager resourceManager, NativeBufferPool bufferPool, SpriteSheet spriteSheet)
         {
             // Custom framebuffer format and render stages for preliminary rendering
             FramebufferFormat framebufferFormat = context
@@ -150,6 +153,8 @@ namespace DigBuild
                           * Matrix4x4.CreateRotationZ(MathF.PI)
             });
             OutlineUniformBuffer = context.CreateUniformBuffer(outlineUniform, NativeOutlineUniformBuffer);
+
+            BlockTexture = spriteSheet.Texture;
         }
     }
     
@@ -169,6 +174,8 @@ namespace DigBuild
         private readonly ICamera _camera;
         private readonly WorldRayCastContext _rayCastContext;
         private readonly WorldRenderManager _worldRenderManager;
+        private readonly TextureStitcher _stitcher;
+        private readonly List<CuboidBlockModel> _unbakedModels = new();
         
         private readonly List<IWorldRenderLayer> _renderLayers = new()
         {
@@ -180,11 +187,34 @@ namespace DigBuild
             _tickManager = tickManager;
             _camera = camera;
             _rayCastContext = rayCastContext;
+            _stitcher = new TextureStitcher();
+            
+            var dirtTexture = _stitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/dirt.png")!);
+            var grassTexture = _stitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/grass.png")!);
+            var grassSideTexture = _stitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/grass_side.png")!);
+            var waterTexture = _stitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/water.png")!);
+            var stoneTexture = _stitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/stone.png")!);
+            
+            var dirtModel = new CuboidBlockModel(AABB.FullBlock, dirtTexture);
+            var grassModel = new CuboidBlockModel(AABB.FullBlock, new[]
+            {
+                grassSideTexture, grassSideTexture,
+                dirtTexture, grassTexture,
+                grassSideTexture, grassSideTexture
+            });
+            var waterModel = new CuboidBlockModel(AABB.FullBlock, waterTexture);
+            var stoneModel = new CuboidBlockModel(AABB.FullBlock, stoneTexture);
+            _unbakedModels.Add(dirtModel);
+            _unbakedModels.Add(grassModel);
+            _unbakedModels.Add(waterModel);
+            _unbakedModels.Add(stoneModel);
 
             var blockModels = new Dictionary<Block, IBlockModel>()
             {
-                [GameBlocks.Terrain] = new CuboidBlockModel(AABB.FullBlock, new Vector2(0.9f, 0.8f)),
-                [GameBlocks.Water] = new CuboidBlockModel(AABB.FullBlock, new Vector2(0.2f, 0.7f)),
+                [GameBlocks.Dirt] = dirtModel,
+                [GameBlocks.Grass] = grassModel,
+                [GameBlocks.Water] = waterModel,
+                [GameBlocks.Stone] = stoneModel,
             };
             _worldRenderManager = new WorldRenderManager(blockModels, _renderLayers, BufferPool);
         }
@@ -212,7 +242,10 @@ namespace DigBuild
         {
             if (Resources == null)
             {
-                Resources = new RenderResources(surface, context, ResourceManager, BufferPool);
+                var spritesheet = _stitcher.Build(context);
+                foreach (var model in _unbakedModels)
+                    model.Initialize();
+                Resources = new RenderResources(surface, context, ResourceManager, BufferPool, spritesheet);
                 foreach (var layer in _renderLayers)
                     layer.Initialize(context, ResourceManager);
             }

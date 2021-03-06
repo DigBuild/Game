@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Immutable;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
@@ -14,7 +14,7 @@ namespace DigBuild.Worldgen
 
         private readonly FastNoiseLite _terrainHeightNoise = new();
 
-        private readonly Block _terrainBlock;
+        private readonly Block _terrainBlock, _surfaceBlock;
 
         public IImmutableSet<IWorldgenAttribute> InputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>();
 
@@ -22,9 +22,10 @@ namespace DigBuild.Worldgen
             WorldgenAttributes.TerrainHeight, WorldgenAttributes.TerrainType
         );
 
-        public TerrainWorldgenFeature(Block terrainBlock)
+        public TerrainWorldgenFeature(Block terrainBlock, Block surfaceBlock)
         {
             _terrainBlock = terrainBlock;
+            _surfaceBlock = surfaceBlock;
 
             _terrainHeightNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
             _terrainHeightNoise.SetFrequency(0.005f);
@@ -60,12 +61,14 @@ namespace DigBuild.Worldgen
             {
                 for (int z = 0; z < ChunkSize; z++)
                 {
-                    var localHeight = height[x, z] - chunk.Position.Y * ChunkSize;
-                    if (localHeight < 0)
+                    var relativeHeight = height[x, z] - chunk.Position.Y * ChunkSize;
+                    if (relativeHeight <= 0)
                         continue;
-                    localHeight = Math.Min(localHeight, ChunkSize);
-                    for (int y = 0; y < localHeight; y++)
+                    var localHeight = Math.Min(relativeHeight, ChunkSize);
+                    for (int y = 0; y < localHeight - 1; y++)
                         chunk.BlockStorage.Blocks[x, y, z] = _terrainBlock;
+                    
+                    chunk.BlockStorage.Blocks[x, (int) (localHeight - 1), z] = localHeight == relativeHeight ? _surfaceBlock : _terrainBlock;
                 }
             }
         }

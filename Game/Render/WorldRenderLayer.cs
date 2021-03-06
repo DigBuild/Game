@@ -19,14 +19,26 @@ namespace DigBuild.Render
                 VertexShader vs = ctx.CreateVertexShader(vsResource)
                     .WithUniform<SimpleUniform>(out var uniform)
                     .WithUniform<SimpleUniform>(out var uniform2);
-                FragmentShader fs = ctx.CreateFragmentShader(fsResource);
+                FragmentShader fs = ctx.CreateFragmentShader(fsResource)
+                    .WithSampler(out var textureHandle);
                 RenderPipeline<SimpleVertex> pipeline = ctx.CreatePipeline<SimpleVertex>(
                     vs, fs,
                     renderStage, Topology.Triangles,
                     depthTest: new DepthTest(true, CompareOperation.LessOrEqual, true)
                 );
+
+                // Create spritesheet stuff
+                TextureSampler sampler = ctx.CreateTextureSampler(
+                    TextureFiltering.Nearest, TextureFiltering.Nearest
+                );
+                TextureBinding blockTextureBinding = ctx.CreateTextureBinding(
+                    textureHandle,
+                    sampler,
+                    GameWindow.Resources!.BlockTexture
+                );
+
                 return new SimpleLayerData<SimpleVertex, SimpleUniform>(
-                    pipeline, uniform, uniform2,
+                    pipeline, uniform, uniform2, blockTextureBinding,
                     mat => new SimpleUniform(){Matrix = mat}
                 );
             },
@@ -41,30 +53,34 @@ namespace DigBuild.Render
             public readonly RenderPipeline<TVertex> Pipeline;
             private readonly UniformHandle<TUniform> _uniformHandle;
             private readonly UniformHandle<SimpleUniform> _projUniformHandle;
+            private readonly TextureBinding _textureBinding;
             private readonly Func<Matrix4x4, TUniform> _uniformFactory;
 
             public SimpleLayerData(
                 RenderPipeline<TVertex> pipeline,
                 UniformHandle<TUniform> uniformHandle,
                 UniformHandle<SimpleUniform> projUniformHandle,
+                TextureBinding textureBinding,
                 Func<Matrix4x4, TUniform> uniformFactory
             )
             {
                 Pipeline = pipeline;
                 _uniformHandle = uniformHandle;
                 _uniformFactory = uniformFactory;
+                _textureBinding = textureBinding;
                 _projUniformHandle = projUniformHandle;
             }
 
             public IWorldRenderLayerUniforms CreateUniforms(NativeBufferPool pool)
             {
-                return new Uniforms(_uniformHandle, _projUniformHandle, Pipeline, _uniformFactory, pool);
+                return new Uniforms(_uniformHandle, _projUniformHandle, _textureBinding, Pipeline, _uniformFactory, pool);
             }
 
             private sealed class Uniforms : IWorldRenderLayerUniforms
             {
                 private readonly UniformHandle<TUniform> _uniformHandle;
                 private readonly UniformHandle<SimpleUniform> _projUniformHandle;
+                private readonly TextureBinding _textureBinding;
                 private UniformBuffer<TUniform>? _uniformBuffer;
                 private UniformBuffer<SimpleUniform>? _projUniformBuffer;
                 private readonly Func<Matrix4x4, TUniform> _uniformFactory;
@@ -72,10 +88,16 @@ namespace DigBuild.Render
                 private readonly RenderPipeline<TVertex> _pipeline;
                 private readonly PooledNativeBuffer<TUniform> _nativeBuffer;
 
-                public Uniforms(UniformHandle<TUniform> uniformHandle, UniformHandle<SimpleUniform> projUniformHandle, RenderPipeline<TVertex> pipeline, Func<Matrix4x4, TUniform> uniformFactory, NativeBufferPool pool)
+                public Uniforms(
+                    UniformHandle<TUniform> uniformHandle,
+                    UniformHandle<SimpleUniform> projUniformHandle,
+                    TextureBinding textureBinding,
+                    RenderPipeline<TVertex> pipeline,
+                    Func<Matrix4x4, TUniform> uniformFactory, NativeBufferPool pool)
                 {
                     _uniformHandle = uniformHandle;
                     _projUniformHandle = projUniformHandle;
+                    _textureBinding = textureBinding;
                     _pipeline = pipeline;
                     _uniformFactory = uniformFactory;
                     _nativeBuffer = pool.Request<TUniform>();
@@ -96,6 +118,7 @@ namespace DigBuild.Render
                         _projUniformBuffer = context.CreateUniformBuffer(_projUniformHandle, buffer);
                     }
                     cmd.Using(_pipeline, _projUniformBuffer, 0);
+                    cmd.Using(_pipeline, _textureBinding);
                 }
 
                 public void PushAndUseTransform(RenderContext context, CommandBufferRecorder cmd, Matrix4x4 transform)

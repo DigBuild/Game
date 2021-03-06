@@ -9,8 +9,9 @@ namespace DigBuild
         private Controller? _controller;
         public float PitchDelta, YawDelta, ForwardDelta, SidewaysDelta;
         public bool Jump;
-
+        
         public bool PrevActivate, Activate;
+        public bool PrevHit, Hit;
 
         public void Update()
         {
@@ -24,9 +25,12 @@ namespace DigBuild
             ForwardDelta = -Bias(_controller.Joysticks[1]);
             SidewaysDelta = Bias(_controller.Joysticks[0]);
             Jump = _controller.Buttons[5];
-
+            
             PrevActivate = Activate;
             Activate = _controller.Buttons[0];
+
+            PrevHit = Hit;
+            Hit = _controller.Buttons[1];
         }
 
         private static float Bias(float value)

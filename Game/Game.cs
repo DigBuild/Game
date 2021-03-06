@@ -1,11 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
 using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
-using DigBuild.Engine.Reg;
 using DigBuild.Engine.Voxel;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Voxel;
@@ -44,6 +43,8 @@ namespace DigBuild
             
             _tickManager = new TickManager(Tick);
             _window = new GameWindow(_tickManager, _player, _rayCastContext);
+
+            _world.ChunkManager.ChunkChanged += chunk => _window.OnChunkChanged(chunk);
         }
         
         private void Tick()
@@ -56,12 +57,23 @@ namespace DigBuild
                 _player.Jump(_input.ForwardDelta);
             _player.Move();
 
-            if (!_input.PrevActivate && _input.Activate &&
-                RayCaster.TryCast(_rayCastContext, _player.GetInterpolatedRay(_tickManager.PartialTick), out var hit))
+            if (RayCaster.TryCast(_rayCastContext, _player.GetInterpolatedRay(_tickManager.PartialTick), out var hit))
             {
-                var block = _world.GetBlock(hit.BlockPos)!;
-                var result = block.OnActivate(new BlockContext(_world, hit.BlockPos, block), new BlockEvent.Activate(hit));
-                Console.WriteLine($"Interacted with block at {hit.BlockPos} on face {hit.Face}! Result: {result}");
+                if (!_input.PrevActivate && _input.Activate)
+                {
+                    var block = _world.GetBlock(hit.BlockPos)!;
+                    var result = block.OnActivate(new BlockContext(_world, hit.BlockPos, block), new BlockEvent.Activate(hit));
+                    Console.WriteLine($"Interacted with block at {hit.BlockPos} on face {hit.Face}! Result: {result}");
+
+                    if (result == BlockEvent.Activate.Result.Fail)
+                    {
+                        _world.SetBlock(hit.BlockPos.Offset(hit.Face), GameBlocks.Stone);
+                    }
+                }
+                else if (!_input.PrevHit && _input.Hit)
+                {
+                    _world.SetBlock(hit.BlockPos, null);
+                }
             }
             
             const int range = 5;

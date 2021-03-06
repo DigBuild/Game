@@ -1,4 +1,5 @@
 ﻿using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Math;
 using DigBuild.Engine.Reg;
 using DigBuild.Platform.Resource;
 
@@ -6,26 +7,33 @@ namespace DigBuild.Blocks
 {
     public static class GameBlocks
     {
-        public static Block Terrain { get; private set; } = null!;
+        public static Block Dirt { get; private set; } = null!;
+        public static Block Grass { get; private set; } = null!;
         public static Block Water { get; private set; } = null!;
+        public static Block Stone { get; private set; } = null!;
 
-        // public static Block CountingBlock { get; private set; } = null!;
+        public static Block CountingBlock { get; private set; } = null!;
 
         internal static void Register(RegistryBuilder<Block> registry)
         {
-            Terrain = registry.Create(new ResourceName(Game.Domain, "terrain"));
+            Dirt = registry.Create(new ResourceName(Game.Domain, "dirt"));
+            Grass = registry.Create(new ResourceName(Game.Domain, "grass"), builder =>
+            {
+                builder.Attach(new FaceCoveredReplaceBehavior(BlockFace.PosY, () => Dirt));
+            });
             Water = registry.Create(new ResourceName(Game.Domain, "water"));
+            Stone = registry.Create(new ResourceName(Game.Domain, "stone"));
             
-            // CountingBlock = registry.Create(new ResourceName(Game.Domain, "counting_block"), builder =>
-            // {
-            //     var data = builder.Add<CountingBlockData>();
-            //     builder.Attach(new CountingBehavior(), data);
-            // });
+            CountingBlock = registry.Create(new ResourceName(Game.Domain, "counting_block"), builder =>
+            {
+                var data = builder.Add<CountingBlockData>();
+                builder.Attach(new CountingBehavior(), data);
+            });
         }
         
-        // private sealed class CountingBlockData : ICountingBehavior
-        // {
-        //     public int Number { get; set; }
-        // }
+        private sealed class CountingBlockData : ICountingBehavior
+        {
+            public int Number { get; set; }
+        }
     }
 }
