@@ -37,57 +37,57 @@ namespace DigBuild.Render
             {
                 case BlockFace.NegX:
                     yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitX, funnyUv);
-                    yield return new SimpleVertex(nx + py + nz, -Vector3.UnitX, funnyUv);
                     yield return new SimpleVertex(nx + py + pz, -Vector3.UnitX, funnyUv);
+                    yield return new SimpleVertex(nx + py + nz, -Vector3.UnitX, funnyUv);
 
                     yield return new SimpleVertex(nx + ny + pz, -Vector3.UnitX, funnyUv);
-                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitX, funnyUv);
                     yield return new SimpleVertex(nx + py + pz, -Vector3.UnitX, funnyUv);
+                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitX, funnyUv);
                     break;
                 case BlockFace.PosX:
                     yield return new SimpleVertex(px + ny + nz, Vector3.UnitX, funnyUv);
-                    yield return new SimpleVertex(px + py + pz, Vector3.UnitX, funnyUv);
                     yield return new SimpleVertex(px + py + nz, Vector3.UnitX, funnyUv);
+                    yield return new SimpleVertex(px + py + pz, Vector3.UnitX, funnyUv);
 
                     yield return new SimpleVertex(px + py + pz, Vector3.UnitX, funnyUv);
-                    yield return new SimpleVertex(px + ny + nz, Vector3.UnitX, funnyUv);
                     yield return new SimpleVertex(px + ny + pz, Vector3.UnitX, funnyUv);
+                    yield return new SimpleVertex(px + ny + nz, Vector3.UnitX, funnyUv);
                     break;
                 case BlockFace.NegY:
                     yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitY, funnyUv);
-                    yield return new SimpleVertex(px + ny + pz, -Vector3.UnitY, funnyUv);
                     yield return new SimpleVertex(px + ny + nz, -Vector3.UnitY, funnyUv);
+                    yield return new SimpleVertex(px + ny + pz, -Vector3.UnitY, funnyUv);
 
                     yield return new SimpleVertex(px + ny + pz, -Vector3.UnitY, funnyUv);
-                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitY, funnyUv);
                     yield return new SimpleVertex(nx + ny + pz, -Vector3.UnitY, funnyUv);
+                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitY, funnyUv);
                     break;
                 case BlockFace.PosY:
                     yield return new SimpleVertex(nx + py + nz, Vector3.UnitY, funnyUv);
-                    yield return new SimpleVertex(px + py + nz, Vector3.UnitY, funnyUv);
                     yield return new SimpleVertex(px + py + pz, Vector3.UnitY, funnyUv);
+                    yield return new SimpleVertex(px + py + nz, Vector3.UnitY, funnyUv);
 
                     yield return new SimpleVertex(px + py + pz, Vector3.UnitY, funnyUv);
-                    yield return new SimpleVertex(nx + py + pz, Vector3.UnitY, funnyUv);
                     yield return new SimpleVertex(nx + py + nz, Vector3.UnitY, funnyUv);
+                    yield return new SimpleVertex(nx + py + pz, Vector3.UnitY, funnyUv);
                     break;
                 case BlockFace.NegZ:
                     yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitZ, funnyUv);
-                    yield return new SimpleVertex(px + ny + nz, -Vector3.UnitZ, funnyUv);
                     yield return new SimpleVertex(px + py + nz, -Vector3.UnitZ, funnyUv);
+                    yield return new SimpleVertex(px + ny + nz, -Vector3.UnitZ, funnyUv);
 
                     yield return new SimpleVertex(px + py + nz, -Vector3.UnitZ, funnyUv);
-                    yield return new SimpleVertex(nx + py + nz, -Vector3.UnitZ, funnyUv);
                     yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitZ, funnyUv);
+                    yield return new SimpleVertex(nx + py + nz, -Vector3.UnitZ, funnyUv);
                     break;
                 case BlockFace.PosZ:
                     yield return new SimpleVertex(px + py + pz, Vector3.UnitZ, funnyUv);
-                    yield return new SimpleVertex(px + ny + pz, Vector3.UnitZ, funnyUv);
                     yield return new SimpleVertex(nx + ny + pz, Vector3.UnitZ, funnyUv);
+                    yield return new SimpleVertex(px + ny + pz, Vector3.UnitZ, funnyUv);
 
                     yield return new SimpleVertex(nx + ny + pz, Vector3.UnitZ, funnyUv);
-                    yield return new SimpleVertex(nx + py + pz, Vector3.UnitZ, funnyUv);
                     yield return new SimpleVertex(px + py + pz, Vector3.UnitZ, funnyUv);
+                    yield return new SimpleVertex(nx + py + pz, Vector3.UnitZ, funnyUv);
                     break;
             }
         }

@@ -10,6 +10,8 @@ namespace DigBuild
         public float PitchDelta, YawDelta, ForwardDelta, SidewaysDelta;
         public bool Jump;
 
+        public bool PrevActivate, Activate;
+
         public void Update()
         {
             Platform.Platform.InputContext.Update();
@@ -17,11 +19,14 @@ namespace DigBuild
             if (_controller == null)
                 return;
         
-            PitchDelta = Bias(_controller.Joysticks[3]);
+            PitchDelta = -Bias(_controller.Joysticks[3]);
             YawDelta = Bias(_controller.Joysticks[2]);
             ForwardDelta = -Bias(_controller.Joysticks[1]);
             SidewaysDelta = Bias(_controller.Joysticks[0]);
             Jump = _controller.Buttons[5];
+
+            PrevActivate = Activate;
+            Activate = _controller.Buttons[0];
         }
 
         private static float Bias(float value)

@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
 using DigBuild.Blocks;
+using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Reg;
 using DigBuild.Engine.Voxel;
@@ -23,12 +25,11 @@ namespace DigBuild
 
         private readonly World _world;
         private readonly PlayerController _player;
+        private readonly WorldRayCastContext _rayCastContext;
 
         public Game()
         {
-            var registryManager = new RegistryManager();
-            CreateRegistries(registryManager);
-            registryManager.BuildAll();
+            GameRegistries.Initialize();
             
             var features = new List<IWorldgenFeature>
             {
@@ -38,21 +39,11 @@ namespace DigBuild
             var generator = new WorldGenerator(features, 0);
             _world = new World(generator);
             _player = new PlayerController(_world, new Vector3(0, 15, 0));
+
+            _rayCastContext = new WorldRayCastContext(_world);
             
             _tickManager = new TickManager(Tick);
-            _window = new GameWindow(_tickManager, _player, new WorldRayCastContext(_world));
-        }
-
-        private void CreateRegistries(RegistryManager manager)
-        {
-            var blocks = manager.CreateRegistryOf<Block>(new ResourceName(Domain, "blocks"));
-            blocks.Building += GameBlocks.Register;
-
-            var worldgenAttributes = manager.CreateRegistryOf<IWorldgenAttribute>(new ResourceName(Domain, "worldgen_attributes"));
-            worldgenAttributes.Building += WorldgenAttributes.Register;
-
-            var worldgenFeatures = manager.CreateRegistryOf<IWorldgenFeature>(new ResourceName(Domain, "worldgen_features"));
-            worldgenFeatures.Building += WorldgenFeatures.Register;
+            _window = new GameWindow(_tickManager, _player, _rayCastContext);
         }
         
         private void Tick()
@@ -64,7 +55,15 @@ namespace DigBuild
             if (_input.Jump)
                 _player.Jump(_input.ForwardDelta);
             _player.Move();
-                
+
+            if (!_input.PrevActivate && _input.Activate &&
+                RayCaster.TryCast(_rayCastContext, _player.GetInterpolatedRay(_tickManager.PartialTick), out var hit))
+            {
+                var block = _world.GetBlock(hit.BlockPos)!;
+                var result = block.OnActivate(new BlockContext(_world, hit.BlockPos, block), new BlockEvent.Activate(hit));
+                Console.WriteLine($"Interacted with block at {hit.BlockPos} on face {hit.Face}! Result: {result}");
+            }
+            
             const int range = 5;
             const int rangeY = 3;
 

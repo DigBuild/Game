@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Voxel;
 using DigBuild.Engine.Worldgen;

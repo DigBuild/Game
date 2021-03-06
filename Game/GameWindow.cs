@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Threading.Tasks;
 using DigBuild.Blocks;
+using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Voxel;
@@ -114,8 +115,7 @@ namespace DigBuild
             ccmd.Using(compPipeline, cursorTextureBinding);
             ccmd.Draw(compPipeline, compVertexBuffer);
             ccmd.Commit(context);
-
-
+            
             // Outline stuff idk
             IResource vsOutlineResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/outline.vert.spv"))!;
             IResource fsOutlineResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/outline.frag.spv"))!;
@@ -127,7 +127,8 @@ namespace DigBuild
             OutlinePipeline = context.CreatePipeline<SimplerVertex>(
                 vsOutline, fsOutline,
                 MainRenderStage,
-                Topology.LineStrips
+                Topology.LineStrips,
+                depthTest: new DepthTest(true, CompareOperation.LessOrEqual, true)
             ).WithStandardBlending(surface.ColorAttachment);
             
             using var outlineVertexData = bufferPool.Request<SimplerVertex>();
@@ -145,7 +146,7 @@ namespace DigBuild
             {
                 Matrix = Matrix4x4.Identity,
                 Matrix2 = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2, 1280 / 720f, 0.001f, 10000f)
-                          * Matrix4x4.CreateScale(1, -1, 1)
+                          * Matrix4x4.CreateRotationZ(MathF.PI)
             });
             OutlineUniformBuffer = context.CreateUniformBuffer(outlineUniform, NativeOutlineUniformBuffer);
         }

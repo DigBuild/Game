@@ -90,7 +90,7 @@ namespace DigBuild.Render
                             new SimpleUniform()
                             {
                                 Matrix = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2, 1280 / 720f, 0.001f, 10000f)
-                                         * Matrix4x4.CreateScale(1, -1, 1)
+                                    * Matrix4x4.CreateRotationZ(MathF.PI)
                             }
                         };
                         _projUniformBuffer = context.CreateUniformBuffer(_projUniformHandle, buffer);

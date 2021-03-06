@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using DigBuild.Blocks;
+using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Voxel;
@@ -49,8 +51,8 @@ namespace DigBuild
         {
             return 
                 Matrix4x4.CreateTranslation(-(PrevPosition + PrevVelocity * partialTick + Vector3.UnitY * 1.75f)) *
-                Matrix4x4.CreateRotationY(PrevYaw + AngularVelocityYaw * partialTick) *
-                Matrix4x4.CreateRotationX(PrevPitch + AngularVelocityPitch * partialTick);
+                Matrix4x4.CreateRotationY(MathF.PI - (PrevYaw + AngularVelocityYaw * partialTick)) *
+                Matrix4x4.CreateRotationX(-(PrevPitch + AngularVelocityPitch * partialTick));
         }
 
         public RayCaster.Ray GetInterpolatedRay(float partialTick)
@@ -58,8 +60,8 @@ namespace DigBuild
             var start = PrevPosition + PrevVelocity * partialTick + Vector3.UnitY * 1.75f;
             var direction = Vector3.TransformNormal(
                 new Vector3(0, 0, 1),
-                Matrix4x4.CreateRotationX(PrevPitch + AngularVelocityPitch * partialTick)
-                * Matrix4x4.CreateRotationY(MathF.PI - (PrevYaw + AngularVelocityYaw * partialTick))
+                Matrix4x4.CreateRotationX(-(PrevPitch + AngularVelocityPitch * partialTick))
+                * Matrix4x4.CreateRotationY(PrevYaw + AngularVelocityYaw * partialTick)
             );
             return new RayCaster.Ray(start, start + direction * 5f);
         }
@@ -80,18 +82,19 @@ namespace DigBuild
             Pitch = MathF.Max(
                 -MathF.PI / 2,
                 MathF.Min(
-                    Pitch + AngularVelocityPitch,
+                    PrevPitch + AngularVelocityPitch,
                     MathF.PI / 2
                 )
             );
-            Yaw = (Yaw + AngularVelocityYaw) % (MathF.PI * 2);
+            AngularVelocityPitch = Pitch - PrevPitch;
+            Yaw = (MathF.PI * 3 + PrevYaw + AngularVelocityYaw) % (MathF.PI * 2) - MathF.PI;
         }
 
         public void ApplyMotion(float forwardMotion, float sidewaysMotion)
         {
             Velocity += Vector3.Transform(
-                new Vector3(forwardMotion, 0, sidewaysMotion),
-                Matrix4x4.CreateRotationY(MathF.PI / 2 - Yaw)
+                new Vector3(sidewaysMotion, 0, forwardMotion),
+                Matrix4x4.CreateRotationY(Yaw)
             ) * (!OnGround ? MovementSpeedAir : MovementSpeedGround);
         }
 
@@ -101,8 +104,8 @@ namespace DigBuild
                 return;
             OnGround = false;
             Velocity += Vector3.Transform(
-                new Vector3(forwardMotion, 0, 0),
-                Matrix4x4.CreateRotationY(MathF.PI / 2 - Yaw)
+                new Vector3(0, 0, forwardMotion),
+                Matrix4x4.CreateRotationY(Yaw)
             ) * JumpKickSpeed;
             Velocity += Vector3.UnitY * JumpForce;
         }
@@ -122,7 +125,7 @@ namespace DigBuild
                 if (block == null)
                     continue;
 
-                var collider = block.Collider;
+                var collider = block.Get(new BlockContext(_world, pos, block), BlockAttributes.Collider);
                 var relativeBounds = PlayerBounds.WithOffset(Position - new Vector3(pos.X, pos.Y, pos.Z));
 
                 if (collider.Collide(relativeBounds.WithOffset(vel), vel, out var intersection))
