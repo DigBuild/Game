@@ -6,6 +6,8 @@ namespace DigBuild.Voxel
 {
     public class BlockChunkStorage : IBlockChunkStorage
     {
+        private const uint ChunkSize = 16;
+
         public IBlockContainer Blocks { get; }
         public IBlockDataContainerContainer Data { get; }
 
@@ -15,10 +17,24 @@ namespace DigBuild.Voxel
             Data = new BlockDataContainerContainer(notifyUpdate);
         }
 
+        public void CopyFrom(IBlockChunkStorage other)
+        {
+            if (other is not BlockChunkStorage bcs)
+                throw new ArgumentException("Incompatible storage.");
+            
+            for (var x = 0; x < ChunkSize; x++)
+            for (var y = 0; y < ChunkSize; y++)
+            for (var z = 0; z < ChunkSize; z++)
+            {
+                Blocks[x, y, z] = bcs.Blocks[x, y, z];
+                Data[x, y, z] = bcs.Data[x, y, z];
+            }
+        }
+
         public sealed class BlockContainer : IBlockContainer
         {
             private readonly Action _notifyUpdate;
-            private readonly Block?[,,] _blocks = new Block[16, 16, 16];
+            private readonly Block?[,,] _blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
 
             public BlockContainer(Action notifyUpdate)
             {
@@ -39,15 +55,11 @@ namespace DigBuild.Voxel
         public sealed class BlockDataContainerContainer : IBlockDataContainerContainer
         {
             private readonly Action _notifyUpdate;
-            private readonly BlockDataContainer?[,,] _data = new BlockDataContainer[16, 16, 16];
+            private readonly BlockDataContainer?[,,] _data = new BlockDataContainer[ChunkSize, ChunkSize, ChunkSize];
 
             public BlockDataContainerContainer(Action notifyUpdate)
             {
                 _notifyUpdate = notifyUpdate;
-                for (int x = 0; x < 16; x++)
-                for (int y = 0; y < 16; y++)
-                for (int z = 0; z < 16; z++)
-                    _data[x, y, z] = new BlockDataContainer();
             }
 
             public BlockDataContainer? this[int x, int y, int z]
