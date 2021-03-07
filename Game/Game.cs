@@ -70,9 +70,11 @@ namespace DigBuild
                         _world.SetBlock(hit.BlockPos.Offset(hit.Face), GameBlocks.Stone);
                     }
                 }
-                else if (!_input.PrevHit && _input.Hit)
+                else if (!_input.PrevPunch && _input.Punch)
                 {
-                    _world.SetBlock(hit.BlockPos, null);
+                    var block = _world.GetBlock(hit.BlockPos)!;
+                    var result = block.OnPunch(new BlockContext(_world, hit.BlockPos, block), new BlockEvent.Punch(hit));
+                    Console.WriteLine($"Punched block at {hit.BlockPos} on face {hit.Face}! Result: {result}");
                 }
             }
             

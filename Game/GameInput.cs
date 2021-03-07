@@ -11,7 +11,7 @@ namespace DigBuild
         public bool Jump;
         
         public bool PrevActivate, Activate;
-        public bool PrevHit, Hit;
+        public bool PrevPunch, Punch;
 
         public void Update()
         {
@@ -29,8 +29,8 @@ namespace DigBuild
             PrevActivate = Activate;
             Activate = _controller.Buttons[0];
 
-            PrevHit = Hit;
-            Hit = _controller.Buttons[1];
+            PrevPunch = Punch;
+            Punch = _controller.Buttons[1];
         }
 
         private static float Bias(float value)

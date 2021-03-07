@@ -10,6 +10,11 @@ namespace DigBuild.Blocks
         public static void Register(ExtendedTypeRegistryBuilder<IBlockEvent, BlockEventInfo> registry)
         {
             registry.Register((IBlockContext context, Activate evt) => Activate.Result.Fail);
+            registry.Register((IBlockContext context, Punch evt) =>
+            {
+                context.World.SetBlock(evt.Hit.BlockPos, null);
+                return Punch.Result.Success;
+            });
             registry.Register((IBlockContext context, NeighborChanged evt) => { });
         }
 
@@ -18,6 +23,21 @@ namespace DigBuild.Blocks
             public readonly WorldRayCastContext.Hit Hit;
 
             public Activate(WorldRayCastContext.Hit hit)
+            {
+                Hit = hit;
+            }
+
+            public enum Result
+            {
+                Success, Fail
+            }
+        }
+
+        public sealed class Punch : IBlockEvent<IBlockContext, Punch.Result>
+        {
+            public readonly WorldRayCastContext.Hit Hit;
+
+            public Punch(WorldRayCastContext.Hit hit)
             {
                 Hit = hit;
             }
@@ -52,6 +72,18 @@ namespace DigBuild.Blocks
         public static BlockEvent.Activate.Result OnActivate(this IBlock block, IBlockContext context, BlockEvent.Activate evt)
         {
             return block.Post<IBlockContext, BlockEvent.Activate, BlockEvent.Activate.Result>(context, evt);
+        }
+        public static void Subscribe<TData>(
+            this IBlockBehaviorBuilder<TData> builder,
+            BlockEventDelegate<IBlockContext, TData, BlockEvent.Punch, BlockEvent.Punch.Result> onPunch
+        )
+        {
+            builder.Subscribe(onPunch);
+        }
+
+        public static BlockEvent.Punch.Result OnPunch(this IBlock block, IBlockContext context, BlockEvent.Punch evt)
+        {
+            return block.Post<IBlockContext, BlockEvent.Punch, BlockEvent.Punch.Result>(context, evt);
         }
         
         public static void Subscribe<TData>(

@@ -21,7 +21,10 @@ namespace DigBuild.Blocks
             {
                 builder.Attach(new FaceCoveredReplaceBehavior(BlockFace.PosY, () => Dirt));
             });
-            Water = registry.Create(new ResourceName(Game.Domain, "water"));
+            Water = registry.Create(new ResourceName(Game.Domain, "water"), builder =>
+            {
+                builder.Attach(new NoPunchBehavior());
+            });
             Stone = registry.Create(new ResourceName(Game.Domain, "stone"));
             
             CountingBlock = registry.Create(new ResourceName(Game.Domain, "counting_block"), builder =>
