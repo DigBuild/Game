@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using DigBuild.Engine.Math;
-using DigBuild.Engine.Voxel;
 using DigBuild.Engine.Worldgen;
 
 namespace DigBuild.Voxel
 {
+    public delegate void ChunkChangedEvent(Chunk chunk);
+
     public class ChunkManager
     {
         private readonly Dictionary<ChunkPos, Chunk> _chunks = new();
@@ -29,15 +30,18 @@ namespace DigBuild.Voxel
             for (var y = 0; y < slice.Length; y++)
             {
                 var p = new ChunkPos(pos.X, y, pos.Z);
-                _chunks[p] = slice[y] = new Chunk(p, c => ChunkChanged?.Invoke(c));
+                _chunks[p] = slice[y] = new Chunk(p);
             }
             _generator.GenerateSlice(new WorldSlicePos(pos.X, pos.Z), slice);
             if (pos.Y < slice.Length)
                 return slice[pos.Y];
 
-            return _chunks[pos] = new Chunk(pos, c => ChunkChanged?.Invoke(c));
+            return _chunks[pos] = new Chunk(pos);
+        }
+
+        public void OnBlockChanged(BlockPos pos)
+        {
+            ChunkChanged?.Invoke(_chunks[pos.ChunkPos]);
         }
     }
-
-    public delegate void ChunkChangedEvent(Chunk chunk);
 }

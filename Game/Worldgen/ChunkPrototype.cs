@@ -1,13 +1,11 @@
 ﻿using DigBuild.Engine.Math;
 using DigBuild.Engine.Voxel;
-using DigBuild.Voxel;
 
 namespace DigBuild.Worldgen
 {
-    public sealed class ChunkPrototype : IChunk
+    public sealed class ChunkPrototype : ChunkBase
     {
-        public ChunkPos Position { get; }
-        public IBlockChunkStorage BlockStorage { get; } = new BlockChunkStorage(() => { });
+        public override ChunkPos Position { get; }
 
         internal ChunkPrototype(ChunkPos position)
         {

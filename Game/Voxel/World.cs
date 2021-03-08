@@ -6,7 +6,7 @@ using DigBuild.Engine.Worldgen;
 
 namespace DigBuild.Voxel
 {
-    public class World : WorldBase
+    public sealed class World : WorldBase
     {
         public ChunkManager ChunkManager { get; }
 
@@ -19,22 +19,15 @@ namespace DigBuild.Voxel
         {
             return ChunkManager.Get(pos, load);
         }
-
-        public override void SetBlock(BlockPos pos, Block? block)
-        {
-            var current = GetBlock(pos);
-            if (block == current) return;
-            base.SetBlock(pos, block);
-            NotifyNeighbors(pos);
-        }
-
-        public void NotifyNeighbors(BlockPos pos)
+        
+        public override void OnBlockChanged(BlockPos pos)
         {
             foreach (var face in BlockFaces.All)
             {
                 var offset = pos.Offset(face);
-                var block = GetBlock(offset);
+                var block = this.GetBlock(offset);
                 block?.OnNeighborChanged(new BlockContext(this, offset, block), new BlockEvent.NeighborChanged(face.GetOpposite()));
+                ChunkManager.OnBlockChanged(pos);
             }
         }
     }

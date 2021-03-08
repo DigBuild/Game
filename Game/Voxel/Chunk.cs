@@ -1,18 +1,15 @@
-﻿using System;
-using DigBuild.Engine.Math;
+﻿using DigBuild.Engine.Math;
 using DigBuild.Engine.Voxel;
 
 namespace DigBuild.Voxel
 {
-    public class Chunk : IChunk
+    public sealed class Chunk : ChunkBase
     {
-        public ChunkPos Position { get; }
-        public IBlockChunkStorage BlockStorage { get; }
+        public override ChunkPos Position { get; }
 
-        public Chunk(ChunkPos position, Action<Chunk> notifyUpdate)
+        public Chunk(ChunkPos position)
         {
             Position = position;
-            BlockStorage = new BlockChunkStorage(() => notifyUpdate(this));
         }
     }
 }

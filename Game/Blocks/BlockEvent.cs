@@ -1,6 +1,7 @@
 ﻿using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Reg;
+using DigBuild.Engine.Voxel;
 using DigBuild.Voxel;
 
 namespace DigBuild.Blocks

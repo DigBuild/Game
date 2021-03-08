@@ -4,6 +4,7 @@ using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Voxel;
 using DigBuild.Engine.Worldgen;
+using DigBuild.Voxel;
 using IWorldgenFeature = DigBuild.Engine.Worldgen.IWorldgenFeature;
 
 namespace DigBuild.Worldgen
@@ -66,9 +67,9 @@ namespace DigBuild.Worldgen
                         continue;
                     var localHeight = Math.Min(relativeHeight, ChunkSize);
                     for (int y = 0; y < localHeight - 1; y++)
-                        chunk.BlockStorage.Blocks[x, y, z] = _terrainBlock;
+                        chunk.SetBlock(new BlockPos(x, y, z), _terrainBlock);
                     
-                    chunk.BlockStorage.Blocks[x, (int) (localHeight - 1), z] = localHeight == relativeHeight ? _surfaceBlock : _terrainBlock;
+                    chunk.SetBlock(new BlockPos(x, (int) (localHeight - 1), z), localHeight == relativeHeight ? _surfaceBlock : _terrainBlock);
                 }
             }
         }
