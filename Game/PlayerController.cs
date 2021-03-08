@@ -9,7 +9,7 @@ using DigBuild.Engine.Voxel;
 
 namespace DigBuild
 {
-    public class PlayerController : ICamera
+    public sealed class PlayerController
     {
         private const float Gravity = 2.0f * TickManager.TickDurationSeconds;
         private const float TerminalVelocity = 0.5f;
@@ -39,31 +39,15 @@ namespace DigBuild
         public float AngularVelocityPitch { get; private set; }
         public float AngularVelocityYaw { get; private set; }
         public bool OnGround { get; private set; }
-
-        Vector3 ICamera.Position => Position + Vector3.UnitY * 1.75f;
-
-        Matrix4x4 ICamera.Transform =>
-            Matrix4x4.CreateTranslation(-((ICamera) this).Position) *
-            Matrix4x4.CreateRotationY(Yaw) *
-            Matrix4x4.CreateRotationX(Pitch);
-
-        public Matrix4x4 GetInterpolatedTransform(float partialTick)
+        
+        public PlayerCamera GetCamera(float partialTick)
         {
-            return 
-                Matrix4x4.CreateTranslation(-(PrevPosition + PrevVelocity * partialTick + Vector3.UnitY * 1.75f)) *
-                Matrix4x4.CreateRotationY(MathF.PI - (PrevYaw + AngularVelocityYaw * partialTick)) *
-                Matrix4x4.CreateRotationX(-(PrevPitch + AngularVelocityPitch * partialTick));
-        }
-
-        public RayCaster.Ray GetInterpolatedRay(float partialTick)
-        {
-            var start = PrevPosition + PrevVelocity * partialTick + Vector3.UnitY * 1.75f;
-            var direction = Vector3.TransformNormal(
-                new Vector3(0, 0, 1),
-                Matrix4x4.CreateRotationX(-(PrevPitch + AngularVelocityPitch * partialTick))
-                * Matrix4x4.CreateRotationY(PrevYaw + AngularVelocityYaw * partialTick)
+            return new(
+                PrevPosition + PrevVelocity * partialTick + Vector3.UnitY * 1.75f,
+                PrevPitch + AngularVelocityPitch * partialTick,
+                PrevYaw + AngularVelocityYaw * partialTick,
+                MathF.PI / 2
             );
-            return new RayCaster.Ray(start, start + direction * 5f);
         }
 
         public PlayerController(IWorld world, Vector3 position)
@@ -163,5 +147,41 @@ namespace DigBuild
             PrevVelocity = vel;
             Velocity = new Vector3(vel.X * dragFactor, yVel, vel.Z * dragFactor);
         }
+    }
+
+    public sealed class PlayerCamera : ICamera
+    {
+        public float FieldOfView { get; }
+
+        public Vector3 Position { get; }
+
+        public float Pitch { get; }
+        public float Yaw { get; }
+
+        public PlayerCamera(Vector3 position, float pitch, float yaw, float fieldOfView)
+        {
+            Position = position;
+            Pitch = pitch;
+            Yaw = yaw;
+            FieldOfView = fieldOfView;
+        }
+
+        public RayCaster.Ray Ray => new(Position, Position + Forward * 5f);
+
+        public Matrix4x4 Transform => 
+            Matrix4x4.CreateTranslation(-Position) *
+            Matrix4x4.CreateRotationY(MathF.PI - Yaw) *
+            Matrix4x4.CreateRotationX(-Pitch);
+        
+        public Vector3 Forward => Vector3.TransformNormal(
+            Vector3.UnitZ,
+            Matrix4x4.CreateRotationX(-Pitch)
+            * Matrix4x4.CreateRotationY(Yaw)
+        );
+        public Vector3 Up => Vector3.TransformNormal(
+            Vector3.UnitY,
+            Matrix4x4.CreateRotationX(-Pitch)
+            * Matrix4x4.CreateRotationY(Yaw)
+        );
     }
 }

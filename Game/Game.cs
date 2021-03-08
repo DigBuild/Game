@@ -57,7 +57,7 @@ namespace DigBuild
                 _player.Jump(_input.ForwardDelta);
             _player.Move();
 
-            if (RayCaster.TryCast(_rayCastContext, _player.GetInterpolatedRay(_tickManager.PartialTick), out var hit))
+            if (RayCaster.TryCast(_rayCastContext, _player.GetCamera(_tickManager.PartialTick).Ray, out var hit))
             {
                 if (!_input.PrevActivate && _input.Activate)
                 {

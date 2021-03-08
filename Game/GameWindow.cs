@@ -186,7 +186,7 @@ namespace DigBuild
         );
 
         private readonly TickManager _tickManager;
-        private readonly ICamera _camera;
+        private readonly PlayerController _player;
         private readonly WorldRayCastContext _rayCastContext;
         private readonly WorldRenderManager _worldRenderManager;
         private readonly TextureStitcher _stitcher;
@@ -197,10 +197,10 @@ namespace DigBuild
             WorldRenderLayer.Opaque
         };
 
-        public GameWindow(TickManager tickManager, ICamera camera, WorldRayCastContext rayCastContext)
+        public GameWindow(TickManager tickManager, PlayerController player, WorldRayCastContext rayCastContext)
         {
             _tickManager = tickManager;
-            _camera = camera;
+            _player = player;
             _rayCastContext = rayCastContext;
             _stitcher = new TextureStitcher();
             
@@ -267,22 +267,27 @@ namespace DigBuild
 
             lock (_tickManager)
             {
+                var camera = _player.GetCamera(_tickManager.PartialTick);
+                var hit = RayCaster.Cast(_rayCastContext, camera.Ray);
+                var projMat = camera.Transform * Matrix4x4.CreatePerspectiveFieldOfView(
+                    MathF.PI / 2, surface.Width / (float) surface.Height, 0.001f, 10000f
+                );
+                var viewFrustum = new ViewFrustum(projMat);
+
                 _worldRenderManager.UpdateChunks();
                 
-                var hit = RayCaster.Cast(_rayCastContext, _camera.GetInterpolatedRay(_tickManager.PartialTick));
-
                 var cmd = Resources.MainCommandBuffer.BeginRecording(Resources.Framebuffer.Format, BufferPool);
                 {
                     cmd.SetViewportAndScissor(Resources.Framebuffer);
                     cmd.Draw(Resources.ClearPipeline, Resources.CompVertexBuffer);
-
-                    _worldRenderManager.SubmitGeometry(context, cmd, _camera, _tickManager.PartialTick);
+                    
+                    _worldRenderManager.SubmitGeometry(context, cmd, camera, viewFrustum);
                     
                     if (hit != null)
                     {
                         Resources.NativeOutlineUniformBuffer[0].Matrix =
                             Matrix4x4.CreateTranslation(hit.Position + Vector3.UnitY)
-                            * _camera.GetInterpolatedTransform(_tickManager.PartialTick);
+                            * camera.Transform;
                         Resources.OutlineUniformBuffer.Write(Resources.NativeOutlineUniformBuffer);
                         
                         cmd.Using(Resources.OutlinePipeline, Resources.OutlineUniformBuffer, 0);
