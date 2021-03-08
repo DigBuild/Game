@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
@@ -48,6 +48,9 @@ namespace DigBuild
         public readonly PooledNativeBuffer<OutlineTransform> NativeOutlineUniformBuffer;
         public readonly UniformBuffer<OutlineTransform> OutlineUniformBuffer;
 
+        public readonly VertexBuffer<Vertex2> CompVertexBuffer;
+        public readonly RenderPipeline<Vertex2> ClearPipeline;
+
         public readonly Texture BlockTexture;
 
         internal RenderResources(RenderSurfaceContext surface, RenderContext context, ResourceManager resourceManager, NativeBufferPool bufferPool, SpriteSheet spriteSheet)
@@ -88,7 +91,7 @@ namespace DigBuild
                 new Vertex2(0, 1),
                 new Vertex2(0, 0)
             );
-            VertexBuffer<Vertex2> compVertexBuffer = context.CreateVertexBuffer(compVertexData);
+            CompVertexBuffer = context.CreateVertexBuffer(compVertexData);
 
             // Create sampler and texture binding
             TextureSampler sampler = context.CreateTextureSampler();
@@ -108,6 +111,18 @@ namespace DigBuild
                 cursorTexture
             );
             
+            
+            IResource vsClearResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/clear.vert.spv"))!;
+            IResource fsClearResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/clear.frag.spv"))!;
+            
+            VertexShader vsClear = context.CreateVertexShader(vsClearResource);
+            FragmentShader fsClear = context.CreateFragmentShader(fsClearResource);
+            ClearPipeline = context.CreatePipeline<Vertex2>(
+                vsClear, fsClear,
+                MainRenderStage,
+                Topology.Triangles
+            );
+            
             // Record commandBuffers
             MainCommandBuffer = context.CreateCommandBuffer();
 
@@ -115,9 +130,9 @@ namespace DigBuild
             var ccmd = CompCommandBuffer.BeginRecording(surface.Format, bufferPool);
             ccmd.SetViewportAndScissor(surface);
             ccmd.Using(compPipeline, fbTextureBinding);
-            ccmd.Draw(compPipeline, compVertexBuffer);
+            ccmd.Draw(compPipeline, CompVertexBuffer);
             ccmd.Using(compPipeline, cursorTextureBinding);
-            ccmd.Draw(compPipeline, compVertexBuffer);
+            ccmd.Draw(compPipeline, CompVertexBuffer);
             ccmd.Commit(context);
             
             // Outline stuff idk
@@ -259,6 +274,8 @@ namespace DigBuild
                 var cmd = Resources.MainCommandBuffer.BeginRecording(Resources.Framebuffer.Format, BufferPool);
                 {
                     cmd.SetViewportAndScissor(Resources.Framebuffer);
+                    cmd.Draw(Resources.ClearPipeline, Resources.CompVertexBuffer);
+
                     _worldRenderManager.SubmitGeometry(context, cmd, _camera, _tickManager.PartialTick);
                     
                     if (hit != null)
