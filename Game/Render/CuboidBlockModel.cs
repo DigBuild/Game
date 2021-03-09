@@ -29,9 +29,8 @@ namespace DigBuild.Render
         public void AddGeometry(BlockFaceFlags faces, GeometryBufferSet buffers)
         {
             var buf = buffers.Get(WorldRenderLayer.Opaque);
-            foreach (var face in BlockFaces.All)
-                if (faces.HasFace(face))
-                    buf.Accept(_vertices[(int) face]);
+            foreach (var face in BlockFaces.In(faces))
+                buf.Accept(_vertices[(int) face]);
         }
         
         private static IEnumerable<SimpleVertex> GenerateFaceVertices(AABB bounds, BlockFace face, ISprite sprite)
