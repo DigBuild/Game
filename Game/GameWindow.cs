@@ -192,8 +192,7 @@ namespace DigBuild
         private readonly TextureStitcher _stitcher;
         private readonly List<CuboidBlockModel> _unbakedModels = new();
         
-        private readonly List<IWorldRenderLayer> _renderLayers = new()
-        {
+        private readonly List<IRenderLayer> _renderLayers = new(){
             WorldRenderLayer.Opaque
         };
 

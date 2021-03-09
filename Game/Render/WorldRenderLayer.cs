@@ -9,7 +9,7 @@ namespace DigBuild.Render
 {
     public static class WorldRenderLayer
     {
-        public static readonly WorldRenderLayer<SimpleVertex> Opaque = WorldRenderLayer<SimpleVertex>.Create(
+        public static readonly RenderLayer<SimpleVertex> Opaque = RenderLayer<SimpleVertex>.Create(
             SimpleVertex.CreateTransformer,
             ctx => GameWindow.Resources!.MainRenderStage,
             (ctx, resourceManager, renderStage) =>
@@ -71,12 +71,12 @@ namespace DigBuild.Render
                 _projUniformHandle = projUniformHandle;
             }
 
-            public IWorldRenderLayerUniforms CreateUniforms(NativeBufferPool pool)
+            public IRenderLayerUniforms CreateUniforms(NativeBufferPool pool)
             {
                 return new Uniforms(_uniformHandle, _projUniformHandle, _textureBinding, Pipeline, _uniformFactory, pool);
             }
 
-            private sealed class Uniforms : IWorldRenderLayerUniforms
+            private sealed class Uniforms : IRenderLayerUniforms
             {
                 private readonly UniformHandle<TUniform> _uniformHandle;
                 private readonly UniformHandle<SimpleUniform> _projUniformHandle;
