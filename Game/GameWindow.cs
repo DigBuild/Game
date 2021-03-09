@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
@@ -219,6 +219,7 @@ namespace DigBuild
             });
             var waterModel = new CuboidBlockModel(AABB.FullBlock, waterTexture);
             var stoneModel = new CuboidBlockModel(AABB.FullBlock, stoneTexture);
+            var triangleModel = new SpinnyTriangleModel(stoneTexture);
             _unbakedModels.Add(dirtModel);
             _unbakedModels.Add(grassModel);
             _unbakedModels.Add(waterModel);
@@ -230,6 +231,7 @@ namespace DigBuild
                 [GameBlocks.Grass] = grassModel,
                 [GameBlocks.Water] = waterModel,
                 [GameBlocks.Stone] = stoneModel,
+                [GameBlocks.TriangleBlock] = triangleModel
             };
             _worldRenderManager = new WorldRenderManager(blockModels, _renderLayers, BufferPool);
         }

@@ -67,7 +67,7 @@ namespace DigBuild
 
                     if (result == BlockEvent.Activate.Result.Fail)
                     {
-                        _world.SetBlock(hit.BlockPos.Offset(hit.Face), GameBlocks.Stone);
+                        _world.SetBlock(hit.BlockPos.Offset(hit.Face), GameBlocks.TriangleBlock);
                     }
                 }
                 else if (!_input.PrevPunch && _input.Punch)

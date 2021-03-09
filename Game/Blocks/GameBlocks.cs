@@ -12,7 +12,7 @@ namespace DigBuild.Blocks
         public static Block Water { get; private set; } = null!;
         public static Block Stone { get; private set; } = null!;
 
-        public static Block CountingBlock { get; private set; } = null!;
+        public static Block TriangleBlock { get; private set; } = null!;
 
         internal static void Register(RegistryBuilder<Block> registry)
         {
@@ -27,7 +27,7 @@ namespace DigBuild.Blocks
             });
             Stone = registry.Create(new ResourceName(Game.Domain, "stone"));
             
-            CountingBlock = registry.Create(new ResourceName(Game.Domain, "counting_block"), builder =>
+            TriangleBlock = registry.Create(new ResourceName(Game.Domain, "triangle_block"), builder =>
             {
                 var data = builder.Add<CountingBlockData>();
                 builder.Attach(new CountingBehavior(), data);
