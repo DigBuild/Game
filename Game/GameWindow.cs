@@ -8,8 +8,10 @@ using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Textures;
+using DigBuild.Engine.UI;
 using DigBuild.Engine.Voxel;
 using DigBuild.GeneratedUniforms;
+using DigBuild.Platform.Input;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Resource;
 using DigBuild.Platform.Util;
@@ -37,10 +39,13 @@ namespace DigBuild
     public class RenderResources
     {
         public readonly RenderStage MainRenderStage;
-
-        public readonly Framebuffer Framebuffer;
-
-        public readonly CommandBuffer MainCommandBuffer;
+        public readonly RenderStage UiRenderStage;
+        
+        public readonly Framebuffer WorldFramebuffer;
+        public readonly Framebuffer UiFramebuffer;
+        
+        public readonly CommandBuffer WorldCommandBuffer;
+        public readonly CommandBuffer UiCommandBuffer;
         public readonly CommandBuffer CompCommandBuffer;
 
         public readonly RenderPipeline<SimplerVertex> OutlinePipeline;
@@ -50,20 +55,31 @@ namespace DigBuild
 
         public readonly VertexBuffer<Vertex2> CompVertexBuffer;
         public readonly RenderPipeline<Vertex2> ClearPipeline;
-
+        
         public readonly Texture BlockTexture;
+        public readonly Texture UiTexture;
+        public readonly Texture FontTexture;
 
-        internal RenderResources(RenderSurfaceContext surface, RenderContext context, ResourceManager resourceManager, NativeBufferPool bufferPool, SpriteSheet spriteSheet)
+        public readonly TextRenderer TextRenderer;
+
+        internal RenderResources(RenderSurfaceContext surface, RenderContext context, ResourceManager resourceManager,
+            NativeBufferPool bufferPool, SpriteSheet blockSpriteSheet, SpriteSheet uiSpriteSheet)
         {
             // Custom framebuffer format and render stages for preliminary rendering
-            FramebufferFormat framebufferFormat = context
+            FramebufferFormat worldFramebufferFormat = context
                 .CreateFramebufferFormat()
-                .WithDepthStencilAttachment(out var depthStencilAttachment)
-                .WithColorAttachment(out var colorAttachment, TextureFormat.R8G8B8A8SRGB, new Vector4(0, 0, 0, 1))
-                .WithStage(out MainRenderStage, depthStencilAttachment, colorAttachment);
+                .WithDepthStencilAttachment(out var worldDepthStencilAttachment)
+                .WithColorAttachment(out var worldColorAttachment, TextureFormat.R8G8B8A8SRGB, new Vector4(0, 0, 0, 1))
+                .WithStage(out MainRenderStage, worldDepthStencilAttachment, worldColorAttachment);
+            
+            FramebufferFormat uiFramebufferFormat = context
+                .CreateFramebufferFormat()
+                .WithColorAttachment(out var uiColorAttachment, TextureFormat.R8G8B8A8SRGB, new Vector4(0, 0, 0, 0))
+                .WithStage(out UiRenderStage, uiColorAttachment);
 
             // Framebuffer for preliminary rendering
-            Framebuffer = context.CreateFramebuffer(framebufferFormat, surface.Width, surface.Height);
+            WorldFramebuffer = context.CreateFramebuffer(worldFramebufferFormat, surface.Width, surface.Height);
+            UiFramebuffer = context.CreateFramebuffer(uiFramebufferFormat, surface.Width, surface.Height);
             
             IResource vsCompResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/comp.vert.spv"))!;
             IResource fsCompResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/comp.frag.spv"))!;
@@ -95,10 +111,15 @@ namespace DigBuild
 
             // Create sampler and texture binding
             TextureSampler sampler = context.CreateTextureSampler();
-            TextureBinding fbTextureBinding = context.CreateTextureBinding(
+            TextureBinding worldFramebufferTextureBinding = context.CreateTextureBinding(
                 colorTextureHandle,
                 sampler,
-                Framebuffer.Get(colorAttachment)
+                WorldFramebuffer.Get(worldColorAttachment)
+            );
+            TextureBinding uiFramebufferTextureBinding = context.CreateTextureBinding(
+                colorTextureHandle,
+                sampler,
+                UiFramebuffer.Get(uiColorAttachment)
             );
             
             IResource cursorResource = resourceManager.GetResource(new ResourceName(Game.Domain, "textures/cursor.png"))!;
@@ -124,14 +145,17 @@ namespace DigBuild
             );
             
             // Record commandBuffers
-            MainCommandBuffer = context.CreateCommandBuffer();
+            WorldCommandBuffer = context.CreateCommandBuffer();
+            UiCommandBuffer = context.CreateCommandBuffer();
 
             CompCommandBuffer = context.CreateCommandBuffer();
             var ccmd = CompCommandBuffer.BeginRecording(surface.Format, bufferPool);
             ccmd.SetViewportAndScissor(surface);
-            ccmd.Using(compPipeline, fbTextureBinding);
+            ccmd.Using(compPipeline, worldFramebufferTextureBinding);
             ccmd.Draw(compPipeline, CompVertexBuffer);
             ccmd.Using(compPipeline, cursorTextureBinding);
+            ccmd.Draw(compPipeline, CompVertexBuffer);
+            ccmd.Using(compPipeline, uiFramebufferTextureBinding);
             ccmd.Draw(compPipeline, CompVertexBuffer);
             ccmd.Commit(context);
             
@@ -169,11 +193,19 @@ namespace DigBuild
             });
             OutlineUniformBuffer = context.CreateUniformBuffer(outlineUniform, NativeOutlineUniformBuffer);
 
-            BlockTexture = spriteSheet.Texture;
+            BlockTexture = blockSpriteSheet.Texture;
+            UiTexture = uiSpriteSheet.Texture;
+
+            IResource fontResource = resourceManager.GetResource(new ResourceName(Game.Domain, "textures/font.png"))!;
+            FontTexture = context.CreateTexture(
+                new Bitmap(fontResource.OpenStream())
+            );
+
+            TextRenderer = new TextRenderer(UIRenderLayer.Text);
         }
     }
     
-    public class GameWindow
+    public class GameWindow : IUIElementContext
     {
         private static readonly NativeBufferPool BufferPool = new();
         private static readonly ResourceManager ResourceManager = new(
@@ -189,25 +221,31 @@ namespace DigBuild
         private readonly PlayerController _player;
         private readonly WorldRayCastContext _rayCastContext;
         private readonly WorldRenderManager _worldRenderManager;
-        private readonly TextureStitcher _stitcher;
+        private readonly TextureStitcher _blockStitcher = new();
+        private readonly TextureStitcher _uiStitcher = new();
         private readonly List<CuboidBlockModel> _unbakedModels = new();
         
-        private readonly List<IRenderLayer> _renderLayers = new(){
+        private readonly List<IRenderLayer> _worldRenderLayers = new(){
             WorldRenderLayer.Opaque
         };
+        private readonly List<IRenderLayer> _uiRenderLayers = new(){
+            UIRenderLayer.Text,
+            UIRenderLayer.Ui
+        };
+
+        private readonly GeometryBufferSet _uiGbs = new(BufferPool);
 
         public GameWindow(TickManager tickManager, PlayerController player, WorldRayCastContext rayCastContext)
         {
             _tickManager = tickManager;
             _player = player;
             _rayCastContext = rayCastContext;
-            _stitcher = new TextureStitcher();
             
-            var dirtTexture = _stitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/dirt.png")!);
-            var grassTexture = _stitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/grass.png")!);
-            var grassSideTexture = _stitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/grass_side.png")!);
-            var waterTexture = _stitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/water.png")!);
-            var stoneTexture = _stitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/stone.png")!);
+            var dirtTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/dirt.png")!);
+            var grassTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/grass.png")!);
+            var grassSideTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/grass_side.png")!);
+            var waterTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/water.png")!);
+            var stoneTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/stone.png")!);
             
             var dirtModel = new CuboidBlockModel(AABB.FullBlock, dirtTexture);
             var grassModel = new CuboidBlockModel(AABB.FullBlock, new[]
@@ -232,7 +270,7 @@ namespace DigBuild
                 [GameBlocks.Stone] = stoneModel,
                 [GameBlocks.TriangleBlock] = triangleModel
             };
-            _worldRenderManager = new WorldRenderManager(blockModels, _renderLayers, BufferPool);
+            _worldRenderManager = new WorldRenderManager(blockModels, _worldRenderLayers, BufferPool);
         }
 
         public async Task OpenWaitClosed()
@@ -253,17 +291,56 @@ namespace DigBuild
         }
 
         public static RenderResources? Resources;
+        private readonly UIContainer _ui = new();
+        private UILabel _positionLabel = null!;
+        private UILabel _lookLabel = null!;
+
+        private uint _curX, _curY;
+        private IUIElementContext.KeyboardEventDelegate? _keyboardEventDelegate;
+        private Action? _keyboardEventDelegateRemoveCallback;
+
+        private void OnCursorMoved(uint x, uint y, CursorAction action)
+        {
+            _curX = x;
+            _curY = y;
+        }
+
+        private void OnKeyboardEvent(uint code, KeyboardAction action)
+        {
+            _keyboardEventDelegate?.Invoke(code, action);
+        }
 
         private void Update(RenderSurfaceContext surface, RenderContext context)
         {
+            surface.InputContext.ConsumeCursorEvents(OnCursorMoved);
+            _ui.OnCursorMoved(this, (int) _curX, (int) _curY);
+            surface.InputContext.ConsumeMouseEvents((button, action) => _ui.OnMouseEvent(this, button, action));
+            surface.InputContext.ConsumeKeyboardEvents(OnKeyboardEvent);
+
             if (Resources == null)
             {
-                var spritesheet = _stitcher.Build(context);
+                var blockSpritesheet = _blockStitcher.Build(context);
                 foreach (var model in _unbakedModels)
                     model.Initialize();
-                Resources = new RenderResources(surface, context, ResourceManager, BufferPool, spritesheet);
-                foreach (var layer in _renderLayers)
+                
+                var inactiveButton = _uiStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/ui/button_inactive.png")!);
+                var hoveredButton = _uiStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/ui/button_hovered.png")!);
+                var clickedButton = _uiStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/ui/button_clicked.png")!);
+                var uiSpritesheet = _uiStitcher.Build(context, "ui_spritesheet.png");
+
+                Resources = new RenderResources(surface, context, ResourceManager, BufferPool, blockSpritesheet, uiSpritesheet);
+
+                foreach (var layer in _worldRenderLayers)
                     layer.Initialize(context, ResourceManager);
+                foreach (var layer in _uiRenderLayers)
+                    layer.Initialize(context, ResourceManager);
+
+                IUIElement.GlobalTextRenderer = Resources.TextRenderer;
+
+                _ui.Add(20, 20, _positionLabel = new UILabel(""));
+                _ui.Add(20, 50, _lookLabel = new UILabel(""));
+                _ui.Add(20, 100, new UIButton(48, 48, UIRenderLayer.Ui, inactiveButton, hoveredButton, clickedButton));
+                _ui.Add(68, 100, new UITextbox(48, 48));
             }
 
             lock (_tickManager)
@@ -277,12 +354,12 @@ namespace DigBuild
 
                 _worldRenderManager.UpdateChunks();
                 
-                var cmd = Resources.MainCommandBuffer.BeginRecording(Resources.Framebuffer.Format, BufferPool);
+                var wcmd = Resources.WorldCommandBuffer.BeginRecording(Resources.WorldFramebuffer.Format, BufferPool);
                 {
-                    cmd.SetViewportAndScissor(Resources.Framebuffer);
-                    cmd.Draw(Resources.ClearPipeline, Resources.CompVertexBuffer);
+                    wcmd.SetViewportAndScissor(Resources.WorldFramebuffer);
+                    wcmd.Draw(Resources.ClearPipeline, Resources.CompVertexBuffer);
                     
-                    _worldRenderManager.SubmitGeometry(context, cmd, camera, viewFrustum);
+                    _worldRenderManager.SubmitGeometry(context, wcmd, camera, viewFrustum);
                     
                     if (hit != null)
                     {
@@ -291,16 +368,45 @@ namespace DigBuild
                             * camera.Transform;
                         Resources.OutlineUniformBuffer.Write(Resources.NativeOutlineUniformBuffer);
                         
-                        cmd.Using(Resources.OutlinePipeline, Resources.OutlineUniformBuffer, 0);
-                        cmd.Draw(Resources.OutlinePipeline, Resources.OutlineVertexBuffer);
+                        wcmd.Using(Resources.OutlinePipeline, Resources.OutlineUniformBuffer, 0);
+                        wcmd.Draw(Resources.OutlinePipeline, Resources.OutlineVertexBuffer);
                     }
                 }
-                cmd.Commit(context);
+                wcmd.Commit(context);
 
-                context.Enqueue(Resources.Framebuffer, Resources.MainCommandBuffer);
+                _positionLabel.Text = $"Position: {new BlockPos(_player.Position)}";
+                _lookLabel.Text = $"Look: {hit?.Position}";
+                
+                _uiGbs.Clear();
+                _uiGbs.Transform = Matrix4x4.Identity;
+                _ui.Draw(context, _uiGbs);
+
+                var uicmd = Resources.UiCommandBuffer.BeginRecording(Resources.UiFramebuffer.Format, BufferPool);
+                {
+                    uicmd.SetViewportAndScissor(Resources.UiFramebuffer);
+                    foreach (var layer in _uiRenderLayers)
+                    {
+                        layer.InitializeCommand(uicmd);
+                        _uiGbs.Draw(layer, context, uicmd);
+                    }
+                }
+                uicmd.Commit(context);
+                
+                context.Enqueue(Resources.WorldFramebuffer, Resources.WorldCommandBuffer);
+                context.Enqueue(Resources.UiFramebuffer, Resources.UiCommandBuffer);
                 context.Enqueue(surface, Resources.CompCommandBuffer);
             }
         }
-        
+
+        public void SetKeyboardEventHandler(IUIElementContext.KeyboardEventDelegate? handler, Action? removeCallback = null)
+        {
+            _keyboardEventDelegate = handler;
+            _keyboardEventDelegateRemoveCallback?.Invoke();
+            _keyboardEventDelegateRemoveCallback = removeCallback;
+        }
+
+        public void RequestRedraw()
+        {
+        }
     }
 }
