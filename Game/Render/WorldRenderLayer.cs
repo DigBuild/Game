@@ -23,9 +23,9 @@ namespace DigBuild.Render
                     .WithSampler(out var textureHandle);
                 RenderPipeline<SimpleVertex> pipeline = ctx.CreatePipeline<SimpleVertex>(
                     vs, fs,
-                    renderStage, Topology.Triangles,
-                    depthTest: new DepthTest(true, CompareOperation.LessOrEqual, true)
-                );
+                    renderStage, Topology.Triangles
+                )
+                    .WithDepthTest(CompareOperation.LessOrEqual, true);
 
                 // Create spritesheet stuff
                 TextureSampler sampler = ctx.CreateTextureSampler(

@@ -149,16 +149,17 @@ namespace DigBuild
             UiCommandBuffer = context.CreateCommandBuffer();
 
             CompCommandBuffer = context.CreateCommandBuffer();
-            var ccmd = CompCommandBuffer.BeginRecording(surface.Format, bufferPool);
-            ccmd.SetViewportAndScissor(surface);
-            ccmd.Using(compPipeline, worldFramebufferTextureBinding);
-            ccmd.Draw(compPipeline, CompVertexBuffer);
-            ccmd.Using(compPipeline, cursorTextureBinding);
-            ccmd.Draw(compPipeline, CompVertexBuffer);
-            ccmd.Using(compPipeline, uiFramebufferTextureBinding);
-            ccmd.Draw(compPipeline, CompVertexBuffer);
-            ccmd.Commit(context);
-            
+            using (var cmd = CompCommandBuffer.Record(context, surface.Format, bufferPool))
+            {
+                cmd.SetViewportAndScissor(surface);
+                cmd.Using(compPipeline, worldFramebufferTextureBinding);
+                cmd.Draw(compPipeline, CompVertexBuffer);
+                cmd.Using(compPipeline, cursorTextureBinding);
+                cmd.Draw(compPipeline, CompVertexBuffer);
+                cmd.Using(compPipeline, uiFramebufferTextureBinding);
+                cmd.Draw(compPipeline, CompVertexBuffer);
+            }
+
             // Outline stuff idk
             IResource vsOutlineResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/outline.vert.spv"))!;
             IResource fsOutlineResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/outline.frag.spv"))!;
@@ -170,9 +171,10 @@ namespace DigBuild
             OutlinePipeline = context.CreatePipeline<SimplerVertex>(
                 vsOutline, fsOutline,
                 MainRenderStage,
-                Topology.LineStrips,
-                depthTest: new DepthTest(true, CompareOperation.LessOrEqual, true)
-            ).WithStandardBlending(surface.ColorAttachment);
+                Topology.LineStrips
+            )
+                .WithDepthTest(CompareOperation.LessOrEqual, true)
+                .WithStandardBlending(surface.ColorAttachment);
             
             using var outlineVertexData = bufferPool.Request<SimplerVertex>();
             outlineVertexData.Add(
@@ -354,12 +356,12 @@ namespace DigBuild
 
                 _worldRenderManager.UpdateChunks();
                 
-                var wcmd = Resources.WorldCommandBuffer.BeginRecording(Resources.WorldFramebuffer.Format, BufferPool);
+                using (var cmd = Resources.WorldCommandBuffer.Record(context, Resources.WorldFramebuffer.Format, BufferPool))
                 {
-                    wcmd.SetViewportAndScissor(Resources.WorldFramebuffer);
-                    wcmd.Draw(Resources.ClearPipeline, Resources.CompVertexBuffer);
+                    cmd.SetViewportAndScissor(Resources.WorldFramebuffer);
+                    cmd.Draw(Resources.ClearPipeline, Resources.CompVertexBuffer);
                     
-                    _worldRenderManager.SubmitGeometry(context, wcmd, camera, viewFrustum);
+                    _worldRenderManager.SubmitGeometry(context, cmd, camera, viewFrustum);
                     
                     if (hit != null)
                     {
@@ -368,11 +370,10 @@ namespace DigBuild
                             * camera.Transform;
                         Resources.OutlineUniformBuffer.Write(Resources.NativeOutlineUniformBuffer);
                         
-                        wcmd.Using(Resources.OutlinePipeline, Resources.OutlineUniformBuffer, 0);
-                        wcmd.Draw(Resources.OutlinePipeline, Resources.OutlineVertexBuffer);
+                        cmd.Using(Resources.OutlinePipeline, Resources.OutlineUniformBuffer, 0);
+                        cmd.Draw(Resources.OutlinePipeline, Resources.OutlineVertexBuffer);
                     }
                 }
-                wcmd.Commit(context);
 
                 _positionLabel.Text = $"Position: {new BlockPos(_player.Position)}";
                 _lookLabel.Text = $"Look: {hit?.Position}";
@@ -381,16 +382,15 @@ namespace DigBuild
                 _uiGbs.Transform = Matrix4x4.Identity;
                 _ui.Draw(context, _uiGbs);
 
-                var uicmd = Resources.UiCommandBuffer.BeginRecording(Resources.UiFramebuffer.Format, BufferPool);
+                using (var cmd = Resources.UiCommandBuffer.Record(context, Resources.UiFramebuffer.Format, BufferPool))
                 {
-                    uicmd.SetViewportAndScissor(Resources.UiFramebuffer);
+                    cmd.SetViewportAndScissor(Resources.UiFramebuffer);
                     foreach (var layer in _uiRenderLayers)
                     {
-                        layer.InitializeCommand(uicmd);
-                        _uiGbs.Draw(layer, context, uicmd);
+                        layer.InitializeCommand(cmd);
+                        _uiGbs.Draw(layer, context, cmd);
                     }
                 }
-                uicmd.Commit(context);
                 
                 context.Enqueue(Resources.WorldFramebuffer, Resources.WorldCommandBuffer);
                 context.Enqueue(Resources.UiFramebuffer, Resources.UiCommandBuffer);
