@@ -74,6 +74,7 @@ namespace DigBuild.Blocks
         {
             return block.Post<IBlockContext, BlockEvent.Activate, BlockEvent.Activate.Result>(context, evt);
         }
+
         public static void Subscribe<TData>(
             this IBlockBehaviorBuilder<TData> builder,
             BlockEventDelegate<IBlockContext, TData, BlockEvent.Punch, BlockEvent.Punch.Result> onPunch

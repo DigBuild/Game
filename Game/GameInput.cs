@@ -13,6 +13,9 @@ namespace DigBuild
         public bool PrevActivate, Activate;
         public bool PrevPunch, Punch;
 
+        public bool PrevCycleLeft, CycleLeft;
+        public bool PrevCycleRight, CycleRight;
+
         public void Update()
         {
             Platform.Platform.InputContext.Update();
@@ -31,6 +34,11 @@ namespace DigBuild
 
             PrevPunch = Punch;
             Punch = _controller.Buttons[1];
+            
+            PrevCycleLeft = CycleLeft;
+            CycleLeft = _controller.Hats[0].Has(Controller.HatState.Left);
+            PrevCycleRight = CycleRight;
+            CycleRight = _controller.Hats[0].Has(Controller.HatState.Right);
         }
 
         private static float Bias(float value)

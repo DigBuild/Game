@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Voxel;
@@ -39,7 +40,11 @@ namespace DigBuild
         public float AngularVelocityPitch { get; private set; }
         public float AngularVelocityYaw { get; private set; }
         public bool OnGround { get; private set; }
-        
+
+        public ItemInstance[] Hotbar { get; } = { ItemInstance.Empty, ItemInstance.Empty, ItemInstance.Empty, ItemInstance.Empty, ItemInstance.Empty };
+        public uint ActiveHotbarSlot { get; set; } = 0;
+        public ref ItemInstance Hand => ref Hotbar[ActiveHotbarSlot];
+
         public PlayerCamera GetCamera(float partialTick)
         {
             return new(
@@ -54,6 +59,12 @@ namespace DigBuild
         {
             _world = world;
             Position = position;
+        }
+
+        public void CycleHotbar(int amount)
+        {
+            var hotbarLength = Hotbar.Length;
+            ActiveHotbarSlot = (uint) ((ActiveHotbarSlot + hotbarLength + (amount % hotbarLength)) % hotbarLength);
         }
 
         public void UpdateRotation(float pitchDelta, float yawDelta)

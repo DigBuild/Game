@@ -4,9 +4,11 @@ using System.Numerics;
 using System.Threading.Tasks;
 using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Voxel;
 using DigBuild.Engine.Worldgen;
+using DigBuild.Items;
 using DigBuild.Voxel;
 using DigBuild.Worldgen;
 
@@ -57,27 +59,54 @@ namespace DigBuild
                 _player.Jump(_input.ForwardDelta);
             _player.Move();
 
-            if (RayCaster.TryCast(_rayCastContext, _player.GetCamera(_tickManager.PartialTick).Ray, out var hit))
-            {
-                if (!_input.PrevActivate && _input.Activate)
-                {
-                    var block = _world.GetBlock(hit.BlockPos)!;
-                    var result = block.OnActivate(new BlockContext(_world, hit.BlockPos, block), new BlockEvent.Activate(hit));
-                    Console.WriteLine($"Interacted with block at {hit.BlockPos} on face {hit.Face}! Result: {result}");
+            _player.CycleHotbar(
+                (!_input.PrevCycleRight && _input.CycleRight ? 1 : 0) +
+                (!_input.PrevCycleLeft && _input.CycleLeft ? -1 : 0)
+            );
 
-                    if (result == BlockEvent.Activate.Result.Fail)
-                    {
-                        _world.SetBlock(hit.BlockPos.Offset(hit.Face), GameBlocks.TriangleBlock);
-                    }
-                }
-                else if (!_input.PrevPunch && _input.Punch)
+            // Initialize hand
+            if (_player.Hand == ItemInstance.Empty)
+                _player.Hand = new ItemInstance(GameItems.Stone, 5);
+
+
+            var hit = RayCaster.Cast(_rayCastContext, _player.GetCamera(0).Ray);
+
+            if (!_input.PrevActivate && _input.Activate)
+            {
+                var itemResult = _player.Hand.Count > 0 ?
+                    _player.Hand.Item.OnActivate(new PlayerItemContext(_player.Hand, _world), new ItemEvent.Activate(hit)) :
+                    ItemEvent.Activate.Result.Fail;
+                Console.WriteLine($"Interacted with item in slot {_player.ActiveHotbarSlot}! Result: {itemResult}");
+
+                if (itemResult == ItemEvent.Activate.Result.Fail && hit != null)
                 {
                     var block = _world.GetBlock(hit.BlockPos)!;
-                    var result = block.OnPunch(new BlockContext(_world, hit.BlockPos, block), new BlockEvent.Punch(hit));
-                    Console.WriteLine($"Punched block at {hit.BlockPos} on face {hit.Face}! Result: {result}");
+                    var blockResult = block.OnActivate(
+                        new BlockContext(_world, hit.BlockPos, block),
+                        new BlockEvent.Activate(hit)
+                    );
+                    Console.WriteLine($"Interacted with block at {hit.BlockPos} on face {hit.Face}! Result: {blockResult}"); 
                 }
             }
-            
+
+            if (!_input.PrevPunch && _input.Punch)
+            {
+                var itemResult = _player.Hand.Count > 0 ?
+                    _player.Hand.Item.OnPunch(new PlayerItemContext(_player.Hand, _world), new ItemEvent.Punch(hit)) :
+                    ItemEvent.Punch.Result.Fail;
+                Console.WriteLine($"Punched with item {_player.ActiveHotbarSlot}! Result: {itemResult}");
+
+                if (itemResult == ItemEvent.Punch.Result.Fail && hit != null)
+                {
+                    var block = _world.GetBlock(hit.BlockPos)!;
+                    var blockResult = block.OnPunch(
+                        new BlockContext(_world, hit.BlockPos, block),
+                        new BlockEvent.Punch(hit)
+                    );
+                    Console.WriteLine($"Punched block at {hit.BlockPos} on face {hit.Face}! Result: {blockResult}"); 
+                }
+            }
+
             const int range = 5;
             const int rangeY = 3;
 

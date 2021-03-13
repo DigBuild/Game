@@ -296,6 +296,8 @@ namespace DigBuild
         private readonly UIContainer _ui = new();
         private UILabel _positionLabel = null!;
         private UILabel _lookLabel = null!;
+        private UILabel[] _itemLabels = null!;
+        private UILabel _currentSlot = null!;
 
         private uint _curX, _curY;
         private IUIElementContext.KeyboardEventDelegate? _keyboardEventDelegate;
@@ -341,8 +343,16 @@ namespace DigBuild
 
                 _ui.Add(20, 20, _positionLabel = new UILabel(""));
                 _ui.Add(20, 50, _lookLabel = new UILabel(""));
-                _ui.Add(20, 100, new UIButton(48, 48, UIRenderLayer.Ui, inactiveButton, hoveredButton, clickedButton));
-                _ui.Add(68, 100, new UITextbox(48, 48));
+
+                var off = 80u;
+                _itemLabels = new UILabel[_player.Hotbar.Length];
+                for (var i = 0; i < _itemLabels.Length; i++)
+                {
+                    _ui.Add(20, off, _itemLabels[i] = new UILabel(""));
+                    off += 30;
+                }
+                
+                _ui.Add(20, off, _currentSlot = new UILabel(""));
             }
 
             lock (_tickManager)
@@ -377,6 +387,8 @@ namespace DigBuild
 
                 _positionLabel.Text = $"Position: {new BlockPos(_player.Position)}";
                 _lookLabel.Text = $"Look: {hit?.Position}";
+                for (var i = 0; i < _itemLabels.Length; i++)
+                    _itemLabels[i].Text = $"{(_player.ActiveHotbarSlot == i ? "> " : "  ")}{i}: {_player.Hotbar[i]}";
                 
                 _uiGbs.Clear();
                 _uiGbs.Transform = Matrix4x4.Identity;
