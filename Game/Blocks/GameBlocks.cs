@@ -29,14 +29,9 @@ namespace DigBuild.Blocks
             
             TriangleBlock = registry.Create(new ResourceName(Game.Domain, "triangle_block"), builder =>
             {
-                var data = builder.Add<CountingBlockData>();
+                var data = builder.Add<CountingData>();
                 builder.Attach(new CountingBehavior(), data);
             });
-        }
-        
-        private sealed class CountingBlockData : ICountingBehavior
-        {
-            public int Number { get; set; }
         }
     }
 }
