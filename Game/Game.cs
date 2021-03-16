@@ -40,6 +40,10 @@ namespace DigBuild
             var generator = new WorldGenerator(features, 0, pos => new ChunkPrototype(pos));
             _world = new World(generator);
             _player = new PlayerController(_world, new Vector3(0, 15, 0));
+            _player.Hotbar[0].Item = new ItemInstance(GameItems.Stone, 5);
+            _player.Hotbar[1].Item = new ItemInstance(GameItems.Grass, 20);
+            _player.Hotbar[3].Item = new ItemInstance(GameItems.Dirt, 12);
+            _player.Hotbar[4].Item = new ItemInstance(GameItems.TriangleItem, 8);
 
             _rayCastContext = new WorldRayCastContext(_world);
             
@@ -63,18 +67,17 @@ namespace DigBuild
                 (!_input.PrevCycleRight && _input.CycleRight ? 1 : 0) +
                 (!_input.PrevCycleLeft && _input.CycleLeft ? -1 : 0)
             );
-
-            // Initialize hand
-            if (_player.Hand == ItemInstance.Empty)
-                _player.Hand = new ItemInstance(GameItems.Stone, 5);
-
+            if (!_input.PrevSwapUp && _input.SwapUp)
+                _player.TransferHotbarUp();
+            if (!_input.PrevSwapDown && _input.SwapDown)
+                _player.TransferHotbarDown();
 
             var hit = RayCaster.Cast(_rayCastContext, _player.GetCamera(0).Ray);
 
             if (!_input.PrevActivate && _input.Activate)
             {
-                var itemResult = _player.Hand.Count > 0 ?
-                    _player.Hand.Item.OnActivate(new PlayerItemContext(_player.Hand, _world), new ItemEvent.Activate(hit)) :
+                var itemResult = _player.Hand.Item.Count > 0 ?
+                    _player.Hand.Item.Item.OnActivate(new PlayerItemContext(_player.Hand.Item, _world), new ItemEvent.Activate(hit)) :
                     ItemEvent.Activate.Result.Fail;
                 Console.WriteLine($"Interacted with item in slot {_player.ActiveHotbarSlot}! Result: {itemResult}");
 
@@ -91,8 +94,8 @@ namespace DigBuild
 
             if (!_input.PrevPunch && _input.Punch)
             {
-                var itemResult = _player.Hand.Count > 0 ?
-                    _player.Hand.Item.OnPunch(new PlayerItemContext(_player.Hand, _world), new ItemEvent.Punch(hit)) :
+                var itemResult = _player.Hand.Item.Count > 0 ?
+                    _player.Hand.Item.Item.OnPunch(new PlayerItemContext(_player.Hand.Item, _world), new ItemEvent.Punch(hit)) :
                     ItemEvent.Punch.Result.Fail;
                 Console.WriteLine($"Punched with item {_player.ActiveHotbarSlot}! Result: {itemResult}");
 

@@ -41,10 +41,13 @@ namespace DigBuild
         public float AngularVelocityYaw { get; private set; }
         public bool OnGround { get; private set; }
 
-        public ItemInstance[] Hotbar { get; } = { ItemInstance.Empty, ItemInstance.Empty, ItemInstance.Empty, ItemInstance.Empty, ItemInstance.Empty };
+        public InventorySlot[] Hotbar { get; } = { new(), new(), new(), new(), new() };
         public uint ActiveHotbarSlot { get; set; } = 0;
-        public ref ItemInstance Hand => ref Hotbar[ActiveHotbarSlot];
+        public ref InventorySlot Hand => ref Hotbar[ActiveHotbarSlot];
 
+        public InventorySlot PickedItem { get; } = new();
+        public bool HotbarTransfer { get; set; }
+        
         public PlayerCamera GetCamera(float partialTick)
         {
             return new(
@@ -65,6 +68,23 @@ namespace DigBuild
         {
             var hotbarLength = Hotbar.Length;
             ActiveHotbarSlot = (uint) ((ActiveHotbarSlot + hotbarLength + (amount % hotbarLength)) % hotbarLength);
+        }
+
+        public void TransferHotbarUp()
+        {
+            if (PickedItem.Item.Count > 0) return;
+            PickedItem.Item = Hand.Item;
+            Hand.Item = ItemInstance.Empty;
+            HotbarTransfer = true;
+        }
+
+        public void TransferHotbarDown()
+        {
+            if (PickedItem.Item.Count == 0) return;
+            var hand = Hand.Item;
+            Hand.Item = PickedItem.Item;
+            PickedItem.Item = hand;
+            HotbarTransfer = true;
         }
 
         public void UpdateRotation(float pitchDelta, float yawDelta)

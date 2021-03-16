@@ -21,13 +21,19 @@ namespace DigBuild.Render
             return $"Vertex({Pos})";
         }
 
-        public static VertexTransformer<SimpleVertex> CreateTransformer(IVertexConsumer<SimpleVertex> next, Matrix4x4 transform)
+        public static VertexTransformer<SimpleVertex> CreateTransformer(IVertexConsumer<SimpleVertex> next, Matrix4x4 transform, bool transformNormal)
         {
-            return new(next, v => new SimpleVertex(
-                Vector3.Transform(v.Pos, transform),
-                Vector3.TransformNormal(v.Normal, transform),
-                v.Uv
-            ));
+            return transformNormal ?
+                new VertexTransformer<SimpleVertex>(next, v => new SimpleVertex(
+                    Vector3.Transform(v.Pos, transform),
+                    Vector3.Normalize(Vector3.TransformNormal(v.Normal, transform)),
+                    v.Uv
+                )) :
+                new VertexTransformer<SimpleVertex>(next, v => new SimpleVertex(
+                    Vector3.Transform(v.Pos, transform),
+                    v.Normal,
+                    v.Uv
+                ));
         }
     }
     public readonly struct SimplerVertex
