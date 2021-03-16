@@ -1,5 +1,7 @@
-﻿using DigBuild.Blocks;
+﻿using System;
+using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Entities;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Voxel;
 using DigBuild.Engine.Worldgen;
@@ -9,6 +11,9 @@ namespace DigBuild.Voxel
     public sealed class World : WorldBase
     {
         public ChunkManager ChunkManager { get; }
+
+        public event Action<EntityInstance>? EntityAdded;
+        public event Action<Guid>? EntityRemoved; 
 
         public World(WorldGenerator generator)
         {
@@ -29,6 +34,16 @@ namespace DigBuild.Voxel
                 block?.OnNeighborChanged(new BlockContext(this, offset, block), new BlockEvent.NeighborChanged(face.GetOpposite()));
                 ChunkManager.OnBlockChanged(pos);
             }
+        }
+
+        public override void OnEntityAdded(EntityInstance entity)
+        {
+            EntityAdded?.Invoke(entity);
+        }
+
+        public override void OnEntityRemoved(Guid guid)
+        {
+            EntityRemoved?.Invoke(guid);
         }
     }
 }

@@ -5,12 +5,14 @@ using System.Numerics;
 using System.Threading.Tasks;
 using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Textures;
 using DigBuild.Engine.UI;
 using DigBuild.Engine.Voxel;
+using DigBuild.Entities;
 using DigBuild.GeneratedUniforms;
 using DigBuild.Items;
 using DigBuild.Platform.Input;
@@ -270,8 +272,6 @@ namespace DigBuild
                 [GameBlocks.Stone] = stoneModel,
                 [GameBlocks.TriangleBlock] = triangleModel
             };
-            _worldRenderManager = new WorldRenderManager(blockModels, _worldRenderLayers, BufferPool);
-
             _itemModels = new Dictionary<Item, IItemModel>()
             {
                 [GameItems.Dirt] = new ItemBlockModel(dirtModel),
@@ -280,6 +280,12 @@ namespace DigBuild
                 [GameItems.Stone] = new ItemBlockModel(stoneModel),
                 [GameItems.TriangleItem] = new ItemBlockModel(triangleModel)
             };
+            var entityModels = new Dictionary<Entity, IEntityModel>()
+            {
+                [GameEntities.Item] = new ItemEntityModel(_itemModels)
+            };
+
+            _worldRenderManager = new WorldRenderManager(blockModels, entityModels, _worldRenderLayers, BufferPool);
         }
 
         public async Task OpenWaitClosed()
@@ -297,6 +303,16 @@ namespace DigBuild
         public void OnChunkChanged(IChunk chunk)
         {
             _worldRenderManager.QueueChunkUpdate(chunk);
+        }
+
+        public void OnEntityAdded(EntityInstance entity)
+        {
+            _worldRenderManager.AddEntity(entity);
+        }
+
+        public void OnEntityRemoved(Guid guid)
+        {
+            _worldRenderManager.RemoveEntity(guid);
         }
 
         public static RenderResources? Resources;

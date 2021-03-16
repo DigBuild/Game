@@ -51,6 +51,8 @@ namespace DigBuild
             _window = new GameWindow(_tickManager, _player, _rayCastContext);
 
             _world.ChunkManager.ChunkChanged += chunk => _window.OnChunkChanged(chunk);
+            _world.EntityAdded += entity => _window.OnEntityAdded(entity);
+            _world.EntityRemoved += guid => _window.OnEntityRemoved(guid);
         }
         
         private void Tick()
@@ -77,7 +79,7 @@ namespace DigBuild
             if (!_input.PrevActivate && _input.Activate)
             {
                 var itemResult = _player.Hand.Item.Count > 0 ?
-                    _player.Hand.Item.Item.OnActivate(new PlayerItemContext(_player.Hand.Item, _world), new ItemEvent.Activate(hit)) :
+                    _player.Hand.Item.Type.OnActivate(new PlayerItemContext(_player.Hand.Item, _world), new ItemEvent.Activate(hit)) :
                     ItemEvent.Activate.Result.Fail;
                 Console.WriteLine($"Interacted with item in slot {_player.ActiveHotbarSlot}! Result: {itemResult}");
 
@@ -95,7 +97,7 @@ namespace DigBuild
             if (!_input.PrevPunch && _input.Punch)
             {
                 var itemResult = _player.Hand.Item.Count > 0 ?
-                    _player.Hand.Item.Item.OnPunch(new PlayerItemContext(_player.Hand.Item, _world), new ItemEvent.Punch(hit)) :
+                    _player.Hand.Item.Type.OnPunch(new PlayerItemContext(_player.Hand.Item, _world), new ItemEvent.Punch(hit)) :
                     ItemEvent.Punch.Result.Fail;
                 Console.WriteLine($"Punched with item {_player.ActiveHotbarSlot}! Result: {itemResult}");
 

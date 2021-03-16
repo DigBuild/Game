@@ -13,10 +13,12 @@ namespace DigBuild.Blocks
             registry.Register((IBlockContext context, Activate evt) => Activate.Result.Fail);
             registry.Register((IBlockContext context, Punch evt) =>
             {
+                context.Block.OnBroken(context, new Broken());
                 context.World.SetBlock(evt.Hit.BlockPos, null);
                 return Punch.Result.Success;
             });
             registry.Register((IBlockContext context, NeighborChanged evt) => { });
+            registry.Register((IBlockContext context, Broken evt) => { });
         }
 
         public sealed class Activate : IBlockEvent<IBlockContext, Activate.Result>
@@ -58,6 +60,13 @@ namespace DigBuild.Blocks
                 Direction = direction;
             }
         }
+
+        public sealed class Broken : IBlockEvent<IBlockContext>
+        {
+            public Broken()
+            {
+            }
+        }
     }
 
     public static class BlockEventExtensions
@@ -97,6 +106,19 @@ namespace DigBuild.Blocks
         }
 
         public static void OnNeighborChanged(this IBlock block, IBlockContext context, BlockEvent.NeighborChanged evt)
+        {
+            block.Post(context, evt);
+        }
+        
+        public static void Subscribe<TData>(
+            this IBlockBehaviorBuilder<TData> builder,
+            BlockEventDelegate<IBlockContext, TData, BlockEvent.Broken> onBroken
+        )
+        {
+            builder.Subscribe(onBroken);
+        }
+
+        public static void OnBroken(this IBlock block, IBlockContext context, BlockEvent.Broken evt)
         {
             block.Post(context, evt);
         }

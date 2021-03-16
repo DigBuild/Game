@@ -16,17 +16,19 @@ namespace DigBuild.Render
             _parent = parent;
         }
 
-        public void AddGeometry(GeometryBufferSet buffers)
+        public void AddGeometry(ItemModelTransform transform, GeometryBufferSet buffers)
         {
-            buffers.Transform = Ortho * buffers.Transform;
+            if (transform == ItemModelTransform.Inventory)
+                buffers.Transform = Ortho * buffers.Transform;
             _parent.AddGeometry(BlockFaceFlags.All, buffers);
         }
 
         public bool HasDynamicGeometry => _parent.HasDynamicGeometry;
 
-        public void AddDynamicGeometry(GeometryBufferSet buffers)
+        public void AddDynamicGeometry(ItemModelTransform transform, GeometryBufferSet buffers)
         {
-            buffers.Transform = Ortho * buffers.Transform;
+            if (transform == ItemModelTransform.Inventory)
+                buffers.Transform = Ortho * buffers.Transform;
             _parent.AddDynamicGeometry(buffers);
         }
     }

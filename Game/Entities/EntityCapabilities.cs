@@ -1,0 +1,47 @@
+﻿using System;
+using System.Numerics;
+using DigBuild.Engine.Entities;
+using DigBuild.Engine.Items;
+using DigBuild.Engine.Reg;
+using DigBuild.Platform.Resource;
+
+namespace DigBuild.Entities
+{
+    public class EntityCapabilities
+    {
+        public static EntityCapability<IPhysicalEntity?> PhysicalEntity { get; private set; } = null!;
+        public static EntityCapability<IItemEntity?> ItemEntity { get; private set; } = null!;
+        
+        internal static void Register(RegistryBuilder<IEntityCapability> registry)
+        {
+            PhysicalEntity = registry.Register(
+                new ResourceName(Game.Domain, "physical_entity"),
+                (IPhysicalEntity?) null
+            );
+            ItemEntity = registry.Register(
+                new ResourceName(Game.Domain, "item_entity"),
+                (IItemEntity?) null
+            );
+        }
+    }
+
+    public static class EntityCapabilityExtensions
+    {
+        public static EntityInstance WithPosition(this EntityInstance entity, Vector3 position)
+        {
+            var physicalEntity = entity.Type.Get(new EntityContext(entity), EntityCapabilities.PhysicalEntity);
+            if (physicalEntity == null)
+                throw new ArgumentException("Cannot set position on a non-physical entity.");
+            physicalEntity.Position = position;
+            return entity;
+        }
+        public static EntityInstance WithItem(this EntityInstance entity, ItemInstance item)
+        {
+            var itemEntity = entity.Type.Get(new EntityContext(entity), EntityCapabilities.ItemEntity);
+            if (itemEntity == null)
+                throw new ArgumentException("Cannot set item on a non-item entity.");
+            itemEntity.Item = item;
+            return entity;
+        }
+    }
+}
