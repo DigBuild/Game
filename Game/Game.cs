@@ -6,6 +6,7 @@ using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
+using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Voxel;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Items;
@@ -18,7 +19,8 @@ namespace DigBuild
     {
         public const string Domain = "digbuild";
 
-        private readonly TickManager _tickManager;
+        private readonly TickSource _tickSource;
+        private readonly Scheduler _scheduler;
         private readonly GameWindow _window;
         
         private readonly GameInput _input = new();
@@ -47,8 +49,10 @@ namespace DigBuild
 
             _rayCastContext = new WorldRayCastContext(_world);
             
-            _tickManager = new TickManager(Tick);
-            _window = new GameWindow(_tickManager, _player, _rayCastContext);
+            _tickSource = new TickSource();
+            _tickSource.Tick += Tick;
+            _scheduler = new Scheduler(_tickSource);
+            _window = new GameWindow(_tickSource, _player, _rayCastContext);
 
             _world.ChunkManager.ChunkChanged += chunk => _window.OnChunkChanged(chunk);
             _world.EntityAdded += entity => _window.OnEntityAdded(entity);

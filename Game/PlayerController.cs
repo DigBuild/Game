@@ -12,16 +12,16 @@ namespace DigBuild
 {
     public sealed class PlayerController
     {
-        private const float Gravity = 2.0f * TickManager.TickDurationSeconds;
+        private const float Gravity = 2.0f * TickSource.TickDurationSeconds;
         private const float TerminalVelocity = 0.5f;
         private const float GroundDragFactor = 0.2F;
         private const float AirDragFactor = 0.3F;
 
-        private const float JumpForce = 12f * TickManager.TickDurationSeconds;
-        private const float JumpKickSpeed = 0.8f * TickManager.TickDurationSeconds;
-        private const float MovementSpeedGround = 6 * TickManager.TickDurationSeconds;
-        private const float MovementSpeedAir = 5 * TickManager.TickDurationSeconds;
-        private const float CameraSpeed = 4 * TickManager.TickDurationSeconds;
+        private const float JumpForce = 12f * TickSource.TickDurationSeconds;
+        private const float JumpKickSpeed = 0.8f * TickSource.TickDurationSeconds;
+        private const float MovementSpeedGround = 6 * TickSource.TickDurationSeconds;
+        private const float MovementSpeedAir = 5 * TickSource.TickDurationSeconds;
+        private const float CameraSpeed = 4 * TickSource.TickDurationSeconds;
 
         private static readonly AABB PlayerBounds = new(-0.4f, 0, -0.4f, 0.4f, 1.85f, 0.4f);
 

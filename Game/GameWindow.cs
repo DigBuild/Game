@@ -216,7 +216,7 @@ namespace DigBuild
             )
         );
 
-        private readonly TickManager _tickManager;
+        private readonly TickSource _tickSource;
         private readonly PlayerController _player;
         private readonly WorldRayCastContext _rayCastContext;
         private readonly WorldRenderManager _worldRenderManager;
@@ -237,9 +237,9 @@ namespace DigBuild
         private readonly GeometryBufferSet _uiGbs = new(BufferPool);
         private readonly UniformBufferSet _uiUbs = new(BufferPool);
 
-        public GameWindow(TickManager tickManager, PlayerController player, WorldRayCastContext rayCastContext)
+        public GameWindow(TickSource tickSource, PlayerController player, WorldRayCastContext rayCastContext)
         {
-            _tickManager = tickManager;
+            _tickSource = tickSource;
             _player = player;
             _rayCastContext = rayCastContext;
             
@@ -296,7 +296,7 @@ namespace DigBuild
                 widthHint: 1280,
                 heightHint: 720
             );
-            _tickManager.Start(surface.Closed);
+            _tickSource.Start(surface.Closed);
             await surface.Closed;
         }
 
@@ -384,9 +384,9 @@ namespace DigBuild
                 _ui.Add(0, 0, _pickedSlot = new UIUnboundInventorySlot(_player.PickedItem, _itemModels));
             }
 
-            lock (_tickManager)
+            lock (_tickSource)
             {
-                var camera = _player.GetCamera(_tickManager.PartialTick);
+                var camera = _player.GetCamera(_tickSource.CurrentTick.Value);
                 var hit = RayCaster.Cast(_rayCastContext, camera.Ray);
                 var physicalProjMat = Matrix4x4.CreatePerspectiveFieldOfView(
                     MathF.PI / 2, surface.Width / (float) surface.Height, 0.001f, 10000f
