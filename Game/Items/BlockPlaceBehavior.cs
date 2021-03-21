@@ -1,4 +1,5 @@
 ﻿using System;
+using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Voxel;
@@ -24,8 +25,11 @@ namespace DigBuild.Items
             if (evt.Hit == null)
                 return next();
 
-            if (context.World.SetBlock(evt.Hit.BlockPos.Offset(evt.Hit.Face), _blockSupplier()))
+            var pos = evt.Hit.BlockPos.Offset(evt.Hit.Face);
+            var block = _blockSupplier();
+            if (context.World.SetBlock(pos, block))
             {
+                block.OnPlaced(new BlockContext(context.World, pos, block), new BlockEvent.Placed());
                 context.Instance.Count--;
                 Console.WriteLine($"New item count is {context.Instance.Count}");
                 return ItemEvent.Activate.Result.Success;

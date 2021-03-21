@@ -18,6 +18,7 @@ namespace DigBuild.Blocks
                 return Punch.Result.Success;
             });
             registry.Register((IBlockContext context, NeighborChanged evt) => { });
+            registry.Register((IBlockContext context, Placed evt) => { });
             registry.Register((IBlockContext context, Broken evt) => { });
         }
 
@@ -58,6 +59,13 @@ namespace DigBuild.Blocks
             public NeighborChanged(BlockFace direction)
             {
                 Direction = direction;
+            }
+        }
+
+        public sealed class Placed : IBlockEvent<IBlockContext>
+        {
+            public Placed()
+            {
             }
         }
 
@@ -106,6 +114,19 @@ namespace DigBuild.Blocks
         }
 
         public static void OnNeighborChanged(this IBlock block, IBlockContext context, BlockEvent.NeighborChanged evt)
+        {
+            block.Post(context, evt);
+        }
+        
+        public static void Subscribe<TData>(
+            this IBlockBehaviorBuilder<TData> builder,
+            BlockEventDelegate<IBlockContext, TData, BlockEvent.Placed> onPlaced
+        )
+        {
+            builder.Subscribe(onPlaced);
+        }
+
+        public static void OnPlaced(this IBlock block, IBlockContext context, BlockEvent.Placed evt)
         {
             block.Post(context, evt);
         }
