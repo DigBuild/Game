@@ -321,6 +321,9 @@ namespace DigBuild
         private UILabel _lookLabel = null!;
         private UIInventorySlot[] _hotbarSlots = null!;
         private UIUnboundInventorySlot _pickedSlot = null!;
+        
+        private UIInventorySlot[] _shapedSlots = null!;
+        private UIInventorySlot _outputSlot = null!;
 
         private uint _curX, _curY;
         private IUIElementContext.KeyboardEventDelegate? _keyboardEventDelegate;
@@ -347,7 +350,7 @@ namespace DigBuild
 
             if (Resources == null)
             {
-                var blockSpritesheet = _blockStitcher.Build(context);
+                var blockSpritesheet = _blockStitcher.Build(context, "block_spritesheet.png");
                 foreach (var model in _unbakedModels)
                     model.Initialize();
 
@@ -368,17 +371,43 @@ namespace DigBuild
 
                 _ui.Add(20, 20, _positionLabel = new UILabel(""));
                 _ui.Add(20, 50, _lookLabel = new UILabel(""));
-                
-                var off = 60u;
-                _hotbarSlots = new UIInventorySlot[_player.Hotbar.Length];
-                for (var i = 0; i < _hotbarSlots.Length; i++)
+
                 {
-                    var i1 = i;
-                    _ui.Add(off, surface.Height - 60, _hotbarSlots[i] = new UIInventorySlot(
-                        _player.Hotbar[i], _player.PickedItem, _itemModels, UIRenderLayer.Ui, 
-                        () => _player.ActiveHotbarSlot == i1)
-                    );
-                    off += 100;
+                    uint x = 120u, y = 120u;
+                    _shapedSlots = new UIInventorySlot[_player.ShapedSlots.Length];
+                    for (var i = 0; i < _shapedSlots.Length; i++)
+                    {
+                        _ui.Add(x, y, _shapedSlots[i] = new UIInventorySlot(
+                            _player.ShapedSlots[i], _player.PickedItem, _itemModels, UIRenderLayer.Ui
+                        ));
+                        if (i == 1 || i == 4)
+                        {
+                            x -= 45 * 3;
+                            y += 76;
+                        }
+                        else
+                        {
+                            x += 90;
+                        }
+                    }
+                    _ui.Add(120 + 90 * 3, 120 + 76, _outputSlot = new UIInventorySlot(
+                        _player.OutputSlot, _player.PickedItem, _itemModels, UIRenderLayer.Ui
+                    ));
+                }
+
+
+                {
+                    var off = 60u;
+                    _hotbarSlots = new UIInventorySlot[_player.Hotbar.Length];
+                    for (var i = 0; i < _hotbarSlots.Length; i++)
+                    {
+                        var i1 = i;
+                        _ui.Add(off, surface.Height - 60, _hotbarSlots[i] = new UIInventorySlot(
+                            _player.Hotbar[i], _player.PickedItem, _itemModels, UIRenderLayer.Ui, 
+                            () => _player.ActiveHotbarSlot == i1)
+                        );
+                        off += 100;
+                    }
                 }
 
                 _ui.Add(0, 0, _pickedSlot = new UIUnboundInventorySlot(_player.PickedItem, _itemModels));

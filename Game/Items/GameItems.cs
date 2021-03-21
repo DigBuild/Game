@@ -14,6 +14,7 @@ namespace DigBuild.Items
         public static Item Water { get; private set; } = null!;
         public static Item Stone { get; private set; } = null!;
         public static Item TriangleItem { get; private set; } = null!;
+        public static Item Crafter { get; private set; } = null!;
 
         public static Item CountingItem { get; private set; } = null!;
 
@@ -33,6 +34,9 @@ namespace DigBuild.Items
             );
             TriangleItem = registry.Create(new ResourceName(Game.Domain, "triangle_Item"),
                 BlockPlacement(() => GameBlocks.TriangleBlock)
+            );
+            Crafter = registry.Create(new ResourceName(Game.Domain, "crafter"),
+                BlockPlacement(() => GameBlocks.Crafter)
             );
 
             CountingItem = registry.Create(new ResourceName(Game.Domain, "counting_item"), builder =>

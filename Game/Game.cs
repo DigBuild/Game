@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -10,6 +10,7 @@ using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Voxel;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Items;
+using DigBuild.Recipes;
 using DigBuild.Voxel;
 using DigBuild.Worldgen;
 
@@ -18,6 +19,7 @@ namespace DigBuild
     public class Game
     {
         public const string Domain = "digbuild";
+        public static CraftingRecipeLookup RecipeLookup { get; private set; } = null!;
 
         private readonly TickSource _tickSource;
         private readonly Scheduler _scheduler;
@@ -37,6 +39,28 @@ namespace DigBuild
             _tickSource = new TickSource();
             _tickSource.Tick += Tick;
             _scheduler = new Scheduler(_tickSource);
+
+            var stoneIngredient = new CraftingIngredient(GameItems.Stone);
+            var recipes = new List<ICraftingRecipe>
+            {
+                new CraftingRecipe(
+                    new[]
+                    {
+                        CraftingIngredient.None, CraftingIngredient.None,
+                        CraftingIngredient.None, stoneIngredient, CraftingIngredient.None,
+                        stoneIngredient, stoneIngredient
+                    },
+                    new[]
+                    {
+                        CraftingIngredient.None, CraftingIngredient.None,
+                        CraftingIngredient.None, CraftingIngredient.None
+                    },
+                    CraftingIngredient.None,
+                    new ItemInstance(GameItems.TriangleItem, 3)
+                )
+            };
+            RecipeLookup = new CraftingRecipeLookup(recipes);
+
             var features = new List<IWorldgenFeature>
             {
                 WorldgenFeatures.Terrain,
@@ -46,7 +70,8 @@ namespace DigBuild
             _world = new World(generator, _scheduler);
             _player = new PlayerController(_world, new Vector3(0, 15, 0));
             _player.Hotbar[0].Item = new ItemInstance(GameItems.Stone, 5);
-            _player.Hotbar[1].Item = new ItemInstance(GameItems.Grass, 20);
+            _player.Hotbar[1].Item = new ItemInstance(GameItems.Stone, 5);
+            _player.Hotbar[2].Item = new ItemInstance(GameItems.Stone, 5);
             _player.Hotbar[3].Item = new ItemInstance(GameItems.Dirt, 12);
             _player.Hotbar[4].Item = new ItemInstance(GameItems.TriangleItem, 8);
 

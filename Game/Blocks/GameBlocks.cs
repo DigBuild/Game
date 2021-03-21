@@ -1,10 +1,12 @@
 ﻿using System;
+using DigBuild.Behaviors;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Reg;
 using DigBuild.Items;
 using DigBuild.Platform.Resource;
+using DigBuild.Recipes;
 
 namespace DigBuild.Blocks
 {
@@ -16,6 +18,8 @@ namespace DigBuild.Blocks
         public static Block Stone { get; private set; } = null!;
 
         public static Block TriangleBlock { get; private set; } = null!;
+
+        public static Block Crafter { get; private set; } = null!;
 
         internal static void Register(RegistryBuilder<Block> registry)
         {
@@ -39,11 +43,19 @@ namespace DigBuild.Blocks
             );
             
             TriangleBlock = registry.Create(new ResourceName(Game.Domain, "triangle_block"), builder =>
-            {
-                var data = builder.Add<CountingData>();
-                builder.Attach(new CountingBehavior(), data);
-                // builder.Attach(new NoPunchBehavior());
-            },
+                {
+                    var data = builder.Add<CountingData>();
+                    builder.Attach(new CountingBehavior(), data);
+                    // builder.Attach(new NoPunchBehavior());
+                },
+                BlockDrops(() => GameItems.TriangleItem)
+            );
+            
+            Crafter = registry.Create(new ResourceName(Game.Domain, "crafter"), builder =>
+                {
+                    var data = builder.Add<CrafterData>();
+                    builder.Attach(new CraftingBehavior(), data);
+                },
                 BlockDrops(() => GameItems.TriangleItem)
             );
         }
@@ -54,6 +66,23 @@ namespace DigBuild.Blocks
             {
                 builder.Attach(new BlockDropsBehavior(() => new ItemInstance(itemSupplier(), amount)));
             };
+        }
+    }
+
+    public sealed class CrafterData : ICraftingBehavior
+    {
+        public InventorySlot[] ShapedSlots => throw new NotImplementedException();
+        public InventorySlot[] ShapelessSlots => throw new NotImplementedException();
+        public InventorySlot CatalystSlot => throw new NotImplementedException();
+
+        public ICraftingRecipe? ActiveRecipe
+        {
+            set => throw new NotImplementedException();
+        }
+
+        public CraftingOutput? ActiveRecipeOutput
+        {
+            set => throw new NotImplementedException();
         }
     }
 }

@@ -7,10 +7,11 @@ using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Voxel;
+using DigBuild.Recipes;
 
 namespace DigBuild
 {
-    public sealed class PlayerController
+    public sealed class PlayerController : ICraftingInput
     {
         private const float Gravity = 2.0f * TickSource.TickDurationSeconds;
         private const float TerminalVelocity = 0.5f;
@@ -47,7 +48,26 @@ namespace DigBuild
 
         public InventorySlot PickedItem { get; } = new();
         public bool HotbarTransfer { get; set; }
+
+
         
+        public InventorySlot[] ShapedSlots { get; } = { new(), new(), new(), new(), new(), new(), new() };
+        public InventorySlot[] ShapelessSlots { get; } = { new(), new(), new(), new() };
+        public InventorySlot CatalystSlot { get; } = new();
+        public InventorySlot OutputSlot { get; } = new();
+
+        public ItemInstance GetCatalyst() => CatalystSlot.Item;
+        public ItemInstance GetShaped(byte slot) => ShapedSlots[slot].Item;
+        public ItemInstance GetShapeless(byte slot) => ShapelessSlots[slot].Item;
+
+        private void UpdateCraftingInventory()
+        {
+            var result = Game.RecipeLookup.Find(this);
+            OutputSlot.Item = result.HasValue ? result.Value.Output.Output : ItemInstance.Empty;
+        }
+
+
+
         public PlayerCamera GetCamera(float partialTick)
         {
             return new(
@@ -62,6 +82,12 @@ namespace DigBuild
         {
             _world = world;
             Position = position;
+            
+            foreach (var slot in ShapedSlots)
+                slot.Changed += UpdateCraftingInventory;
+            foreach (var slot in ShapelessSlots)
+                slot.Changed += UpdateCraftingInventory;
+            CatalystSlot.Changed += UpdateCraftingInventory;
         }
 
         public void CycleHotbar(int amount)
