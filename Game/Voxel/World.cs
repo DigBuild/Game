@@ -3,6 +3,7 @@ using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Math;
+using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Voxel;
 using DigBuild.Engine.Worldgen;
 
@@ -15,10 +16,13 @@ namespace DigBuild.Voxel
         public event Action<EntityInstance>? EntityAdded;
         public event Action<Guid>? EntityRemoved; 
 
-        public World(WorldGenerator generator)
+        public World(WorldGenerator generator, Scheduler tickScheduler)
         {
             ChunkManager = new ChunkManager(generator);
+            TickScheduler = tickScheduler;
         }
+
+        public override Scheduler TickScheduler { get; }
 
         public override IChunk? GetChunk(ChunkPos pos, bool load = true)
         {

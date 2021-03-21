@@ -7,7 +7,7 @@ namespace DigBuild
 {
     public class TickSource : IStableTickSource
     {
-        public const int TicksPerSecond = 20;
+        public const uint TicksPerSecond = 20;
         public const float TickDurationSeconds = 1f / TicksPerSecond;
         public const float TickDurationMilliseconds = 1000f / TicksPerSecond;
         private const long SystemTicksPerGameTick = TimeSpan.TicksPerSecond / TicksPerSecond;

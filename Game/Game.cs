@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -33,14 +33,17 @@ namespace DigBuild
         public Game()
         {
             GameRegistries.Initialize();
-            
+
+            _tickSource = new TickSource();
+            _tickSource.Tick += Tick;
+            _scheduler = new Scheduler(_tickSource);
             var features = new List<IWorldgenFeature>
             {
                 WorldgenFeatures.Terrain,
                 WorldgenFeatures.Water
             };
             var generator = new WorldGenerator(features, 0, pos => new ChunkPrototype(pos));
-            _world = new World(generator);
+            _world = new World(generator, _scheduler);
             _player = new PlayerController(_world, new Vector3(0, 15, 0));
             _player.Hotbar[0].Item = new ItemInstance(GameItems.Stone, 5);
             _player.Hotbar[1].Item = new ItemInstance(GameItems.Grass, 20);
@@ -49,9 +52,6 @@ namespace DigBuild
 
             _rayCastContext = new WorldRayCastContext(_world);
             
-            _tickSource = new TickSource();
-            _tickSource.Tick += Tick;
-            _scheduler = new Scheduler(_tickSource);
             _window = new GameWindow(_tickSource, _player, _rayCastContext);
 
             _world.ChunkManager.ChunkChanged += chunk => _window.OnChunkChanged(chunk);
