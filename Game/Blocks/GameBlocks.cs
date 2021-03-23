@@ -35,6 +35,7 @@ namespace DigBuild.Blocks
             Water = registry.Create(new ResourceName(Game.Domain, "water"), builder =>
                 {
                     builder.Attach(new NoPunchBehavior());
+                    builder.Attach(new BoopBehavior());
                 },
                 BlockDrops(() => GameItems.Water)
             );
@@ -44,9 +45,13 @@ namespace DigBuild.Blocks
             
             TriangleBlock = registry.Create(new ResourceName(Game.Domain, "triangle_block"), builder =>
                 {
-                    var data = builder.Add<CountingData>();
-                    builder.Attach(new CountingBehavior(), data);
+                    // var countingData = builder.Add<CountingData>();
+                    // builder.Attach(new CountingBehavior(), countingData);
+
                     // builder.Attach(new NoPunchBehavior());
+
+                    var feedData = builder.Add<BlockFeedData>();
+                    builder.Attach(new BlockFeedBehavior(), feedData);
                 },
                 BlockDrops(() => GameItems.TriangleItem)
             );

@@ -3,6 +3,7 @@ using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Reg;
+using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Entities;
 using DigBuild.Items;
@@ -13,6 +14,8 @@ namespace DigBuild
 {
     public static class GameRegistries
     {
+        public static Registry<IJobHandle> Jobs { get; private set; } = null!;
+
         public static ExtendedTypeRegistry<IBlockEvent, BlockEventInfo> BlockEvents { get; private set; } = null!;
         public static Registry<IBlockAttribute> BlockAttributes { get; private set; } = null!;
         public static Registry<IBlockCapability> BlockCapabilities { get; private set; } = null!;
@@ -35,6 +38,12 @@ namespace DigBuild
         internal static void Initialize()
         {
             var manager = new RegistryManager();
+            
+            var jobs = manager.CreateRegistryOf<IJobHandle>(
+                new ResourceName(Game.Domain, "jobs")
+            );
+            jobs.Building += GameJobs.Register;
+            jobs.Built += reg => Jobs = reg;
             
             var blockEvents = manager.CreateExtendedRegistryOfTypes<IBlockEvent, BlockEventInfo>(
                 new ResourceName(Game.Domain, "block_events"), t => true
