@@ -1,7 +1,8 @@
 ﻿using DigBuild.Engine.Blocks;
+using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Math;
-using DigBuild.Engine.Reg;
-using DigBuild.Engine.Voxel;
+using DigBuild.Engine.Registries;
+using DigBuild.Engine.Worlds;
 using DigBuild.Voxel;
 
 namespace DigBuild.Blocks
@@ -13,13 +14,19 @@ namespace DigBuild.Blocks
             registry.Register((IBlockContext context, Activate evt) => Activate.Result.Fail);
             registry.Register((IBlockContext context, Punch evt) =>
             {
-                context.Block.OnBroken(context, new Broken());
-                context.World.SetBlock(evt.Hit.BlockPos, null);
+                context.Block.OnBreaking(context, new Breaking());
+                context.World.SetBlock(evt.Hit.BlockPos, null, false, true);
                 return Punch.Result.Success;
             });
             registry.Register((IBlockContext context, NeighborChanged evt) => { });
-            registry.Register((IBlockContext context, Placed evt) => { });
-            registry.Register((IBlockContext context, Broken evt) => { });
+            registry.Register((IBlockContext context, Placed evt) =>
+            {
+                context.Block.OnJoinedWorld(context, new BuiltInBlockEvent.JoinedWorld());
+            });
+            registry.Register((IBlockContext context, Breaking evt) =>
+            {
+                context.Block.OnLeavingWorld(context, new BuiltInBlockEvent.LeavingWorld());
+            });
         }
 
         public sealed class Activate : IBlockEvent<IBlockContext, Activate.Result>
@@ -69,9 +76,9 @@ namespace DigBuild.Blocks
             }
         }
 
-        public sealed class Broken : IBlockEvent<IBlockContext>
+        public sealed class Breaking : IBlockEvent<IBlockContext>
         {
-            public Broken()
+            public Breaking()
             {
             }
         }
@@ -133,13 +140,13 @@ namespace DigBuild.Blocks
         
         public static void Subscribe<TData>(
             this IBlockBehaviorBuilder<TData> builder,
-            BlockEventDelegate<IBlockContext, TData, BlockEvent.Broken> onBroken
+            BlockEventDelegate<IBlockContext, TData, BlockEvent.Breaking> onBreaking
         )
         {
-            builder.Subscribe(onBroken);
+            builder.Subscribe(onBreaking);
         }
 
-        public static void OnBroken(this IBlock block, IBlockContext context, BlockEvent.Broken evt)
+        public static void OnBreaking(this IBlock block, IBlockContext context, BlockEvent.Breaking evt)
         {
             block.Post(context, evt);
         }

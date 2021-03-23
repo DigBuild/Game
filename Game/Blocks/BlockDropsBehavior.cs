@@ -2,8 +2,7 @@
 using System.Numerics;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
-using DigBuild.Engine.Math;
-using DigBuild.Engine.Voxel;
+using DigBuild.Engine.Worlds;
 using DigBuild.Entities;
 
 namespace DigBuild.Blocks
@@ -19,10 +18,10 @@ namespace DigBuild.Blocks
 
         public void Build(BlockBehaviorBuilder<object> block)
         {
-            block.Subscribe(OnBroken);
+            block.Subscribe(OnBreaking);
         }
 
-        private void OnBroken(IBlockContext context, object data, BlockEvent.Broken evt, Action next)
+        private void OnBreaking(IBlockContext context, object data, BlockEvent.Breaking evt, Action next)
         {
             context.World.AddEntity(GameEntities.Item)
                 .WithPosition(((Vector3) context.Pos) + new Vector3(0.5f, 0, 0.5f))

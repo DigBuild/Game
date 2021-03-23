@@ -2,7 +2,7 @@
 using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
-using DigBuild.Engine.Voxel;
+using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Items
 {
@@ -27,7 +27,7 @@ namespace DigBuild.Items
 
             var pos = evt.Hit.BlockPos.Offset(evt.Hit.Face);
             var block = _blockSupplier();
-            if (context.World.SetBlock(pos, block))
+            if (context.World.SetBlock(pos, block, true, false))
             {
                 block.OnPlaced(new BlockContext(context.World, pos, block), new BlockEvent.Placed());
                 context.Instance.Count--;

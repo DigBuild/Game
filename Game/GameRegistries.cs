@@ -1,10 +1,13 @@
 ﻿using DigBuild.Blocks;
+using DigBuild.Engine;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
-using DigBuild.Engine.Reg;
+using DigBuild.Engine.Registries;
 using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Worldgen;
+using DigBuild.Engine.Worlds;
 using DigBuild.Entities;
 using DigBuild.Items;
 using DigBuild.Platform.Resource;
@@ -14,6 +17,9 @@ namespace DigBuild
 {
     public static class GameRegistries
     {
+        public static Registry<IWorldStorageType> WorldStorageTypes { get; private set; } = null!;
+        public static Registry<IChunkStorageType> ChunkStorageTypes { get; private set; } = null!;
+
         public static Registry<IJobHandle> Jobs { get; private set; } = null!;
 
         public static ExtendedTypeRegistry<IBlockEvent, BlockEventInfo> BlockEvents { get; private set; } = null!;
@@ -38,6 +44,28 @@ namespace DigBuild
         internal static void Initialize()
         {
             var manager = new RegistryManager();
+
+            var worldStorageTypes = manager.CreateRegistryOf<IWorldStorageType>(
+                new ResourceName(Game.Domain, "world_storage_type")
+            );
+            worldStorageTypes.Building += DigBuildEngine.Register;
+            worldStorageTypes.Building += GameWorldStorage.Register;
+            worldStorageTypes.Built += reg =>
+            {
+                BuiltInRegistries.WorldStorageTypes = reg;
+                WorldStorageTypes = reg;
+            };
+
+            var chunkStorageTypes = manager.CreateRegistryOf<IChunkStorageType>(
+                new ResourceName(Game.Domain, "chunk_storage_type")
+            );
+            chunkStorageTypes.Building += DigBuildEngine.Register;
+            chunkStorageTypes.Building += GameChunkStorage.Register;
+            chunkStorageTypes.Built += reg =>
+            {
+                BuiltInRegistries.ChunkStorageTypes = reg;
+                ChunkStorageTypes = reg;
+            };
             
             var jobs = manager.CreateRegistryOf<IJobHandle>(
                 new ResourceName(Game.Domain, "jobs")
@@ -48,27 +76,28 @@ namespace DigBuild
             var blockEvents = manager.CreateExtendedRegistryOfTypes<IBlockEvent, BlockEventInfo>(
                 new ResourceName(Game.Domain, "block_events"), t => true
             );
+            blockEvents.Building += DigBuildEngine.Register;
             blockEvents.Building += BlockEvent.Register;
             blockEvents.Built += reg =>
             {
+                BuiltInRegistries.BlockEvents = reg;
                 BlockEvents = reg;
-                BlockRegistryBuilderExtensions.EventRegistry = reg;
             };
             
             var blockAttributes = manager.CreateRegistryOf<IBlockAttribute>(new ResourceName(Game.Domain, "block_attributes"));
             blockAttributes.Building += DigBuild.Blocks.BlockAttributes.Register;
             blockAttributes.Built += reg =>
             {
+                BuiltInRegistries.BlockAttributes = reg;
                 BlockAttributes = reg;
-                BlockRegistryBuilderExtensions.BlockAttributes = reg;
             };
             
             var blockCapabilities = manager.CreateRegistryOf<IBlockCapability>(new ResourceName(Game.Domain, "block_capabilities"));
             // blockCapabilities.Building += DigBuild.Blocks.BlockAttributes.Register;
             blockCapabilities.Built += reg =>
             {
+                BuiltInRegistries.BlockCapabilities = reg;
                 BlockCapabilities = reg;
-                BlockRegistryBuilderExtensions.BlockCapabilities = reg;
             };
             
             var blocks = manager.CreateRegistryOf<Block>(new ResourceName(Game.Domain, "blocks"));

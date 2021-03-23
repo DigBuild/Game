@@ -1,5 +1,5 @@
 ﻿using System;
-using DigBuild.Engine.Reg;
+using DigBuild.Engine.Registries;
 using DigBuild.Engine.Ticking;
 using DigBuild.Platform.Resource;
 

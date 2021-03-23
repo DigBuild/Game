@@ -1,14 +1,14 @@
 ﻿using DigBuild.Engine.Render;
-using DigBuild.Engine.UI;
+using DigBuild.Engine.Ui;
 using DigBuild.Platform.Render;
 using DigBuild.Render.GeneratedUniforms;
 
 namespace DigBuild.Render
 {
-    public static class UIRenderLayer
+    public static class UiRenderLayer
     {
-        public static readonly RenderLayer<UIVertex> Text = RenderLayer<UIVertex>.Create(
-            UIVertex.CreateTransformer,
+        public static readonly RenderLayer<UiVertex> Text = RenderLayer<UiVertex>.Create(
+            UiVertex.CreateTransformer,
             ctx => GameWindow.Resources!.UiRenderStage,
             (ctx, resourceManager, renderStage) =>
             {
@@ -18,7 +18,7 @@ namespace DigBuild.Render
                     .WithUniform<SimpleUniform>(out var uniform);
                 FragmentShader fs = ctx.CreateFragmentShader(fsResource)
                     .WithSampler(out var textureHandle);
-                RenderPipeline<UIVertex> pipeline = ctx.CreatePipeline<UIVertex>(
+                RenderPipeline<UiVertex> pipeline = ctx.CreatePipeline<UiVertex>(
                     vs, fs,
                     renderStage, Topology.Triangles
                 ).WithStandardBlending(GameWindow.Resources!.UiFramebuffer.Format.Attachments[0]);
@@ -33,7 +33,7 @@ namespace DigBuild.Render
                     GameWindow.Resources!.FontTexture
                 );
                 
-                return new SimpleLayerData<UIVertex, SimpleUniform>(
+                return new SimpleLayerData<UiVertex, SimpleUniform>(
                     pipeline, textureBinding, uniform,
                     mat => new SimpleUniform(){Matrix = mat}
                 );
@@ -46,8 +46,8 @@ namespace DigBuild.Render
             });
 
         
-        public static readonly RenderLayer<UIVertex> Ui = RenderLayer<UIVertex>.Create(
-            UIVertex.CreateTransformer,
+        public static readonly RenderLayer<UiVertex> Ui = RenderLayer<UiVertex>.Create(
+            UiVertex.CreateTransformer,
             ctx => GameWindow.Resources!.UiRenderStage,
             (ctx, resourceManager, renderStage) =>
             {
@@ -57,7 +57,7 @@ namespace DigBuild.Render
                     .WithUniform<SimpleUniform>(out var uniform);
                 FragmentShader fs = ctx.CreateFragmentShader(fsResource)
                     .WithSampler(out var textureHandle);
-                RenderPipeline<UIVertex> pipeline = ctx.CreatePipeline<UIVertex>(
+                RenderPipeline<UiVertex> pipeline = ctx.CreatePipeline<UiVertex>(
                     vs, fs,
                     renderStage, Topology.Triangles
                 ).WithStandardBlending(GameWindow.Resources!.UiFramebuffer.Format.Attachments[0]);
@@ -72,7 +72,7 @@ namespace DigBuild.Render
                     GameWindow.Resources!.UiTexture
                 );
                 
-                return new SimpleLayerData<UIVertex, SimpleUniform>(
+                return new SimpleLayerData<UiVertex, SimpleUniform>(
                     pipeline, textureBinding, uniform,
                     mat => new SimpleUniform(){Matrix = mat}
                 );

@@ -1,5 +1,5 @@
 ﻿using DigBuild.Blocks;
-using DigBuild.Engine.Reg;
+using DigBuild.Engine.Registries;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Platform.Resource;
 

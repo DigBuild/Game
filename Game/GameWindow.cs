@@ -10,8 +10,8 @@ using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Textures;
-using DigBuild.Engine.UI;
-using DigBuild.Engine.Voxel;
+using DigBuild.Engine.Ui;
+using DigBuild.Engine.Worlds;
 using DigBuild.Entities;
 using DigBuild.GeneratedUniforms;
 using DigBuild.Items;
@@ -200,11 +200,11 @@ namespace DigBuild
                 new Bitmap(fontResource.OpenStream())
             );
 
-            TextRenderer = new TextRenderer(UIRenderLayer.Text);
+            TextRenderer = new TextRenderer(UiRenderLayer.Text);
         }
     }
     
-    public class GameWindow : IUIElementContext
+    public class GameWindow : IUiElementContext
     {
         private static readonly NativeBufferPool BufferPool = new();
         private static readonly ResourceManager ResourceManager = new(
@@ -229,9 +229,9 @@ namespace DigBuild
             WorldRenderLayer.Opaque
         };
         private readonly List<IRenderLayer> _uiRenderLayers = new(){
-            UIRenderLayer.Ui,
+            UiRenderLayer.Ui,
             WorldRenderLayer.Opaque,
-            UIRenderLayer.Text,
+            UiRenderLayer.Text,
         };
 
         private readonly GeometryBufferSet _uiGbs = new(BufferPool);
@@ -321,17 +321,17 @@ namespace DigBuild
         }
 
         public static RenderResources? Resources;
-        private readonly UIContainer _ui = new();
-        private UILabel _positionLabel = null!;
-        private UILabel _lookLabel = null!;
-        private UIInventorySlot[] _hotbarSlots = null!;
-        private UIUnboundInventorySlot _pickedSlot = null!;
+        private readonly UiContainer _ui = new();
+        private UiLabel _positionLabel = null!;
+        private UiLabel _lookLabel = null!;
+        private UiInventorySlot[] _hotbarSlots = null!;
+        private UiUnboundInventorySlot _pickedSlot = null!;
         
-        private UIInventorySlot[] _shapedSlots = null!;
-        private UIInventorySlot _outputSlot = null!;
+        private UiInventorySlot[] _shapedSlots = null!;
+        private UiInventorySlot _outputSlot = null!;
 
         private uint _curX, _curY;
-        private IUIElementContext.KeyboardEventDelegate? _keyboardEventDelegate;
+        private IUiElementContext.KeyboardEventDelegate? _keyboardEventDelegate;
         private Action? _keyboardEventDelegateRemoveCallback;
 
         private void OnCursorMoved(uint x, uint y, CursorAction action)
@@ -372,18 +372,18 @@ namespace DigBuild
                 foreach (var layer in _uiRenderLayers)
                     layer.Initialize(context, ResourceManager);
 
-                IUIElement.GlobalTextRenderer = Resources.TextRenderer;
+                IUiElement.GlobalTextRenderer = Resources.TextRenderer;
 
-                _ui.Add(20, 20, _positionLabel = new UILabel(""));
-                _ui.Add(20, 50, _lookLabel = new UILabel(""));
+                _ui.Add(20, 20, _positionLabel = new UiLabel(""));
+                _ui.Add(20, 50, _lookLabel = new UiLabel(""));
 
                 {
                     uint x = 120u, y = 120u;
-                    _shapedSlots = new UIInventorySlot[_player.ShapedSlots.Length];
+                    _shapedSlots = new UiInventorySlot[_player.ShapedSlots.Length];
                     for (var i = 0; i < _shapedSlots.Length; i++)
                     {
-                        _ui.Add(x, y, _shapedSlots[i] = new UIInventorySlot(
-                            _player.ShapedSlots[i], _player.PickedItem, _itemModels, UIRenderLayer.Ui
+                        _ui.Add(x, y, _shapedSlots[i] = new UiInventorySlot(
+                            _player.ShapedSlots[i], _player.PickedItem, _itemModels, UiRenderLayer.Ui
                         ));
                         if (i == 1 || i == 4)
                         {
@@ -395,27 +395,27 @@ namespace DigBuild
                             x += 90;
                         }
                     }
-                    _ui.Add(120 + 90 * 3, 120 + 76, _outputSlot = new UIInventorySlot(
-                        _player.OutputSlot, _player.PickedItem, _itemModels, UIRenderLayer.Ui
+                    _ui.Add(120 + 90 * 3, 120 + 76, _outputSlot = new UiInventorySlot(
+                        _player.OutputSlot, _player.PickedItem, _itemModels, UiRenderLayer.Ui
                     ));
                 }
 
 
                 {
                     var off = 60u;
-                    _hotbarSlots = new UIInventorySlot[_player.Hotbar.Length];
+                    _hotbarSlots = new UiInventorySlot[_player.Hotbar.Length];
                     for (var i = 0; i < _hotbarSlots.Length; i++)
                     {
                         var i1 = i;
-                        _ui.Add(off, surface.Height - 60, _hotbarSlots[i] = new UIInventorySlot(
-                            _player.Hotbar[i], _player.PickedItem, _itemModels, UIRenderLayer.Ui, 
+                        _ui.Add(off, surface.Height - 60, _hotbarSlots[i] = new UiInventorySlot(
+                            _player.Hotbar[i], _player.PickedItem, _itemModels, UiRenderLayer.Ui, 
                             () => _player.ActiveHotbarSlot == i1)
                         );
                         off += 100;
                     }
                 }
 
-                _ui.Add(0, 0, _pickedSlot = new UIUnboundInventorySlot(_player.PickedItem, _itemModels));
+                _ui.Add(0, 0, _pickedSlot = new UiUnboundInventorySlot(_player.PickedItem, _itemModels));
             }
 
             lock (_tickSource)
@@ -487,7 +487,7 @@ namespace DigBuild
             }
         }
 
-        public void SetKeyboardEventHandler(IUIElementContext.KeyboardEventDelegate? handler, Action? removeCallback = null)
+        public void SetKeyboardEventHandler(IUiElementContext.KeyboardEventDelegate? handler, Action? removeCallback = null)
         {
             _keyboardEventDelegate = handler;
             _keyboardEventDelegateRemoveCallback?.Invoke();

@@ -4,8 +4,8 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DigBuild.Engine.Math;
-using DigBuild.Engine.Voxel;
 using DigBuild.Engine.Worldgen;
+using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Voxel
 {

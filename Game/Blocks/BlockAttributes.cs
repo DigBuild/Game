@@ -1,6 +1,6 @@
 ﻿using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
-using DigBuild.Engine.Reg;
+using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Blocks

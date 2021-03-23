@@ -3,7 +3,7 @@ using DigBuild.Behaviors;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
-using DigBuild.Engine.Reg;
+using DigBuild.Engine.Registries;
 using DigBuild.Items;
 using DigBuild.Platform.Resource;
 using DigBuild.Recipes;

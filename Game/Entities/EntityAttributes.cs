@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
-using DigBuild.Engine.Reg;
+using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Entities

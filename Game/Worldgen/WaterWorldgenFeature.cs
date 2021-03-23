@@ -2,8 +2,8 @@
 using System.Collections.Immutable;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
-using DigBuild.Engine.Voxel;
 using DigBuild.Engine.Worldgen;
+using DigBuild.Engine.Worlds;
 using IWorldgenAttribute = DigBuild.Engine.Worldgen.IWorldgenAttribute;
 using IWorldgenFeature = DigBuild.Engine.Worldgen.IWorldgenFeature;
 

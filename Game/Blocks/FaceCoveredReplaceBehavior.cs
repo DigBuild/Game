@@ -1,7 +1,7 @@
 ﻿using System;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
-using DigBuild.Engine.Voxel;
+using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Blocks
 {

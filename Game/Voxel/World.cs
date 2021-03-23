@@ -4,8 +4,8 @@ using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Ticking;
-using DigBuild.Engine.Voxel;
 using DigBuild.Engine.Worldgen;
+using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Voxel
 {

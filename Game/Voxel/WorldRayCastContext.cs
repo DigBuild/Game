@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using DigBuild.Engine.Math;
-using DigBuild.Engine.Voxel;
+using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Voxel
 {

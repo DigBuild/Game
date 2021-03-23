@@ -1,5 +1,5 @@
 ﻿using DigBuild.Engine.Items;
-using DigBuild.Engine.Reg;
+using DigBuild.Engine.Registries;
 using DigBuild.Voxel;
 
 namespace DigBuild.Items
