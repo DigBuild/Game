@@ -22,11 +22,9 @@ namespace DigBuild
         public static CraftingRecipeLookup RecipeLookup { get; private set; } = null!;
 
         private readonly TickSource _tickSource;
-        private readonly Scheduler _scheduler;
         private readonly GameWindow _window;
         
         private readonly GameInput _input = new();
-        private readonly HashSet<ChunkPos> _visitedChunks = new();
 
         private readonly World _world;
         private readonly PlayerController _player;
@@ -38,7 +36,6 @@ namespace DigBuild
 
             _tickSource = new TickSource();
             _tickSource.Tick += Tick;
-            _scheduler = new Scheduler(_tickSource);
 
             var stoneIngredient = new CraftingIngredient(GameItems.Stone);
             var recipes = new List<ICraftingRecipe>
@@ -67,7 +64,7 @@ namespace DigBuild
                 WorldgenFeatures.Water
             };
             var generator = new WorldGenerator(features, 0, pos => new ChunkPrototype(pos));
-            _world = new World(generator, _scheduler);
+            _world = new World(generator, _tickSource);
             _player = new PlayerController(_world, new Vector3(0, 15, 0));
             _player.Hotbar[0].Item = new ItemInstance(GameItems.Stone, 5);
             _player.Hotbar[1].Item = new ItemInstance(GameItems.Stone, 5);
@@ -78,10 +75,13 @@ namespace DigBuild
             _rayCastContext = new WorldRayCastContext(_world);
             
             _window = new GameWindow(_tickSource, _player, _rayCastContext);
-
+            
             _world.ChunkManager.ChunkChanged += chunk => _window.OnChunkChanged(chunk);
+            _world.ChunkManager.ChunkUnloaded += chunk => _window.OnChunkUnloaded(chunk);
             _world.EntityAdded += entity => _window.OnEntityAdded(entity);
             _world.EntityRemoved += guid => _window.OnEntityRemoved(guid);
+            
+            _player.LoadSurroundingChunks();
         }
         
         private void Tick()
@@ -138,23 +138,6 @@ namespace DigBuild
                         new BlockEvent.Punch(hit)
                     );
                     Console.WriteLine($"Punched block at {hit.BlockPos} on face {hit.Face}! Result: {blockResult}"); 
-                }
-            }
-
-            const int range = 5;
-            const int rangeY = 3;
-
-            var chunkPos = new BlockPos(_player.Position).ChunkPos;
-            for (var x = -range; x < range; x++)
-            {
-                for (var z = -range; z < range; z++)
-                {
-                    for (var y = 0; y < rangeY; y++)
-                    {
-                        var p = new ChunkPos(chunkPos.X + x, y, chunkPos.Z + z);
-                        if (_visitedChunks.Add(p)) // Only visit new chunks
-                            _window.OnChunkChanged(_world.GetChunk(p)!);
-                    }
                 }
             }
         }

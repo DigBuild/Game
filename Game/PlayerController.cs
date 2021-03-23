@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Blocks;
@@ -27,6 +27,7 @@ namespace DigBuild
         private static readonly AABB PlayerBounds = new(-0.4f, 0, -0.4f, 0.4f, 1.85f, 0.4f);
 
         private readonly IWorld _world;
+        private IChunkLoadingTicket? _chunkLoadingTicket;
         
         public Vector3 PrevPosition { get; private set; }
         public Vector3 PrevVelocity { get; private set; }
@@ -203,6 +204,31 @@ namespace DigBuild
             Position += vel;
             PrevVelocity = vel;
             Velocity = new Vector3(vel.X * dragFactor, yVel, vel.Z * dragFactor);
+
+            var prevChunkPos = new BlockPos(PrevPosition).ChunkPos;
+            var newChunkPos = new BlockPos(Position).ChunkPos;
+            if (prevChunkPos != newChunkPos)
+                LoadSurroundingChunks();
+        }
+
+        public void LoadSurroundingChunks()
+        {
+            const int range = 5;
+            const int rangeY = 3;
+            
+            var chunkPos = new BlockPos(Position).ChunkPos;
+            var chunksToLoad = new HashSet<ChunkPos>();
+            for (var x = -range; x < range; x++)
+            for (var z = -range; z < range; z++)
+            for (var y = 0; y < rangeY; y++)
+                chunksToLoad.Add(new ChunkPos(chunkPos.X + x, y, chunkPos.Z + z));
+
+            var prevTicket = _chunkLoadingTicket;
+            if (!_world.ChunkManager.RequestLoadingTicket(out _chunkLoadingTicket, chunksToLoad))
+            {
+                throw new Exception("What.");
+            }
+            prevTicket?.Release();
         }
     }
 

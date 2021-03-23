@@ -11,16 +11,20 @@ namespace DigBuild.Voxel
 {
     public sealed class World : WorldBase
     {
-        public ChunkManager ChunkManager { get; }
-
         public event Action<EntityInstance>? EntityAdded;
         public event Action<Guid>? EntityRemoved; 
 
-        public World(WorldGenerator generator, Scheduler tickScheduler)
+        public World(WorldGenerator generator, IStableTickSource tickSource)
         {
             ChunkManager = new ChunkManager(generator);
-            TickScheduler = tickScheduler;
+            TickScheduler = new Scheduler(tickSource);
+            tickSource.Tick += () => _absoluteTime++;
         }
+
+        private ulong _absoluteTime;
+        public override ulong AbsoluteTime => _absoluteTime;
+
+        public override ChunkManager ChunkManager { get; }
 
         public override Scheduler TickScheduler { get; }
 

@@ -305,6 +305,11 @@ namespace DigBuild
             _worldRenderManager.QueueChunkUpdate(chunk);
         }
 
+        public void OnChunkUnloaded(IChunk chunk)
+        {
+            _worldRenderManager.QueueChunkRemoval(chunk);
+        }
+
         public void OnEntityAdded(EntityInstance entity)
         {
             _worldRenderManager.AddEntity(entity);
