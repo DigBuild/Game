@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
@@ -208,6 +208,7 @@ namespace DigBuild
     {
         private static readonly NativeBufferPool BufferPool = new();
         private static readonly ResourceManager ResourceManager = new(
+            new ShaderCompiler("shader_out"),
             new FileSystemResourceProvider(
                 new Dictionary<string, string>
                 {
