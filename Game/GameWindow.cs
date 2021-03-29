@@ -275,14 +275,12 @@ namespace DigBuild
                 [GameBlocks.Grass] = grassModel,
                 [GameBlocks.Water] = waterModel,
                 [GameBlocks.Stone] = stoneModel,
-                [GameBlocks.TriangleBlock] = triangleModel,
                 [GameBlocks.Crafter] = triangleModel
             };
             ItemModels[GameItems.Dirt] = new ItemBlockModel(dirtModel);
             ItemModels[GameItems.Grass] = new ItemBlockModel(grassModel);
             ItemModels[GameItems.Water] = new ItemBlockModel(waterModel);
             ItemModels[GameItems.Stone] = new ItemBlockModel(stoneModel);
-            ItemModels[GameItems.TriangleItem] = new ItemBlockModel(triangleModel);
             ItemModels[GameItems.Crafter] = new ItemBlockModel(triangleModel);
             var entityModels = new Dictionary<Entity, IEntityModel>()
             {

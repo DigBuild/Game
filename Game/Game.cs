@@ -55,7 +55,7 @@ namespace DigBuild
                         CraftingIngredient.None, CraftingIngredient.None
                     },
                     CraftingIngredient.None,
-                    new ItemInstance(GameItems.TriangleItem, 3)
+                    new ItemInstance(GameItems.Crafter, 3)
                 )
             };
             RecipeLookup = new CraftingRecipeLookup(recipes);
