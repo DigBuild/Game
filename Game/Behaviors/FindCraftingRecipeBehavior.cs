@@ -15,7 +15,9 @@ namespace DigBuild.Behaviors
         public CraftingOutput? ActiveRecipeOutput { set; }
     }
 
-    public sealed class FindCraftingRecipeBehavior : IBlockBehavior<IFindCraftingRecipeBehavior, IFindCraftingRecipeBehavior>
+    public sealed class FindCraftingRecipeBehavior :
+        IBlockBehavior<IFindCraftingRecipeBehavior, IFindCraftingRecipeBehavior>,
+        IItemBehavior<IFindCraftingRecipeBehavior, IFindCraftingRecipeBehavior>
     {
         public void Init(IFindCraftingRecipeBehavior data)
         {
@@ -29,6 +31,10 @@ namespace DigBuild.Behaviors
         }
 
         public void Build(BlockBehaviorBuilder<IFindCraftingRecipeBehavior, IFindCraftingRecipeBehavior> block)
+        {
+        }
+
+        public void Build(ItemBehaviorBuilder<IFindCraftingRecipeBehavior, IFindCraftingRecipeBehavior> item)
         {
         }
 

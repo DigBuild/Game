@@ -8,9 +8,7 @@ namespace DigBuild.Behaviors
     public interface IItemEntityBehavior
     {
         public ItemInstance Item { get; set; }
-
         public long JoinWorldTime { get; set; }
-
         public IItemEntity? Capability { get; set; }
     }
 

@@ -3,42 +3,41 @@ using System.Collections.Generic;
 using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
+using DigBuild.Items;
 using DigBuild.Ui;
 
 namespace DigBuild.Behaviors
 {
-    public interface IReadOnlyCraftingUiBehavior
+    public interface ICraftingUiBehavior
     {
-        public IReadOnlyList<IReadOnlyInventorySlot> ShapedSlots { get; }
-        public IReadOnlyList<IReadOnlyInventorySlot> ShapelessSlots { get; }
-        public IReadOnlyInventorySlot CatalystSlot { get; }
-        public IReadOnlyInventorySlot OutputSlot { get; }
+        public IReadOnlyList<InventorySlot> ShapedSlots { get; }
+        public IReadOnlyList<InventorySlot> ShapelessSlots { get; }
+        public InventorySlot CatalystSlot { get; }
+        public InventorySlot OutputSlot { get; }
     }
 
-    public interface ICraftingUiBehavior : IReadOnlyCraftingUiBehavior
+    public sealed class CraftingUiBehavior : IBlockBehavior<ICraftingUiBehavior, ICraftingUiBehavior>, IItemBehavior<ICraftingUiBehavior, ICraftingUiBehavior>
     {
-        public new IReadOnlyList<InventorySlot> ShapedSlots { get; }
-        public new IReadOnlyList<InventorySlot> ShapelessSlots { get; }
-        public new InventorySlot CatalystSlot { get; }
-        public new InventorySlot OutputSlot { get; }
-
-        IReadOnlyList<IReadOnlyInventorySlot> IReadOnlyCraftingUiBehavior.ShapedSlots => ShapedSlots;
-        IReadOnlyList<IReadOnlyInventorySlot> IReadOnlyCraftingUiBehavior.ShapelessSlots => ShapelessSlots;
-        IReadOnlyInventorySlot IReadOnlyCraftingUiBehavior.CatalystSlot => CatalystSlot;
-        IReadOnlyInventorySlot IReadOnlyCraftingUiBehavior.OutputSlot => OutputSlot;
-    }
-
-    public sealed class CraftingUiBehavior : IBlockBehavior<IReadOnlyCraftingUiBehavior, ICraftingUiBehavior>
-    {
-        public void Build(BlockBehaviorBuilder<IReadOnlyCraftingUiBehavior, ICraftingUiBehavior> block)
+        public void Build(BlockBehaviorBuilder<ICraftingUiBehavior, ICraftingUiBehavior> block)
         {
             block.Subscribe(OnActivate);
+        }
+
+        public void Build(ItemBehaviorBuilder<ICraftingUiBehavior, ICraftingUiBehavior> item)
+        {
+            item.Subscribe(OnActivate);
         }
 
         private BlockEvent.Activate.Result OnActivate(IBlockContext context, ICraftingUiBehavior data, BlockEvent.Activate evt, Func<BlockEvent.Activate.Result> next)
         {
             GameWindow.FunnyUi = CraftingUi.Create(new CraftingInventory(data), GameWindow.PickedItemSlot, GameWindow.ItemModels);
             return BlockEvent.Activate.Result.Success;
+        }
+
+        private ItemEvent.Activate.Result OnActivate(IPlayerItemContext context, ICraftingUiBehavior data, ItemEvent.Activate evt, Func<ItemEvent.Activate.Result> next)
+        {
+            GameWindow.FunnyUi = CraftingUi.Create(new CraftingInventory(data), GameWindow.PickedItemSlot, GameWindow.ItemModels);
+            return ItemEvent.Activate.Result.Success;
         }
 
         private sealed class CraftingInventory : ICraftingInventory

@@ -8,11 +8,11 @@ using DigBuild.Entities;
 
 namespace DigBuild.Behaviors
 {
-    public sealed class DropItemsBehavior : IBlockBehavior
+    public sealed class DropItemBehavior : IBlockBehavior
     {
         private readonly Func<ItemInstance> _dropSupplier;
 
-        public DropItemsBehavior(Func<ItemInstance> dropSupplier)
+        public DropItemBehavior(Func<ItemInstance> dropSupplier)
         {
             _dropSupplier = dropSupplier;
         }

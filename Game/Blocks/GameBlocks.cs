@@ -55,7 +55,7 @@ namespace DigBuild.Blocks
         {
             return builder =>
             {
-                builder.Attach(new DropItemsBehavior(() => new ItemInstance(itemSupplier(), amount)));
+                builder.Attach(new DropItemBehavior(() => new ItemInstance(itemSupplier(), amount)));
             };
         }
     }
