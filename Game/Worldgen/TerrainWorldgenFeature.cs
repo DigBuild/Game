@@ -29,7 +29,7 @@ namespace DigBuild.Worldgen
             _surfaceBlock = surfaceBlock;
 
             _terrainHeightNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
-            _terrainHeightNoise.SetFrequency(0.005f);
+            _terrainHeightNoise.SetFrequency(0.001f);
             _terrainHeightNoise.SetFractalType(FastNoiseLite.FractalType.FBm);
             _terrainHeightNoise.SetFractalOctaves(2);
             _terrainHeightNoise.SetFractalLacunarity(2.4f);
@@ -46,8 +46,8 @@ namespace DigBuild.Worldgen
             {
                 for (int z = 0; z < ChunkSize; z++)
                 {
-                    var noise = _terrainHeightNoise.GetNoise(context.Position.X * ChunkSize + x, context.Position.Z * ChunkSize + z);
-                    height[x, z] = (ushort) (8 + 4 * (noise + 1));
+                    var noise = _terrainHeightNoise.GetNoise(context.Position.X * ChunkSize + x, context.Position.Z * ChunkSize + z) * 0.5f + 0.5f;
+                    height[x, z] = (ushort) (2 + 30 * noise);
                 }
             }
 
