@@ -1,4 +1,4 @@
-using DigBuild.Engine.Blocks;
+﻿using DigBuild.Engine.Blocks;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Registries;
@@ -86,10 +86,11 @@ namespace DigBuild.Blocks
 
     public static class BlockEventExtensions
     {
-        public static void Subscribe<TData>(
-            this IBlockBehaviorBuilder<TData> builder,
+        public static void Subscribe<TReadOnlyData, TData>(
+            this IBlockBehaviorBuilder<TReadOnlyData, TData> builder,
             BlockEventDelegate<IBlockContext, TData, BlockEvent.Activate, BlockEvent.Activate.Result> onActivate
         )
+            where TData : TReadOnlyData
         {
             builder.Subscribe(onActivate);
         }
@@ -99,10 +100,11 @@ namespace DigBuild.Blocks
             return block.Post<IBlockContext, BlockEvent.Activate, BlockEvent.Activate.Result>(context, evt);
         }
 
-        public static void Subscribe<TData>(
-            this IBlockBehaviorBuilder<TData> builder,
+        public static void Subscribe<TReadOnlyData, TData>(
+            this IBlockBehaviorBuilder<TReadOnlyData, TData> builder,
             BlockEventDelegate<IBlockContext, TData, BlockEvent.Punch, BlockEvent.Punch.Result> onPunch
         )
+            where TData : TReadOnlyData
         {
             builder.Subscribe(onPunch);
         }
@@ -112,10 +114,11 @@ namespace DigBuild.Blocks
             return block.Post<IBlockContext, BlockEvent.Punch, BlockEvent.Punch.Result>(context, evt);
         }
         
-        public static void Subscribe<TData>(
-            this IBlockBehaviorBuilder<TData> builder,
+        public static void Subscribe<TReadOnlyData, TData>(
+            this IBlockBehaviorBuilder<TReadOnlyData, TData> builder,
             BlockEventDelegate<IBlockContext, TData, BlockEvent.NeighborChanged> onNeighborChanged
         )
+            where TData : TReadOnlyData
         {
             builder.Subscribe(onNeighborChanged);
         }
@@ -125,10 +128,11 @@ namespace DigBuild.Blocks
             block.Post(context, evt);
         }
         
-        public static void Subscribe<TData>(
-            this IBlockBehaviorBuilder<TData> builder,
+        public static void Subscribe<TReadOnlyData, TData>(
+            this IBlockBehaviorBuilder<TReadOnlyData, TData> builder,
             BlockEventDelegate<IBlockContext, TData, BlockEvent.Placed> onPlaced
         )
+            where TData : TReadOnlyData
         {
             builder.Subscribe(onPlaced);
         }
@@ -138,10 +142,11 @@ namespace DigBuild.Blocks
             block.Post(context, evt);
         }
         
-        public static void Subscribe<TData>(
-            this IBlockBehaviorBuilder<TData> builder,
+        public static void Subscribe<TReadOnlyData, TData>(
+            this IBlockBehaviorBuilder<TReadOnlyData, TData> builder,
             BlockEventDelegate<IBlockContext, TData, BlockEvent.Breaking> onBreaking
         )
+            where TData : TReadOnlyData
         {
             builder.Subscribe(onBreaking);
         }

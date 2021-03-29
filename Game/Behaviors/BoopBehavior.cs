@@ -4,9 +4,9 @@ using DigBuild.Engine.Blocks;
 
 namespace DigBuild.Behaviors
 {
-    public sealed class BoopBehavior : IBlockBehavior<object>
+    public sealed class BoopBehavior : IBlockBehavior
     {
-        public void Build(BlockBehaviorBuilder<object> block)
+        public void Build(BlockBehaviorBuilder<object, object> block)
         {
             block.Subscribe(OnActivate);
         }

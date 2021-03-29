@@ -5,15 +5,17 @@ using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
+using DigBuild.Engine.Physics;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Worlds;
 using DigBuild.Recipes;
+using DigBuild.Ui;
 
 namespace DigBuild
 {
-    public sealed class PlayerController : ICraftingInput
+    public sealed class PlayerController : ICraftingInventory, ICraftingInput
     {
-        private const float Gravity = 2.0f * TickSource.TickDurationSeconds;
+        private const float Gravity = 2.5f * TickSource.TickDurationSeconds;
         private const float TerminalVelocity = 0.5f;
         private const float GroundDragFactor = 0.2F;
         private const float AirDragFactor = 0.3F;
@@ -52,10 +54,10 @@ namespace DigBuild
 
 
         
-        public InventorySlot[] ShapedSlots { get; } = { new(), new(), new(), new(), new(), new(), new() };
-        public InventorySlot[] ShapelessSlots { get; } = { new(), new(), new(), new() };
-        public InventorySlot CatalystSlot { get; } = new();
-        public InventorySlot OutputSlot { get; } = new();
+        public IReadOnlyList<IInventorySlot> ShapedSlots { get; } = new InventorySlot[]{ new(), new(), new(), new(), new(), new(), new() };
+        public IReadOnlyList<IInventorySlot> ShapelessSlots { get; } = new InventorySlot[]{ new(), new(), new(), new() };
+        public IInventorySlot CatalystSlot { get; } = new InventorySlot();
+        public IInventorySlot OutputSlot { get; } = new InventorySlot();
 
         public ItemInstance GetCatalyst() => CatalystSlot.Item;
         public ItemInstance GetShaped(byte slot) => ShapedSlots[slot].Item;
@@ -160,26 +162,28 @@ namespace DigBuild
             
             var vel = Velocity;
 
-            List<(ICollider collider, AABB relativeBounds, Vector3 intersection)> colliders = new(), colliders2 = new();
-            foreach (var pos in PlayerBounds.WithOffset(Position + vel).GetIntersectedBlockPositions())
+            List<(ICollider Collider, AABB RelativeBounds, Vector3 Intersection)> colliders = new(), colliders2 = new();
+            var translatedBounds = PlayerBounds + Position;
+            var extendedBounds = translatedBounds + vel; //AABB.Containing(translatedBounds, translatedBounds + vel);
+            foreach (var pos in extendedBounds.GetIntersectedBlockPositions())
             {
                 var block = _world.GetBlock(pos);
                 if (block == null)
                     continue;
 
                 var collider = block.Get(new BlockContext(_world, pos, block), BlockAttributes.Collider);
-                var relativeBounds = PlayerBounds.WithOffset(Position - new Vector3(pos.X, pos.Y, pos.Z));
+                var relativeBounds = translatedBounds - (Vector3) pos;
 
-                if (collider.Collide(relativeBounds.WithOffset(vel), vel, out var intersection))
+                if (collider.Collide(relativeBounds, vel, out var intersection))
                     colliders.Add((collider, relativeBounds, intersection));
             }
 
 
             while (colliders.Count > 0)
             {
-                colliders.Sort((a, b) => -a.intersection.LengthSquared().CompareTo(b.intersection.LengthSquared()));
+                colliders.Sort((a, b) => a.Intersection.LengthSquared().CompareTo(b.Intersection.LengthSquared()));
                 
-                var intersection = colliders[^1].intersection;
+                var intersection = colliders[^1].Intersection;
                 if (intersection.Y > 0)
                     OnGround = true;
 
@@ -189,7 +193,7 @@ namespace DigBuild
                 colliders.RemoveAt(colliders.Count - 1);
                 foreach (var (collider, relativeBounds, _) in colliders)
                 {
-                    if (!collider.Collide(relativeBounds.WithOffset(vel), vel, out var intersection2))
+                    if (!collider.Collide(relativeBounds, vel, out var intersection2))
                         continue;
                     colliders2.Add((collider, relativeBounds, intersection2));
                 }
@@ -213,15 +217,11 @@ namespace DigBuild
 
         public void LoadSurroundingChunks()
         {
-            const int range = 5;
-            const int rangeY = 3;
-            
             var chunkPos = new BlockPos(Position).ChunkPos;
             var chunksToLoad = new HashSet<ChunkPos>();
-            for (var x = -range; x < range; x++)
-            for (var z = -range; z < range; z++)
-            for (var y = 0; y < rangeY; y++)
-                chunksToLoad.Add(new ChunkPos(chunkPos.X + x, y, chunkPos.Z + z));
+            for (var x = -Game.ViewRadius; x < Game.ViewRadius; x++)
+            for (var z = -Game.ViewRadius; z < Game.ViewRadius; z++)
+                chunksToLoad.Add(new ChunkPos(chunkPos.X + x, 0, chunkPos.Z + z));
 
             var prevTicket = _chunkLoadingTicket;
             if (!_world.ChunkManager.RequestLoadingTicket(out _chunkLoadingTicket, chunksToLoad))
@@ -249,7 +249,7 @@ namespace DigBuild
             FieldOfView = fieldOfView;
         }
 
-        public RayCaster.Ray Ray => new(Position, Position + Forward * 5f);
+        public Raycast.Ray Ray => new(Position, Forward * 5f);
 
         public Matrix4x4 Transform => 
             Matrix4x4.CreateTranslation(-Position) *

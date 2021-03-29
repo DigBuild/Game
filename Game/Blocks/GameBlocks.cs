@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using DigBuild.Behaviors;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
+using DigBuild.Engine.Physics;
 using DigBuild.Engine.Registries;
+using DigBuild.Engine.Storage;
 using DigBuild.Items;
 using DigBuild.Platform.Resource;
 using DigBuild.Recipes;
@@ -28,7 +31,7 @@ namespace DigBuild.Blocks
             );
             Grass = registry.Create(new ResourceName(Game.Domain, "grass"), builder =>
                 {
-                    builder.Attach(new FaceCoveredReplaceBehavior(BlockFace.PosY, () => Dirt));
+                    builder.Attach(new FaceCoveredReplaceBehavior(Direction.PosY, () => Dirt));
                 },
                 BlockDrops(() => GameItems.Grass)
             );
@@ -60,6 +63,7 @@ namespace DigBuild.Blocks
                 {
                     var data = builder.Add<CrafterData>();
                     builder.Attach(new CraftingBehavior(), data);
+                    builder.Attach(new CraftingUiBehavior(), data);
                 },
                 BlockDrops(() => GameItems.TriangleItem)
             );
@@ -74,20 +78,30 @@ namespace DigBuild.Blocks
         }
     }
 
-    public sealed class CrafterData : ICraftingBehavior
+    public sealed class CrafterData : IData<CrafterData>, ICraftingBehavior, ICraftingUiBehavior
     {
-        public InventorySlot[] ShapedSlots => throw new NotImplementedException();
-        public InventorySlot[] ShapelessSlots => throw new NotImplementedException();
-        public InventorySlot CatalystSlot => throw new NotImplementedException();
+        public IReadOnlyList<InventorySlot> ShapedSlots { get; } = new InventorySlot[]{new(), new(), new(), new(), new(), new(), new()};
+        public IReadOnlyList<InventorySlot> ShapelessSlots { get; } = new InventorySlot[]{new(), new(), new(), new()};
+        public InventorySlot CatalystSlot { get; } = new();
+        public InventorySlot OutputSlot { get; } = new();
 
         public ICraftingRecipe? ActiveRecipe
         {
-            set => throw new NotImplementedException();
+            set {
+            }
         }
 
         public CraftingOutput? ActiveRecipeOutput
         {
-            set => throw new NotImplementedException();
+            set => OutputSlot.Item = value?.Output ?? ItemInstance.Empty;
+        }
+
+        public CrafterData Copy()
+        {
+            var copy = new CrafterData();
+            for (var i = 0; i < ShapedSlots.Count; i++)
+                copy.ShapedSlots[i].Item = ShapedSlots[i].Item.Copy();
+            return copy;
         }
     }
 }

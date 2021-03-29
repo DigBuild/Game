@@ -1,13 +1,15 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
+using System.Threading;
 using System.Threading.Tasks;
 using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
+using DigBuild.Engine.Physics;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Textures;
 using DigBuild.Engine.Ui;
@@ -224,7 +226,8 @@ namespace DigBuild
         private readonly TextureStitcher _blockStitcher = new();
         private readonly TextureStitcher _uiStitcher = new();
         private readonly List<CuboidBlockModel> _unbakedModels = new();
-        private readonly Dictionary<Item, IItemModel> _itemModels;
+        public static readonly Dictionary<Item, IItemModel> ItemModels = new();
+        public static IInventorySlot PickedItemSlot {get; private set; }
         
         private readonly List<IRenderLayer> _worldRenderLayers = new(){
             WorldRenderLayer.Opaque
@@ -242,6 +245,7 @@ namespace DigBuild
         {
             _tickSource = tickSource;
             _player = player;
+            PickedItemSlot = _player.PickedItem;
             _rayCastContext = rayCastContext;
             
             var dirtTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/dirt.png")!);
@@ -271,19 +275,18 @@ namespace DigBuild
                 [GameBlocks.Grass] = grassModel,
                 [GameBlocks.Water] = waterModel,
                 [GameBlocks.Stone] = stoneModel,
-                [GameBlocks.TriangleBlock] = triangleModel
+                [GameBlocks.TriangleBlock] = triangleModel,
+                [GameBlocks.Crafter] = triangleModel
             };
-            _itemModels = new Dictionary<Item, IItemModel>()
-            {
-                [GameItems.Dirt] = new ItemBlockModel(dirtModel),
-                [GameItems.Grass] = new ItemBlockModel(grassModel),
-                [GameItems.Water] = new ItemBlockModel(waterModel),
-                [GameItems.Stone] = new ItemBlockModel(stoneModel),
-                [GameItems.TriangleItem] = new ItemBlockModel(triangleModel)
-            };
+            ItemModels[GameItems.Dirt] = new ItemBlockModel(dirtModel);
+            ItemModels[GameItems.Grass] = new ItemBlockModel(grassModel);
+            ItemModels[GameItems.Water] = new ItemBlockModel(waterModel);
+            ItemModels[GameItems.Stone] = new ItemBlockModel(stoneModel);
+            ItemModels[GameItems.TriangleItem] = new ItemBlockModel(triangleModel);
+            ItemModels[GameItems.Crafter] = new ItemBlockModel(triangleModel);
             var entityModels = new Dictionary<Entity, IEntityModel>()
             {
-                [GameEntities.Item] = new ItemEntityModel(_itemModels)
+                [GameEntities.Item] = new ItemEntityModel(ItemModels)
             };
 
             _worldRenderManager = new WorldRenderManager(blockModels, entityModels, _worldRenderLayers, BufferPool);
@@ -325,11 +328,11 @@ namespace DigBuild
         private readonly UiContainer _ui = new();
         private UiLabel _positionLabel = null!;
         private UiLabel _lookLabel = null!;
-        private UiInventorySlot[] _hotbarSlots = null!;
         private UiUnboundInventorySlot _pickedSlot = null!;
+        public static IUiElement? FunnyUi { get; set; }
+
+        private IUiElement? _currentFunnyUi;
         
-        private UiInventorySlot[] _shapedSlots = null!;
-        private UiInventorySlot _outputSlot = null!;
 
         private uint _curX, _curY;
         private IUiElementContext.KeyboardEventDelegate? _keyboardEventDelegate;
@@ -344,6 +347,9 @@ namespace DigBuild
 
         private void OnKeyboardEvent(uint code, KeyboardAction action)
         {
+            if (code == 1)
+                FunnyUi = null;
+
             _keyboardEventDelegate?.Invoke(code, action);
         }
 
@@ -377,46 +383,21 @@ namespace DigBuild
 
                 _ui.Add(20, 20, _positionLabel = new UiLabel(""));
                 _ui.Add(20, 50, _lookLabel = new UiLabel(""));
-
-                {
-                    uint x = 120u, y = 120u;
-                    _shapedSlots = new UiInventorySlot[_player.ShapedSlots.Length];
-                    for (var i = 0; i < _shapedSlots.Length; i++)
-                    {
-                        _ui.Add(x, y, _shapedSlots[i] = new UiInventorySlot(
-                            _player.ShapedSlots[i], _player.PickedItem, _itemModels, UiRenderLayer.Ui
-                        ));
-                        if (i == 1 || i == 4)
-                        {
-                            x -= 45 * 3;
-                            y += 76;
-                        }
-                        else
-                        {
-                            x += 90;
-                        }
-                    }
-                    _ui.Add(120 + 90 * 3, 120 + 76, _outputSlot = new UiInventorySlot(
-                        _player.OutputSlot, _player.PickedItem, _itemModels, UiRenderLayer.Ui
-                    ));
-                }
-
-
+                
                 {
                     var off = 60u;
-                    _hotbarSlots = new UiInventorySlot[_player.Hotbar.Length];
-                    for (var i = 0; i < _hotbarSlots.Length; i++)
+                    for (var i = 0; i < _player.Hotbar.Length; i++)
                     {
                         var i1 = i;
-                        _ui.Add(off, surface.Height - 60, _hotbarSlots[i] = new UiInventorySlot(
-                            _player.Hotbar[i], _player.PickedItem, _itemModels, UiRenderLayer.Ui, 
+                        _ui.Add(off, surface.Height - 60, new UiInventorySlot(
+                            _player.Hotbar[i], _player.PickedItem, ItemModels, UiRenderLayer.Ui, 
                             () => _player.ActiveHotbarSlot == i1)
                         );
                         off += 100;
                     }
                 }
 
-                _ui.Add(0, 0, _pickedSlot = new UiUnboundInventorySlot(_player.PickedItem, _itemModels));
+                _ui.Add(0, 0, _pickedSlot = new UiUnboundInventorySlot(_player.PickedItem, ItemModels));
             }
 
             lock (_tickSource)
@@ -448,6 +429,15 @@ namespace DigBuild
                         cmd.Using(Resources.OutlinePipeline, Resources.OutlineUniformBuffer, 0);
                         cmd.Draw(Resources.OutlinePipeline, Resources.OutlineVertexBuffer);
                     }
+                }
+
+                if (FunnyUi != _currentFunnyUi)
+                {
+                    if (_currentFunnyUi != null)
+                        _ui.Remove(_currentFunnyUi);
+                    if (FunnyUi != null)
+                        _ui.Add(0, 0, FunnyUi);
+                    _currentFunnyUi = FunnyUi;
                 }
 
                 _positionLabel.Text = $"Position: {new BlockPos(_player.Position)}";

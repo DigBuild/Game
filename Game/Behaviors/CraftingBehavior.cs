@@ -1,26 +1,39 @@
 ﻿using System;
+using System.Collections.Generic;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Items;
 using DigBuild.Recipes;
 
 namespace DigBuild.Behaviors
 {
-    public interface ICraftingBehavior
+    public interface IReadOnlyCraftingBehavior
     {
-        public InventorySlot[] ShapedSlots { get; }
-        public InventorySlot[] ShapelessSlots { get; }
-        public InventorySlot CatalystSlot { get; }
+        public IReadOnlyList<IReadOnlyInventorySlot> ShapedSlots { get; }
+        public IReadOnlyList<IReadOnlyInventorySlot> ShapelessSlots { get; }
+        public IReadOnlyInventorySlot CatalystSlot { get; }
+    }
+
+    public interface ICraftingBehavior : IReadOnlyCraftingBehavior
+    {
+        public new IReadOnlyList<InventorySlot> ShapedSlots { get; }
+        public new IReadOnlyList<InventorySlot> ShapelessSlots { get; }
+        public new InventorySlot CatalystSlot { get; }
 
         public ICraftingRecipe? ActiveRecipe { set; }
         public CraftingOutput? ActiveRecipeOutput { set; }
+
+        IReadOnlyList<IReadOnlyInventorySlot> IReadOnlyCraftingBehavior.ShapedSlots => ShapedSlots;
+        IReadOnlyList<IReadOnlyInventorySlot> IReadOnlyCraftingBehavior.ShapelessSlots => ShapelessSlots;
+        IReadOnlyInventorySlot IReadOnlyCraftingBehavior.CatalystSlot => CatalystSlot;
     }
 
-    public sealed class CraftingBehavior : IBlockBehavior<ICraftingBehavior>
+    public sealed class CraftingBehavior : IBlockBehavior<IReadOnlyCraftingBehavior, ICraftingBehavior>
     {
-        public void Init(IBlockContext context, ICraftingBehavior data)
+        public void Init(ICraftingBehavior data)
         {
             var craftingInput = new CraftingInput(data);
-            void InputChanged() => OnInputChanged(context, data, craftingInput);
+            void InputChanged() => OnInputChanged(data, craftingInput);
             foreach (var slot in data.ShapedSlots)
                 slot.Changed += InputChanged;
             foreach (var slot in data.ShapelessSlots)
@@ -28,11 +41,11 @@ namespace DigBuild.Behaviors
             data.CatalystSlot.Changed += InputChanged;
         }
 
-        public void Build(BlockBehaviorBuilder<ICraftingBehavior> block)
+        public void Build(BlockBehaviorBuilder<IReadOnlyCraftingBehavior, ICraftingBehavior> block)
         {
         }
 
-        private void OnInputChanged(IBlockContext context, ICraftingBehavior data, ICraftingInput craftingInput)
+        private void OnInputChanged(ICraftingBehavior data, ICraftingInput craftingInput)
         {
             var lookupResult = Game.RecipeLookup.Find(craftingInput);
             data.ActiveRecipe = lookupResult?.Recipe;

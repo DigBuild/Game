@@ -7,7 +7,7 @@ using DigBuild.Entities;
 
 namespace DigBuild.Blocks
 {
-    public sealed class BlockDropsBehavior : IBlockBehavior<object>
+    public sealed class BlockDropsBehavior : IBlockBehavior
     {
         private readonly Func<ItemInstance> _dropSupplier;
 
@@ -16,7 +16,7 @@ namespace DigBuild.Blocks
             _dropSupplier = dropSupplier;
         }
 
-        public void Build(BlockBehaviorBuilder<object> block)
+        public void Build(BlockBehaviorBuilder<object, object> block)
         {
             block.Subscribe(OnBreaking);
         }

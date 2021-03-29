@@ -1,6 +1,7 @@
 ﻿using System;
 using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Storage;
 using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Behaviors
@@ -14,7 +15,7 @@ namespace DigBuild.Behaviors
     {
         private const ulong FeedDelay = 20 * 5;
 
-        public void Build(BlockBehaviorBuilder<IBlockFeedBehavior> block)
+        public void Build(BlockBehaviorBuilder<IBlockFeedBehavior, IBlockFeedBehavior> block)
         {
             block.Subscribe(OnPlaced);
             block.Subscribe(OnActivate);
@@ -47,8 +48,16 @@ namespace DigBuild.Behaviors
         }
     }
 
-    public sealed class BlockFeedData : IBlockFeedBehavior
+    public sealed class BlockFeedData : IData<BlockFeedData>, IBlockFeedBehavior
     {
         public ulong LastFed { get; set; }
+
+        public BlockFeedData Copy()
+        {
+            return new()
+            {
+                LastFed = LastFed
+            };
+        }
     }
 }

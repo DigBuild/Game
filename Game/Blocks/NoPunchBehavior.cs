@@ -3,9 +3,9 @@ using DigBuild.Engine.Blocks;
 
 namespace DigBuild.Blocks
 {
-    public sealed class NoPunchBehavior : IBlockBehavior<object>
+    public sealed class NoPunchBehavior : IBlockBehavior
     {
-        public void Build(BlockBehaviorBuilder<object> block)
+        public void Build(BlockBehaviorBuilder<object, object> block)
         {
             block.Subscribe(OnPunch);
         }

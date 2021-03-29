@@ -22,7 +22,7 @@ namespace DigBuild.Entities
             data.Capability = new ItemEntity(data);
         }
 
-        public void Build(EntityBehaviorBuilder<IItemEntityBehavior> entity)
+        public void Build(EntityBehaviorBuilder<IItemEntityBehavior, IItemEntityBehavior> entity)
         {
             entity.Add(EntityAttributes.Item, (_, data, _, _) => data.Item);
             entity.Add(EntityAttributes.ItemJoinWorldTime, (_, data, _, _) => data.JoinWorldTime);

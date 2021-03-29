@@ -2,6 +2,7 @@
 using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
+using DigBuild.Engine.Storage;
 using DigBuild.Items;
 
 namespace DigBuild
@@ -13,12 +14,12 @@ namespace DigBuild
 
     public sealed class CountingBehavior : IBlockBehavior<ICountingBehavior>, IItemBehavior<ICountingBehavior>
     {
-        public void Build(BlockBehaviorBuilder<ICountingBehavior> block)
+        public void Build(BlockBehaviorBuilder<ICountingBehavior, ICountingBehavior> block)
         {
             block.Subscribe(OnActivate);
         }
 
-        public void Build(ItemBehaviorBuilder<ICountingBehavior> item)
+        public void Build(ItemBehaviorBuilder<ICountingBehavior, ICountingBehavior> item)
         {
             item.Subscribe(OnActivate);
         }
@@ -38,8 +39,16 @@ namespace DigBuild
         }
     }
 
-    public sealed class CountingData : ICountingBehavior
+    public sealed class CountingData : IData<CountingData>, ICountingBehavior
     {
         public int Number { get; set; }
+
+        public CountingData Copy()
+        {
+            return new()
+            {
+                Number = Number
+            };
+        }
     }
 }

@@ -45,10 +45,11 @@ namespace DigBuild.Items
 
     public static class ItemEventExtensions
     {
-        public static void Subscribe<TData>(
-            this IItemBehaviorBuilder<TData> builder,
+        public static void Subscribe<TReadOnlyData, TData>(
+            this IItemBehaviorBuilder<TReadOnlyData, TData> builder,
             ItemEventDelegate<IPlayerItemContext, TData, ItemEvent.Activate, ItemEvent.Activate.Result> onActivate
         )
+            where TData : TReadOnlyData
         {
             builder.Subscribe(onActivate);
         }
@@ -58,10 +59,11 @@ namespace DigBuild.Items
             return item.Post<IPlayerItemContext, ItemEvent.Activate, ItemEvent.Activate.Result>(context, evt);
         }
 
-        public static void Subscribe<TData>(
-            this IItemBehaviorBuilder<TData> builder,
+        public static void Subscribe<TReadOnlyData, TData>(
+            this IItemBehaviorBuilder<TReadOnlyData, TData> builder,
             ItemEventDelegate<IPlayerItemContext, TData, ItemEvent.Punch, ItemEvent.Punch.Result> onPunch
         )
+            where TData : TReadOnlyData
         {
             builder.Subscribe(onPunch);
         }

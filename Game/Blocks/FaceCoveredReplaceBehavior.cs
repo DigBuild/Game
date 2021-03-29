@@ -5,18 +5,18 @@ using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Blocks
 {
-    public sealed class FaceCoveredReplaceBehavior : IBlockBehavior<object>
+    public sealed class FaceCoveredReplaceBehavior : IBlockBehavior
     {
-        private readonly BlockFace _face;
+        private readonly Direction _face;
         private readonly Func<Block> _replacementSupplier;
 
-        public FaceCoveredReplaceBehavior(BlockFace face, Func<Block> replacementSupplier)
+        public FaceCoveredReplaceBehavior(Direction face, Func<Block> replacementSupplier)
         {
             _face = face;
             _replacementSupplier = replacementSupplier;
         }
 
-        public void Build(BlockBehaviorBuilder<object> block)
+        public void Build(BlockBehaviorBuilder<object, object> block)
         {
             block.Subscribe(OnNeighborChanged);
         }

@@ -6,7 +6,7 @@ using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Items
 {
-    public sealed class BlockPlaceBehavior : IItemBehavior<object>
+    public sealed class BlockPlaceBehavior : IItemBehavior
     {
         private readonly Func<Block> _blockSupplier;
 
@@ -15,7 +15,7 @@ namespace DigBuild.Items
             _blockSupplier = blockSupplier;
         }
 
-        public void Build(ItemBehaviorBuilder<object> item)
+        public void Build(ItemBehaviorBuilder<object, object> item)
         {
             item.Subscribe(OnActivate);
         }

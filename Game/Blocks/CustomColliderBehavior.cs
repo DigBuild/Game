@@ -1,9 +1,9 @@
 ﻿using DigBuild.Engine.Blocks;
-using DigBuild.Engine.Math;
+using DigBuild.Engine.Physics;
 
 namespace DigBuild.Blocks
 {
-    public sealed class CustomColliderBehavior : IBlockBehavior<object>
+    public sealed class CustomColliderBehavior : IBlockBehavior
     {
         private readonly ICollider _collider;
 
@@ -12,7 +12,7 @@ namespace DigBuild.Blocks
             _collider = collider;
         }
 
-        public void Build(BlockBehaviorBuilder<object> block)
+        public void Build(BlockBehaviorBuilder<object, object> block)
         {
             block.Add(BlockAttributes.Collider, (_, _, _, _) => _collider);
         }
