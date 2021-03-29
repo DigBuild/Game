@@ -1,7 +1,7 @@
 ﻿using DigBuild.Engine.Math;
 using DigBuild.Engine.Worlds;
 
-namespace DigBuild.Voxel
+namespace DigBuild.Worlds
 {
     public sealed class Chunk : ChunkBase
     {

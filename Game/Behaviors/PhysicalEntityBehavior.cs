@@ -1,36 +1,123 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
+using DigBuild.Engine.Blocks;
+using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
-using DigBuild.Entities;
+using DigBuild.Engine.Math;
+using DigBuild.Engine.Physics;
+using DigBuild.Engine.Storage;
+using DigBuild.Engine.Worlds;
+using DigBuild.Registries;
 
 namespace DigBuild.Behaviors
 {
     public interface IPhysicalEntityBehavior
     {
+        public bool InWorld { get; set; }
+        public bool OnGround { get; set; }
+
         public Vector3 Position { get; set; }
+        public Vector3 Velocity { get; set; }
+        public float Pitch { get; set; }
+        public float Yaw { get; set; }
+        public float AngularVelocityPitch { get; set; }
+        public float AngularVelocityYaw { get; set; }
 
         public IPhysicalEntity? Capability { get; set; }
     }
 
     public sealed class PhysicalEntityBehavior : IEntityBehavior<IPhysicalEntityBehavior>
     {
-        public void Init(IPhysicalEntityBehavior data)
-        {
-            data.Capability = new PhysicalEntity(data);
-        }
+        private readonly AABB _bounds;
+        private readonly float _terminalVelocity, _groundDragFactor, _airDragFactor;
+        private readonly float _jumpForce, _jumpKickSpeed, _movementSpeedGround, _movementSpeedAir, _rotationSpeed;
 
+        public PhysicalEntityBehavior(
+            AABB bounds,
+            float terminalVelocity = 0.5f, float groundDragFactor = 0.2f, float airDragFactor = 0.3f, float jumpForce = 0,
+            float jumpKickSpeed = 0, float movementSpeedGround = 0, float movementSpeedAir = 0, float rotationSpeed = 0
+        )
+        {
+            _bounds = bounds;
+            _terminalVelocity = terminalVelocity;
+            _groundDragFactor = groundDragFactor;
+            _airDragFactor = airDragFactor;
+            _jumpForce = jumpForce;
+            _jumpKickSpeed = jumpKickSpeed;
+            _movementSpeedGround = movementSpeedGround;
+            _movementSpeedAir = movementSpeedAir;
+            _rotationSpeed = rotationSpeed;
+        }
+        
         public void Build(EntityBehaviorBuilder<IPhysicalEntityBehavior, IPhysicalEntityBehavior> entity)
         {
             entity.Add(EntityAttributes.Position, (_, data, _, _) => data.Position);
-            entity.Add(EntityCapabilities.PhysicalEntity, (_, data, _, _) => data.Capability!);
+            entity.Add(EntityCapabilities.PhysicalEntity, (_, data, _, _) => data.Capability);
+            entity.Subscribe(OnJoinedWorld);
+            entity.Subscribe(OnLeavingWorld);
+        }
+
+        private void OnJoinedWorld(IEntityContext context, IPhysicalEntityBehavior data, BuiltInEntityEvent.JoinedWorld evt, Action next)
+        {
+            data.Capability = new PhysicalEntity(
+                context.Entity.World, _bounds, data,
+                _terminalVelocity, _groundDragFactor, _airDragFactor, _jumpForce,
+                _jumpKickSpeed, _movementSpeedGround, _movementSpeedAir, _rotationSpeed
+            );
+            data.InWorld = true;
+            context.Entity.World.TickScheduler.After(1).Tick += () => Update(context, data);
+        }
+
+        private void OnLeavingWorld(IEntityContext context, IPhysicalEntityBehavior data, BuiltInEntityEvent.LeavingWorld evt, Action next)
+        {
+            data.InWorld = false;
+        }
+
+        private void Update(IEntityContext context, IPhysicalEntityBehavior data)
+        {
+            if (data.InWorld == false)
+                return;
+
+            data.Capability!.Move();
+            context.Entity.World.TickScheduler.After(1).Tick += () => Update(context, data);
         }
 
         private sealed class PhysicalEntity : IPhysicalEntity
         {
+            private readonly IWorld _world;
+            private readonly AABB _bounds;
             private readonly IPhysicalEntityBehavior _data;
+            private readonly float _terminalVelocity, _groundDragFactor, _airDragFactor, _jumpForce;
+            private readonly float _jumpKickSpeed, _movementSpeedGround, _movementSpeedAir, _rotationSpeed;
+            
+            private IChunkLoadingTicket? _chunkLoadingTicket;
 
-            public PhysicalEntity(IPhysicalEntityBehavior data)
+            public PhysicalEntity(
+                IWorld world, AABB bounds, IPhysicalEntityBehavior data,
+                float terminalVelocity, float groundDragFactor, float airDragFactor, float jumpForce,
+                float jumpKickSpeed, float movementSpeedGround, float movementSpeedAir, float rotationSpeed
+            )
             {
+                _world = world;
+                _bounds = bounds;
                 _data = data;
+                _terminalVelocity = terminalVelocity;
+                _groundDragFactor = groundDragFactor;
+                _airDragFactor = airDragFactor;
+                _jumpForce = jumpForce;
+                _jumpKickSpeed = jumpKickSpeed;
+                _movementSpeedGround = movementSpeedGround;
+                _movementSpeedAir = movementSpeedAir;
+                _rotationSpeed = rotationSpeed;
+            }
+
+            public AABB Bounds => _bounds;
+
+            public bool OnGround
+            {
+                get => _data.OnGround;
+                set => _data.OnGround = value;
             }
 
             public Vector3 Position
@@ -38,11 +125,198 @@ namespace DigBuild.Behaviors
                 get => _data.Position;
                 set => _data.Position = value;
             }
+
+            public Vector3 Velocity
+            {
+                get => _data.Velocity;
+                set => _data.Velocity = value;
+            }
+
+            public float Pitch
+            {
+                get => _data.Pitch;
+                set => _data.Pitch = value;
+            }
+
+            public float Yaw
+            {
+                get => _data.Yaw;
+                set => _data.Yaw = value;
+            }
+
+            public float AngularVelocityPitch
+            {
+                get => _data.AngularVelocityPitch;
+                set => _data.AngularVelocityPitch = value;
+            }
+
+            public float AngularVelocityYaw
+            {
+                get => _data.AngularVelocityYaw;
+                set => _data.AngularVelocityYaw = value;
+            }
+
+            public void Rotate(float pitchDelta, float yawDelta)
+            {
+                var prevPitch = Pitch;
+                AngularVelocityPitch = pitchDelta * pitchDelta * MathF.Sign(pitchDelta) * _rotationSpeed;
+                AngularVelocityYaw = yawDelta * yawDelta * MathF.Sign(yawDelta) * _rotationSpeed;
+
+                Pitch = MathF.Max(
+                    -MathF.PI / 2,
+                    MathF.Min(
+                        Pitch + AngularVelocityPitch,
+                        MathF.PI / 2
+                    )
+                );
+                AngularVelocityPitch = Pitch - prevPitch;
+                Yaw = (MathF.PI * 3 + Yaw + AngularVelocityYaw) % (MathF.PI * 2) - MathF.PI;
+            }
+
+            public void ApplyMotion(float forwardMotion, float sidewaysMotion)
+            {
+                Velocity += Vector3.Transform(
+                    new Vector3(sidewaysMotion, 0, forwardMotion),
+                    Matrix4x4.CreateRotationY(Yaw)
+                ) * (!OnGround ? _movementSpeedAir : _movementSpeedGround);
+            }
+
+            public void ApplyJumpMotion(float forwardMotion)
+            {
+                if (!OnGround)
+                    return;
+                OnGround = false;
+                Velocity += Vector3.Transform(
+                    new Vector3(0, 0, forwardMotion),
+                    Matrix4x4.CreateRotationY(Yaw)
+                ) * _jumpKickSpeed;
+                Velocity += Vector3.UnitY * _jumpForce;
+            }
+
+            public void Move()
+            {
+                OnGround = false;
+                
+                Velocity += -Vector3.UnitY * _world.Gravity;
+                
+                var vel = Velocity;
+
+                List<(ICollider Collider, AABB RelativeBounds, Vector3 Intersection)> colliders = new(), colliders2 = new();
+                var translatedBounds = Bounds + Position;
+                var extendedBounds = translatedBounds + vel; //AABB.Containing(translatedBounds, translatedBounds + vel);
+                foreach (var pos in extendedBounds.GetIntersectedBlockPositions())
+                {
+                    var block = _world.GetBlock(pos);
+                    if (block == null)
+                        continue;
+
+                    var collider = block.Get(new BlockContext(_world, pos, block), BlockAttributes.Collider);
+                    var relativeBounds = translatedBounds - (Vector3) pos;
+
+                    if (collider.Collide(relativeBounds, vel, out var intersection))
+                        colliders.Add((collider, relativeBounds, intersection));
+                }
+
+
+                while (colliders.Count > 0)
+                {
+                    colliders.Sort((a, b) => a.Intersection.LengthSquared().CompareTo(b.Intersection.LengthSquared()));
+                    
+                    var intersection = colliders[^1].Intersection;
+                    if (intersection.Y > 0)
+                        OnGround = true;
+
+                    vel += intersection;
+
+                    colliders2.Clear();
+                    colliders.RemoveAt(colliders.Count - 1);
+                    foreach (var (collider, relativeBounds, _) in colliders)
+                    {
+                        if (!collider.Collide(relativeBounds, vel, out var intersection2))
+                            continue;
+                        colliders2.Add((collider, relativeBounds, intersection2));
+                    }
+
+                    (colliders, colliders2) = (colliders2, colliders);
+                }
+
+                var prevPosition = Position;
+                
+                var yVel = OnGround ? 0 : Math.Max(vel.Y, -_terminalVelocity);
+                var dragFactor = OnGround ? _groundDragFactor : _airDragFactor;
+                Position += vel;
+                // PrevVelocity = vel;
+                Velocity = new Vector3(vel.X * dragFactor, yVel, vel.Z * dragFactor);
+
+                var prevChunkPos = new BlockPos(prevPosition).ChunkPos;
+                var newChunkPos = new BlockPos(Position).ChunkPos;
+                if (prevChunkPos != newChunkPos)
+                    LoadSurroundingChunks();
+            }
+
+            private void LoadSurroundingChunks()
+            {
+                var chunkPos = new BlockPos(Position).ChunkPos;
+                var chunksToLoad = new HashSet<ChunkPos>();
+                for (var x = -Game.ViewRadius; x < Game.ViewRadius; x++)
+                for (var z = -Game.ViewRadius; z < Game.ViewRadius; z++)
+                    chunksToLoad.Add(new ChunkPos(chunkPos.X + x, 0, chunkPos.Z + z));
+
+                var prevTicket = _chunkLoadingTicket;
+                if (!_world.ChunkManager.RequestLoadingTicket(out _chunkLoadingTicket, chunksToLoad))
+                {
+                    throw new Exception("What.");
+                }
+                prevTicket?.Release();
+            }
+        }
+    }
+
+    public sealed class PhysicalEntityData : IData<PhysicalEntityData>, IPhysicalEntityBehavior
+    {
+        public bool InWorld { get; set; }
+        public bool OnGround { get; set; }
+
+        public Vector3 Position { get; set; }
+        public Vector3 Velocity { get; set; }
+        public float Pitch { get; set; }
+        public float Yaw { get; set; }
+        public float AngularVelocityPitch { get; set; }
+        public float AngularVelocityYaw { get; set; }
+
+        public IPhysicalEntity? Capability { get; set; }
+
+        public PhysicalEntityData Copy()
+        {
+            return new()
+            {
+                InWorld = false,
+                OnGround = OnGround,
+                Position = Position,
+                Velocity = Velocity,
+                Pitch = Pitch,
+                Yaw = Yaw,
+                AngularVelocityPitch = AngularVelocityPitch,
+                AngularVelocityYaw = AngularVelocityYaw
+            };
         }
     }
 
     public interface IPhysicalEntity
     {
+        public AABB Bounds { get; }
+        public bool OnGround { get; set; }
+
         public Vector3 Position { get; set; }
+        public Vector3 Velocity { get; set; }
+        public float Pitch { get; set; }
+        public float Yaw { get; set; }
+        public float AngularVelocityPitch { get; set; }
+        public float AngularVelocityYaw { get; set; }
+
+        public void Rotate(float pitchDelta, float yawDelta);
+        public void ApplyMotion(float forwardMotion, float sidewaysMotion);
+        public void ApplyJumpMotion(float forwardMotion);
+        public void Move();
     }
 }

@@ -2,7 +2,7 @@
 using System.Linq;
 using DigBuild.Platform.Input;
 
-namespace DigBuild
+namespace DigBuild.Client
 {
     public class GameInput
     {

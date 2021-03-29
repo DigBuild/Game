@@ -26,6 +26,8 @@ namespace DigBuild.Behaviors
         {
             if (evt.Direction == _face && context.World.GetBlock(context.Pos.Offset(_face)) != null)
                 context.World.SetBlock(context.Pos, _replacementSupplier());
+            else
+                next();
         }
     }
 }

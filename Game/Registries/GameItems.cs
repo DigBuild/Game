@@ -1,12 +1,11 @@
 ﻿using System;
 using DigBuild.Behaviors;
-using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
 
-namespace DigBuild.Items
+namespace DigBuild.Registries
 {
     public static class GameItems
     {

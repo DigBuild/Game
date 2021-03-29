@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using DigBuild.Platform.Resource;
 
-namespace DigBuild
+namespace DigBuild.Client
 {
     public sealed class ShaderCompiler : IResourceProvider
     {

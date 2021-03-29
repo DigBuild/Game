@@ -4,7 +4,7 @@ using DigBuild.Engine.Physics;
 using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
 
-namespace DigBuild.Blocks
+namespace DigBuild.Registries
 {
     public class BlockAttributes
     {

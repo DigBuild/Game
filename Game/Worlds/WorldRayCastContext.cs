@@ -5,8 +5,9 @@ using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Worlds;
+using DigBuild.Registries;
 
-namespace DigBuild.Voxel
+namespace DigBuild.Worlds
 {
     public sealed class WorldRayCastContext : IGridAlignedRayCastingContext<WorldRayCastContext.Hit>
     {

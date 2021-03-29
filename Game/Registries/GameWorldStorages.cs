@@ -1,9 +1,9 @@
 ﻿using DigBuild.Engine.Registries;
 using DigBuild.Engine.Worlds;
 
-namespace DigBuild
+namespace DigBuild.Registries
 {
-    public static class GameWorldStorage
+    public static class GameWorldStorages
     {
         public static void Register(RegistryBuilder<IWorldStorageType> registry)
         {

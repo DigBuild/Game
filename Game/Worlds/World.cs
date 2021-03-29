@@ -7,10 +7,12 @@ using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
 
-namespace DigBuild.Voxel
+namespace DigBuild.Worlds
 {
     public sealed class World : WorldBase
     {
+        private const float GravityValue = 2.5f * TickSource.TickDurationSeconds;
+
         public event Action<EntityInstance>? EntityAdded;
         public event Action<Guid>? EntityRemoved; 
 
@@ -27,6 +29,7 @@ namespace DigBuild.Voxel
 
         private ulong _absoluteTime;
         public override ulong AbsoluteTime => _absoluteTime;
+        public override float Gravity => GravityValue;
 
         public override ChunkManager ChunkManager { get; }
 

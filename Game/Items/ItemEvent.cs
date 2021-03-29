@@ -1,6 +1,6 @@
 ﻿using DigBuild.Engine.Items;
 using DigBuild.Engine.Registries;
-using DigBuild.Voxel;
+using DigBuild.Worlds;
 
 namespace DigBuild.Items
 {

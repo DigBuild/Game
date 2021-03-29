@@ -1,4 +1,6 @@
 ﻿using DigBuild.Engine.Items;
+using DigBuild.Engine.Registries;
+using DigBuild.Platform.Resource;
 
 namespace DigBuild.Recipes
 {
@@ -37,6 +39,15 @@ namespace DigBuild.Recipes
         public ItemInstance ConsumeOne(ItemInstance item)
         {
             return new(item.Type, (ushort) (item.Count - 1u));
+        }
+    }
+
+    public static class CraftingRecipeRegistryBuilderExtensions
+    {
+        public static T Add<T>(this IRegistryBuilder<ICraftingRecipe> registry, ResourceName name, T recipe)
+            where T : ICraftingRecipe
+        {
+            return registry.Add(name, recipe);
         }
     }
 }

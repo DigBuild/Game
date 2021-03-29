@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Textures;
+using DigBuild.Render;
 
-namespace DigBuild.Render
+namespace DigBuild.Blocks.Models
 {
     public sealed class CuboidBlockModel : IBlockModel
     {

@@ -2,7 +2,7 @@
 using System.Numerics;
 using DigBuild.Engine.Render;
 
-namespace DigBuild.Render
+namespace DigBuild.Items.Models
 {
     public sealed class ItemBlockModel : IItemModel
     {

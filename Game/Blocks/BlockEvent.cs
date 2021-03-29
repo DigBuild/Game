@@ -3,7 +3,7 @@ using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Worlds;
-using DigBuild.Voxel;
+using DigBuild.Worlds;
 
 namespace DigBuild.Blocks
 {

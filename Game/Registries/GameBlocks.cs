@@ -1,14 +1,14 @@
 ﻿using System;
 using DigBuild.Behaviors;
+using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Registries;
-using DigBuild.Items;
 using DigBuild.Platform.Resource;
 
-namespace DigBuild.Blocks
+namespace DigBuild.Registries
 {
     public static class GameBlocks
     {

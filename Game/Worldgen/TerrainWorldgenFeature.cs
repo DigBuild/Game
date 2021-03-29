@@ -4,7 +4,7 @@ using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
-using DigBuild.Voxel;
+using DigBuild.Registries;
 using IWorldgenFeature = DigBuild.Engine.Worldgen.IWorldgenFeature;
 
 namespace DigBuild.Worldgen

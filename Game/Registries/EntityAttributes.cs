@@ -4,7 +4,7 @@ using DigBuild.Engine.Items;
 using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
 
-namespace DigBuild.Entities
+namespace DigBuild.Registries
 {
     public class EntityAttributes
     {

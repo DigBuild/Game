@@ -3,17 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
-using DigBuild.Blocks;
-using DigBuild.Engine.Blocks;
+using DigBuild.Client;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Worldgen;
-using DigBuild.Engine.Worlds;
-using DigBuild.Items;
+using DigBuild.Players;
 using DigBuild.Recipes;
-using DigBuild.Voxel;
-using DigBuild.Worldgen;
+using DigBuild.Registries;
+using DigBuild.Worlds;
 
 namespace DigBuild
 {
@@ -38,27 +36,8 @@ namespace DigBuild
 
             _tickSource = new TickSource();
             _tickSource.Tick += Tick;
-
-            var stoneIngredient = new CraftingIngredient(GameItems.Stone);
-            var recipes = new List<ICraftingRecipe>
-            {
-                new CraftingRecipe(
-                    new[]
-                    {
-                        CraftingIngredient.None, CraftingIngredient.None,
-                        CraftingIngredient.None, stoneIngredient, CraftingIngredient.None,
-                        stoneIngredient, stoneIngredient
-                    },
-                    new[]
-                    {
-                        CraftingIngredient.None, CraftingIngredient.None,
-                        CraftingIngredient.None, CraftingIngredient.None
-                    },
-                    CraftingIngredient.None,
-                    new ItemInstance(GameItems.StoneStairs, 3)
-                )
-            };
-            RecipeLookup = new CraftingRecipeLookup(recipes);
+            
+            RecipeLookup = new CraftingRecipeLookup(GameRegistries.CraftingRecipes.Values);
 
             var features = new List<IWorldgenFeature>
             {
@@ -69,15 +48,16 @@ namespace DigBuild
                 features, 0,
                 desc => desc.Get(WorldgenAttributes.TerrainHeight).Max()
             );
-            _world = new World(generator, _tickSource, () => _player == null ? default : new BlockPos(_player.Position).ChunkPos);
-            _player = new PlayerController(_world, new Vector3(0, 50, 0));
-            _player.Hotbar[0].Item = new ItemInstance(GameItems.Stone, 5);
-            _player.Hotbar[1].Item = new ItemInstance(GameItems.Stone, 5);
-            _player.Hotbar[2].Item = new ItemInstance(GameItems.Crafter, 2);
-            _player.Hotbar[3].Item = new ItemInstance(GameItems.Dirt, 12);
-            _player.Hotbar[4].Item = new ItemInstance(GameItems.Stone, 8);
 
+            _world = new World(generator, _tickSource, () => _player == null ? default : new BlockPos(_player.PhysicalEntity.Position).ChunkPos);
             _rayCastContext = new WorldRayCastContext(_world);
+
+            _player = new PlayerController(_world.AddPlayer(new Vector3(0, 50, 0)));
+            _player.Inventory.Hotbar[0].Item = new ItemInstance(GameItems.Stone, 5);
+            _player.Inventory.Hotbar[1].Item = new ItemInstance(GameItems.Stone, 5);
+            _player.Inventory.Hotbar[2].Item = new ItemInstance(GameItems.Crafter, 2);
+            _player.Inventory.Hotbar[3].Item = new ItemInstance(GameItems.Dirt, 12);
+            _player.Inventory.Hotbar[4].Item = new ItemInstance(GameItems.Stone, 8);
             
             _window = new GameWindow(_tickSource, _player, _rayCastContext);
             
@@ -85,8 +65,6 @@ namespace DigBuild
             _world.ChunkManager.ChunkUnloaded += chunk => _window.OnChunkUnloaded(chunk);
             _world.EntityAdded += entity => _window.OnEntityAdded(entity);
             _world.EntityRemoved += guid => _window.OnEntityRemoved(guid);
-            
-            _player.LoadSurroundingChunks();
         }
 
         public void Dispose()
@@ -97,59 +75,11 @@ namespace DigBuild
         private void Tick()
         {
             _input.Update();
+            _player.UpdateMovement(_input);
+            _player.UpdateHotbar(_input);
             
-            _player.UpdateRotation(_input.PitchDelta, _input.YawDelta);
-            _player.ApplyMotion(_input.ForwardDelta, _input.SidewaysDelta);
-            if (_input.Jump)
-                _player.Jump(_input.ForwardDelta);
-            _player.Move();
-
-            _player.CycleHotbar(
-                (!_input.PrevCycleRight && _input.CycleRight ? 1 : 0) +
-                (!_input.PrevCycleLeft && _input.CycleLeft ? -1 : 0)
-            );
-            if (!_input.PrevSwapUp && _input.SwapUp)
-                _player.TransferHotbarUp();
-            if (!_input.PrevSwapDown && _input.SwapDown)
-                _player.TransferHotbarDown();
-
             var hit = Raycast.Cast(_rayCastContext, _player.GetCamera(0).Ray);
-
-            if (!_input.PrevActivate && _input.Activate)
-            {
-                var itemResult = _player.Hand.Item.Count > 0 ?
-                    _player.Hand.Item.Type.OnActivate(new PlayerItemContext(_player.Hand.Item, _world), new ItemEvent.Activate(hit)) :
-                    ItemEvent.Activate.Result.Fail;
-                Console.WriteLine($"Interacted with item in slot {_player.ActiveHotbarSlot}! Result: {itemResult}");
-
-                if (itemResult == ItemEvent.Activate.Result.Fail && hit != null)
-                {
-                    var block = _world.GetBlock(hit.BlockPos)!;
-                    var blockResult = block.OnActivate(
-                        new BlockContext(_world, hit.BlockPos, block),
-                        new BlockEvent.Activate(hit)
-                    );
-                    Console.WriteLine($"Interacted with block at {hit.BlockPos} on face {hit.Face}! Result: {blockResult}"); 
-                }
-            }
-
-            if (!_input.PrevPunch && _input.Punch)
-            {
-                var itemResult = _player.Hand.Item.Count > 0 ?
-                    _player.Hand.Item.Type.OnPunch(new PlayerItemContext(_player.Hand.Item, _world), new ItemEvent.Punch(hit)) :
-                    ItemEvent.Punch.Result.Fail;
-                Console.WriteLine($"Punched with item {_player.ActiveHotbarSlot}! Result: {itemResult}");
-
-                if (itemResult == ItemEvent.Punch.Result.Fail && hit != null)
-                {
-                    var block = _world.GetBlock(hit.BlockPos)!;
-                    var blockResult = block.OnPunch(
-                        new BlockContext(_world, hit.BlockPos, block),
-                        new BlockEvent.Punch(hit)
-                    );
-                    Console.WriteLine($"Punched block at {hit.BlockPos} on face {hit.Face}! Result: {blockResult}"); 
-                }
-            }
+            _player.UpdateInteraction(_input, hit);
         }
 
         public static async Task Main()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Blocks;
+using DigBuild.Client;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Items;

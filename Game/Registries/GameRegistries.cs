@@ -9,11 +9,11 @@ using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
 using DigBuild.Entities;
-using DigBuild.Items;
 using DigBuild.Platform.Resource;
+using DigBuild.Recipes;
 using ItemEvent = DigBuild.Items.ItemEvent;
 
-namespace DigBuild
+namespace DigBuild.Registries
 {
     public static class GameRegistries
     {
@@ -41,6 +41,8 @@ namespace DigBuild
         public static Registry<IWorldgenAttribute> WorldgenAttributes { get; private set; } = null!;
         public static Registry<IWorldgenFeature> WorldgenFeatures { get; private set; } = null!;
 
+        public static Registry<ICraftingRecipe> CraftingRecipes { get; private set; } = null!;
+
         internal static void Initialize()
         {
             var manager = new RegistryManager();
@@ -49,7 +51,7 @@ namespace DigBuild
                 new ResourceName(Game.Domain, "world_storage_type")
             );
             worldStorageTypes.Building += DigBuildEngine.Register;
-            worldStorageTypes.Building += GameWorldStorage.Register;
+            worldStorageTypes.Building += GameWorldStorages.Register;
             worldStorageTypes.Built += reg =>
             {
                 BuiltInRegistries.WorldStorageTypes = reg;
@@ -60,7 +62,7 @@ namespace DigBuild
                 new ResourceName(Game.Domain, "chunk_storage_type")
             );
             chunkStorageTypes.Building += DigBuildEngine.Register;
-            chunkStorageTypes.Building += GameChunkStorage.Register;
+            chunkStorageTypes.Building += GameChunkStorages.Register;
             chunkStorageTypes.Built += reg =>
             {
                 BuiltInRegistries.ChunkStorageTypes = reg;
@@ -85,7 +87,7 @@ namespace DigBuild
             };
             
             var blockAttributes = manager.CreateRegistryOf<IBlockAttribute>(new ResourceName(Game.Domain, "block_attributes"));
-            blockAttributes.Building += DigBuild.Blocks.BlockAttributes.Register;
+            blockAttributes.Building += Registries.BlockAttributes.Register;
             blockAttributes.Built += reg =>
             {
                 BuiltInRegistries.BlockAttributes = reg;
@@ -139,6 +141,7 @@ namespace DigBuild
             var entityEvents = manager.CreateExtendedRegistryOfTypes<IEntityEvent, EntityEventInfo>(
                 new ResourceName(Game.Domain, "entity_events"), t => true
             );
+            entityEvents.Building += DigBuildEngine.Register;
             entityEvents.Building += EntityEvent.Register;
             entityEvents.Built += reg =>
             {
@@ -147,7 +150,7 @@ namespace DigBuild
             };
             
             var entityAttributes = manager.CreateRegistryOf<IEntityAttribute>(new ResourceName(Game.Domain, "entity_attributes"));
-            entityAttributes.Building += DigBuild.Entities.EntityAttributes.Register;
+            entityAttributes.Building += Registries.EntityAttributes.Register;
             entityAttributes.Built += reg =>
             {
                 EntityAttributes = reg;
@@ -155,7 +158,7 @@ namespace DigBuild
             };
             
             var entityCapabilities = manager.CreateRegistryOf<IEntityCapability>(new ResourceName(Game.Domain, "entity_capabilities"));
-            entityCapabilities.Building += DigBuild.Entities.EntityCapabilities.Register;
+            entityCapabilities.Building += Registries.EntityCapabilities.Register;
             entityCapabilities.Built += reg =>
             {
                 EntityCapabilities = reg;
@@ -168,12 +171,16 @@ namespace DigBuild
 
 
             var worldgenAttributes = manager.CreateRegistryOf<IWorldgenAttribute>(new ResourceName(Game.Domain, "worldgen_attributes"));
-            worldgenAttributes.Building += Worldgen.WorldgenAttributes.Register;
+            worldgenAttributes.Building += Registries.WorldgenAttributes.Register;
             worldgenAttributes.Built += reg => WorldgenAttributes = reg;
 
             var worldgenFeatures = manager.CreateRegistryOf<IWorldgenFeature>(new ResourceName(Game.Domain, "worldgen_features"));
-            worldgenFeatures.Building += Worldgen.WorldgenFeatures.Register;
+            worldgenFeatures.Building += Registries.WorldgenFeatures.Register;
             worldgenFeatures.Built += reg => WorldgenFeatures = reg;
+
+            var craftingRecipes = manager.CreateRegistryOf<ICraftingRecipe>(new ResourceName(Game.Domain, "crafting_recipes"));
+            craftingRecipes.Building += GameRecipes.Register;
+            craftingRecipes.Built += reg => CraftingRecipes = reg;
 
             manager.BuildAll();
         }

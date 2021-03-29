@@ -4,9 +4,9 @@ using System.Numerics;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Render;
-using DigBuild.Entities;
+using DigBuild.Registries;
 
-namespace DigBuild.Render
+namespace DigBuild.Entities.Models
 {
     public sealed class ItemEntityModel : IEntityModel
     {

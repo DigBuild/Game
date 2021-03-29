@@ -1,9 +1,9 @@
 ﻿using DigBuild.Engine.Registries;
 using DigBuild.Engine.Worlds;
 
-namespace DigBuild
+namespace DigBuild.Registries
 {
-    public static class GameChunkStorage
+    public static class GameChunkStorages
     {
         public static void Register(RegistryBuilder<IChunkStorageType> registry)
         {

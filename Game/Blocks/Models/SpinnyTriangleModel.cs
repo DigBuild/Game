@@ -2,8 +2,9 @@
 using System.Numerics;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Textures;
+using DigBuild.Render;
 
-namespace DigBuild.Render
+namespace DigBuild.Blocks.Models
 {
     public sealed class SpinnyTriangleModel : IBlockModel
     {

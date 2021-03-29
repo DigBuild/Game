@@ -10,7 +10,7 @@ using DigBuild.Engine.Math;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
 
-namespace DigBuild.Voxel
+namespace DigBuild.Worlds
 {
     public delegate void ChunkChangedEvent(Chunk chunk);
     public delegate void ChunkUnloadedEvent(Chunk chunk);

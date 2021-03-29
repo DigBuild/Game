@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
-using System.Threading;
 using System.Threading.Tasks;
-using DigBuild.Blocks;
+using DigBuild.Blocks.Models;
+using DigBuild.Client.GeneratedUniforms;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
@@ -14,17 +14,17 @@ using DigBuild.Engine.Render;
 using DigBuild.Engine.Textures;
 using DigBuild.Engine.Ui;
 using DigBuild.Engine.Worlds;
-using DigBuild.Entities;
-using DigBuild.GeneratedUniforms;
-using DigBuild.Items;
+using DigBuild.Entities.Models;
+using DigBuild.Items.Models;
 using DigBuild.Platform.Input;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Resource;
 using DigBuild.Platform.Util;
+using DigBuild.Registries;
 using DigBuild.Render;
-using DigBuild.Voxel;
+using DigBuild.Worlds;
 
-namespace DigBuild
+namespace DigBuild.Client
 {
     public readonly struct Vertex2
     {
@@ -271,7 +271,7 @@ namespace DigBuild
         {
             _tickSource = tickSource;
             _player = player;
-            PickedItemSlot = _player.PickedItem;
+            PickedItemSlot = _player.Inventory.PickedItem;
             _rayCastContext = rayCastContext;
             
             var dirtTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/dirt.png")!);
@@ -414,18 +414,20 @@ namespace DigBuild
                 
                 {
                     var off = 60u;
-                    for (var i = 0; i < _player.Hotbar.Length; i++)
+                    var i = 0;
+                    foreach (var slot in _player.Inventory.Hotbar)
                     {
                         var i1 = i;
                         _ui.Add(off, surface.Height - 60, new UiInventorySlot(
-                            _player.Hotbar[i], _player.PickedItem, ItemModels, UiRenderLayer.Ui, 
-                            () => _player.ActiveHotbarSlot == i1)
+                            slot, _player.Inventory.PickedItem, ItemModels, UiRenderLayer.Ui, 
+                            () => _player.Inventory.ActiveHotbarSlot == i1)
                         );
                         off += 100;
+                        i++;
                     }
                 }
 
-                _ui.Add(0, 0, _pickedSlot = new UiUnboundInventorySlot(_player.PickedItem, ItemModels));
+                _ui.Add(0, 0, _pickedSlot = new UiUnboundInventorySlot(_player.Inventory.PickedItem, ItemModels));
             }
 
             lock (_tickSource)
@@ -472,12 +474,12 @@ namespace DigBuild
                     _currentFunnyUi = FunnyUi;
                 }
 
-                _positionLabel.Text = $"Position: {new BlockPos(_player.Position)}";
+                _positionLabel.Text = $"Position: {new BlockPos(_player.PhysicalEntity.Position)}";
                 _lookLabel.Text = $"Look: {hit?.Position}";
 
                 if (_player.HotbarTransfer)
                 {
-                    _pickedSlot.PosX = (int) (60 + 100 * _player.ActiveHotbarSlot);
+                    _pickedSlot.PosX = (int) (60 + 100 * _player.Inventory.ActiveHotbarSlot);
                     _pickedSlot.PosY = (int) (surface.Height - 60 - 100);
                 }
 
