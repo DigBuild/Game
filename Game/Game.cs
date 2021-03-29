@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -17,7 +17,7 @@ using DigBuild.Worldgen;
 
 namespace DigBuild
 {
-    public class Game
+    public class Game : IDisposable
     {
         public const string Domain = "digbuild";
         public const int ViewRadius = 16;
@@ -88,7 +88,12 @@ namespace DigBuild
             
             _player.LoadSurroundingChunks();
         }
-        
+
+        public void Dispose()
+        {
+            _world.ChunkManager.Dispose();
+        }
+
         private void Tick()
         {
             _input.Update();
@@ -151,6 +156,7 @@ namespace DigBuild
         {
             var game = new Game();
             await game._window.OpenWaitClosed();
+            game.Dispose();
         }
     }
 }
