@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -63,9 +63,12 @@ namespace DigBuild
                 WorldgenFeatures.Terrain,
                 WorldgenFeatures.Water
             };
-            var generator = new WorldGenerator(features, 0, pos => new ChunkPrototype(pos));
-            _world = new World(generator, _tickSource);
-            _player = new PlayerController(_world, new Vector3(0, 15, 0));
+            var generator = new WorldGenerator(
+                features, 0,
+                desc => desc.Get(WorldgenAttributes.TerrainHeight).Max()
+            );
+            _world = new World(generator, _tickSource, () => _player == null ? default : new BlockPos(_player.Position).ChunkPos);
+            _player = new PlayerController(_world, new Vector3(0, 50, 0));
             _player.Hotbar[0].Item = new ItemInstance(GameItems.Stone, 5);
             _player.Hotbar[1].Item = new ItemInstance(GameItems.Stone, 5);
             _player.Hotbar[2].Item = new ItemInstance(GameItems.Stone, 5);

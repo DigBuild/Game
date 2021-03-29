@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
@@ -12,43 +15,93 @@ namespace DigBuild.Voxel
     public delegate void ChunkChangedEvent(Chunk chunk);
     public delegate void ChunkUnloadedEvent(Chunk chunk);
 
-    public class ChunkManager : IChunkManager
+    public class ChunkManager : IChunkManager, IDisposable
     {
         private readonly Dictionary<ChunkPos, Chunk> _chunks = new();
-
         private readonly Dictionary<ChunkPos, HashSet<LoadingTicket>> _tickets = new();
 
         private readonly WorldGenerator _generator;
 
+        private readonly Thread _generationThread;
+        private bool _generationThreadActive = true;
+        private readonly ConcurrentDictionary<WorldSlicePos, object> _requestedChunks = new();
+        private readonly ConcurrentQueue<Chunk> _generatedChunks = new();
+
         public event ChunkChangedEvent? ChunkChanged;
         public event ChunkUnloadedEvent? ChunkUnloaded;
 
-        public ChunkManager(WorldGenerator generator)
+        public ChunkManager(WorldGenerator generator, Func<ChunkPos> generationOriginGetter)
         {
             _generator = generator;
+            _generationThread = new Thread(() =>
+            {
+                while (_generationThreadActive)
+                {
+                    var origin = generationOriginGetter();
+                    var toGenerate = _requestedChunks.Keys
+                        .OrderBy(c => new Vector3I(c.X - origin.X, 0, c.Z - origin.Z).LengthSquared())
+                        .ToList();
+
+                    Parallel.ForEach(toGenerate, slicePos =>
+                    {
+                        var slice = GenerateSlice(slicePos);
+                        foreach (var chunk in slice)
+                            _generatedChunks.Enqueue(chunk);
+                        _requestedChunks.TryRemove(slicePos, out _);
+                    });
+                }
+            });
+            _generationThread.Start();
+        }
+
+        public void Dispose()
+        {
+            _generationThreadActive = false;
+            _generationThread.Join();
+        }
+
+        public void Update()
+        {
+            while (_generatedChunks.TryDequeue(out var chunk))
+            {
+                if (_chunks.TryAdd(chunk.Position, chunk))
+                    ChunkChanged?.Invoke(chunk);
+            }
         }
 
         public Chunk? Get(ChunkPos pos, bool load = true)
         {
-            if (pos.Y < 0) return null;
+            if (pos.Y < 0)
+                return null;
             
             if (_chunks.TryGetValue(pos, out var chunk) || !load)
                 return chunk;
 
-            var slice = new Chunk[3];
-            for (var y = 0; y < slice.Length; y++)
-            {
-                var p = new ChunkPos(pos.X, y, pos.Z);
-                _chunks[p] = slice[y] = new Chunk(p);
-            }
-            _generator.GenerateSlice(new WorldSlicePos(pos.X, pos.Z), slice);
+            if (_chunks.ContainsKey(new ChunkPos(pos.X, 0, pos.Z)))
+                return _chunks[pos] = new Chunk(pos);
+
+            var slice = GenerateSlice(new WorldSlicePos(pos.X, pos.Z));
             foreach (var c in slice)
+            {
+                _chunks[c.Position] = c;
                 ChunkChanged?.Invoke(c);
+            }
 
             if (pos.Y < slice.Length)
                 return slice[pos.Y];
-
             return _chunks[pos] = new Chunk(pos);
+        }
+
+        private Chunk[] GenerateSlice(WorldSlicePos pos)
+        {
+            var prototypes = _generator.GenerateSlice(pos);
+            var slice = new Chunk[prototypes.Length];
+            Parallel.For(0, slice.Length, y =>
+            {
+                var c = slice[y] = new Chunk(new ChunkPos(pos.X, y, pos.Z));
+                c.CopyFrom(prototypes[y]);
+            });
+            return slice;
         }
 
         public void OnBlockChanged(BlockPos pos)
@@ -65,7 +118,7 @@ namespace DigBuild.Voxel
                 if (!_tickets.TryGetValue(pos, out var tickets))
                 {
                     _tickets[pos] = tickets = new HashSet<LoadingTicket>();
-                    Get(pos);
+                    _requestedChunks.TryAdd(new WorldSlicePos(pos.X, pos.Z), pos);
                 }
                 tickets.Add((LoadingTicket) ticket);
             }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
@@ -14,11 +14,15 @@ namespace DigBuild.Voxel
         public event Action<EntityInstance>? EntityAdded;
         public event Action<Guid>? EntityRemoved; 
 
-        public World(WorldGenerator generator, IStableTickSource tickSource)
+        public World(WorldGenerator generator, IStableTickSource tickSource, Func<ChunkPos> generationOriginGetter)
         {
-            ChunkManager = new ChunkManager(generator);
+            ChunkManager = new ChunkManager(generator, generationOriginGetter);
             TickScheduler = new Scheduler(tickSource);
-            tickSource.Tick += () => _absoluteTime++;
+            tickSource.Tick += () =>
+            {
+                _absoluteTime++;
+                ChunkManager.Update();
+            };
         }
 
         private ulong _absoluteTime;
