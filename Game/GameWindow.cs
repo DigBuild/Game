@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
@@ -53,8 +53,10 @@ namespace DigBuild
         public readonly CommandBuffer UiCommandBuffer;
         public readonly CommandBuffer CompCommandBuffer;
 
+        public readonly INativeBuffer<SimplerVertex> OutlineNativeBuffer;
         public readonly RenderPipeline<SimplerVertex> OutlinePipeline;
         public readonly VertexBuffer<SimplerVertex> OutlineVertexBuffer;
+        public readonly VertexBufferWriter<SimplerVertex> OutlineVertexBufferWriter;
         public readonly PooledNativeBuffer<SimpleTransform> NativeOutlineUniformBuffer;
         public readonly UniformBuffer<SimpleTransform> OutlineUniformBuffer;
 
@@ -172,20 +174,13 @@ namespace DigBuild
             OutlinePipeline = context.CreatePipeline<SimplerVertex>(
                 vsOutline, fsOutline,
                 MainRenderStage,
-                Topology.LineStrips
+                Topology.Lines
             )
                 .WithDepthTest(CompareOperation.LessOrEqual, true)
                 .WithStandardBlending(surface.ColorAttachment);
             
-            using var outlineVertexData = bufferPool.Request<SimplerVertex>();
-            outlineVertexData.Add(
-                new SimplerVertex(0, 0.005f, 0),
-                new SimplerVertex(0, 0.005f, 1),
-                new SimplerVertex(1, 0.005f, 1),
-                new SimplerVertex(1, 0.005f, 0),
-                new SimplerVertex(0, 0.005f, 0)
-            );
-            OutlineVertexBuffer = context.CreateVertexBuffer(outlineVertexData);
+            OutlineNativeBuffer = bufferPool.Request<SimplerVertex>();
+            OutlineVertexBuffer = context.CreateVertexBuffer(out OutlineVertexBufferWriter);
 
             NativeOutlineUniformBuffer = bufferPool.Request<SimpleTransform>();
             NativeOutlineUniformBuffer.Add(new SimpleTransform()
@@ -203,6 +198,37 @@ namespace DigBuild
             );
 
             TextRenderer = new TextRenderer(UiRenderLayer.Text);
+        }
+
+        public static void GenerateBoundingBoxGeometry(INativeBuffer<SimplerVertex> buffer, AABB aabb)
+        {
+            var offset = new Vector3(0.005f);
+            var min = aabb.Min - offset;
+            var max = aabb.Max + offset;
+            
+            var vNNN = new Vector3(min.X, min.Y, min.Z);
+            var vNNP = new Vector3(min.X, min.Y, max.Z);
+            var vNPN = new Vector3(min.X, max.Y, min.Z);
+            var vNPP = new Vector3(min.X, max.Y, max.Z);
+            var vPNN = new Vector3(max.X, min.Y, min.Z);
+            var vPNP = new Vector3(max.X, min.Y, max.Z);
+            var vPPN = new Vector3(max.X, max.Y, min.Z);
+            var vPPP = new Vector3(max.X, max.Y, max.Z);
+
+            buffer.Add(
+                new SimplerVertex(vNNN), new SimplerVertex(vNNP),
+                new SimplerVertex(vNNP), new SimplerVertex(vPNP),
+                new SimplerVertex(vPNP), new SimplerVertex(vPNN),
+                new SimplerVertex(vPNN), new SimplerVertex(vNNN),
+                new SimplerVertex(vNNN), new SimplerVertex(vNPN),
+                new SimplerVertex(vNNP), new SimplerVertex(vNPP),
+                new SimplerVertex(vPNP), new SimplerVertex(vPPP),
+                new SimplerVertex(vPNN), new SimplerVertex(vPPN),
+                new SimplerVertex(vNPN), new SimplerVertex(vNPP),
+                new SimplerVertex(vNPP), new SimplerVertex(vPPP),
+                new SimplerVertex(vPPP), new SimplerVertex(vPPN),
+                new SimplerVertex(vPPN), new SimplerVertex(vNPN)
+            );
         }
     }
     
@@ -419,8 +445,12 @@ namespace DigBuild
                     
                     if (hit != null)
                     {
+                        Resources.OutlineNativeBuffer.Clear();
+                        RenderResources.GenerateBoundingBoxGeometry(Resources.OutlineNativeBuffer, hit.Bounds);
+                        Resources.OutlineVertexBufferWriter.Write(Resources.OutlineNativeBuffer);
+
                         Resources.NativeOutlineUniformBuffer[0].Matrix =
-                            Matrix4x4.CreateTranslation(hit.Position + Vector3.UnitY)
+                            Matrix4x4.CreateTranslation(hit.Position)
                             * camera.Transform * renderProjMat;
                         Resources.OutlineUniformBuffer.Write(Resources.NativeOutlineUniformBuffer);
                         

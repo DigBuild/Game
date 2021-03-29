@@ -10,8 +10,6 @@ namespace DigBuild.Voxel
 {
     public sealed class WorldRayCastContext : IGridAlignedRayCastingContext<WorldRayCastContext.Hit>
     {
-        private static readonly Vector3 Half = Vector3.One / 2;
-
         private readonly IWorld _world;
 
         public WorldRayCastContext(IWorld world)
@@ -36,7 +34,7 @@ namespace DigBuild.Voxel
                 return false;
             }
             
-            hit = new Hit((Vector3) gridPosition, colliderHit.Side);
+            hit = new Hit((Vector3) gridPosition, colliderHit.Side, colliderHit.Index, colliderHit.Bounds);
             return true;
         }
 
@@ -45,11 +43,15 @@ namespace DigBuild.Voxel
             public readonly Vector3 Position;
             public readonly BlockPos BlockPos;
             public readonly Direction Face;
+            public readonly uint Index;
+            public readonly AABB Bounds;
 
-            public Hit(Vector3 position, Direction face)
+            public Hit(Vector3 position, Direction face, uint index, AABB bounds)
             {
                 Position = position;
                 Face = face;
+                Index = index;
+                Bounds = bounds;
                 BlockPos = new BlockPos(position);
             }
         }
