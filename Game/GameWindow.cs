@@ -422,14 +422,14 @@ namespace DigBuild
             lock (_tickSource)
             {
                 var camera = _player.GetCamera(_tickSource.CurrentTick.Value);
-                var hit = RayCaster.Cast(_rayCastContext, camera.Ray);
+                var hit = Raycast.Cast(_rayCastContext, camera.Ray);
                 var physicalProjMat = Matrix4x4.CreatePerspectiveFieldOfView(
                     MathF.PI / 2, surface.Width / (float) surface.Height, 0.001f, 10000f
                 );
                 var renderProjMat = physicalProjMat * Matrix4x4.CreateRotationZ(MathF.PI);
                 var viewFrustum = new ViewFrustum(camera.Transform * physicalProjMat);
 
-                _worldRenderManager.UpdateChunks();
+                _worldRenderManager.UpdateChunks(camera, viewFrustum);
                 
                 using (var cmd = Resources.WorldCommandBuffer.Record(context, Resources.WorldFramebuffer.Format, BufferPool))
                 {

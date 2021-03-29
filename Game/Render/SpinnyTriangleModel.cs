@@ -14,7 +14,7 @@ namespace DigBuild.Render
             _sprite = sprite;
         }
 
-        public void AddGeometry(BlockFaceFlags faces, GeometryBufferSet buffers)
+        public void AddGeometry(DirectionFlags faces, GeometryBufferSet buffers)
         {
         }
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
@@ -39,7 +39,7 @@ namespace DigBuild.Voxel
         
         public override void OnBlockChanged(BlockPos pos)
         {
-            foreach (var face in BlockFaces.All)
+            foreach (var face in Directions.All)
             {
                 var offset = pos.Offset(face);
                 var block = this.GetBlock(offset);

@@ -1,12 +1,13 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
-using DigBuild.Engine.Ticking;
+using DigBuild.Engine.Physics;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
 using DigBuild.Items;
@@ -19,6 +20,7 @@ namespace DigBuild
     public class Game
     {
         public const string Domain = "digbuild";
+        public const int ViewRadius = 16;
         public static CraftingRecipeLookup RecipeLookup { get; private set; } = null!;
 
         private readonly TickSource _tickSource;
@@ -71,9 +73,9 @@ namespace DigBuild
             _player = new PlayerController(_world, new Vector3(0, 50, 0));
             _player.Hotbar[0].Item = new ItemInstance(GameItems.Stone, 5);
             _player.Hotbar[1].Item = new ItemInstance(GameItems.Stone, 5);
-            _player.Hotbar[2].Item = new ItemInstance(GameItems.Stone, 5);
+            _player.Hotbar[2].Item = new ItemInstance(GameItems.Crafter, 2);
             _player.Hotbar[3].Item = new ItemInstance(GameItems.Dirt, 12);
-            _player.Hotbar[4].Item = new ItemInstance(GameItems.TriangleItem, 8);
+            _player.Hotbar[4].Item = new ItemInstance(GameItems.Stone, 8);
 
             _rayCastContext = new WorldRayCastContext(_world);
             
@@ -106,7 +108,7 @@ namespace DigBuild
             if (!_input.PrevSwapDown && _input.SwapDown)
                 _player.TransferHotbarDown();
 
-            var hit = RayCaster.Cast(_rayCastContext, _player.GetCamera(0).Ray);
+            var hit = Raycast.Cast(_rayCastContext, _player.GetCamera(0).Ray);
 
             if (!_input.PrevActivate && _input.Activate)
             {

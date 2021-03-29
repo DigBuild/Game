@@ -20,7 +20,7 @@ namespace DigBuild.Render
         {
             if (transform == ItemModelTransform.Inventory)
                 buffers.Transform = Ortho * buffers.Transform;
-            _parent.AddGeometry(BlockFaceFlags.All, buffers);
+            _parent.AddGeometry(DirectionFlags.All, buffers);
         }
 
         public bool HasDynamicGeometry => _parent.HasDynamicGeometry;

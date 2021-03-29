@@ -21,19 +21,19 @@ namespace DigBuild.Render
         {
             Initialize = () =>
             {
-                foreach (var face in BlockFaces.All)
+                foreach (var face in Directions.All)
                     _vertices[(int) face] = GenerateFaceVertices(bounds, face, sprites[(int) face]).ToArray();
             };
         }
 
-        public void AddGeometry(BlockFaceFlags faces, GeometryBufferSet buffers)
+        public void AddGeometry(DirectionFlags faces, GeometryBufferSet buffers)
         {
             var buf = buffers.Get(WorldRenderLayer.Opaque);
-            foreach (var face in BlockFaces.In(faces))
+            foreach (var face in Directions.In(faces))
                 buf.Accept(_vertices[(int) face]);
         }
         
-        private static IEnumerable<SimpleVertex> GenerateFaceVertices(AABB bounds, BlockFace face, ISprite sprite)
+        private static IEnumerable<SimpleVertex> GenerateFaceVertices(AABB bounds, Direction face, ISprite sprite)
         {
             var nx = new Vector3(bounds.Min.X, 0, 0);
             var ny = new Vector3(0, bounds.Min.Y, 0);
@@ -44,7 +44,7 @@ namespace DigBuild.Render
 
             switch (face)
             {
-                case BlockFace.NegX:
+                case Direction.NegX:
                     yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitX, sprite.GetInterpolatedUV(1, 1));
                     yield return new SimpleVertex(nx + py + pz, -Vector3.UnitX, sprite.GetInterpolatedUV(0, 0));
                     yield return new SimpleVertex(nx + py + nz, -Vector3.UnitX, sprite.GetInterpolatedUV(1, 0));
@@ -53,7 +53,7 @@ namespace DigBuild.Render
                     yield return new SimpleVertex(nx + py + pz, -Vector3.UnitX, sprite.GetInterpolatedUV(0, 0));
                     yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitX, sprite.GetInterpolatedUV(1, 1));
                     break;
-                case BlockFace.PosX:
+                case Direction.PosX:
                     yield return new SimpleVertex(px + ny + nz, Vector3.UnitX, sprite.GetInterpolatedUV(0, 1));
                     yield return new SimpleVertex(px + py + nz, Vector3.UnitX, sprite.GetInterpolatedUV(0, 0));
                     yield return new SimpleVertex(px + py + pz, Vector3.UnitX, sprite.GetInterpolatedUV(1, 0));
@@ -62,7 +62,7 @@ namespace DigBuild.Render
                     yield return new SimpleVertex(px + ny + pz, Vector3.UnitX, sprite.GetInterpolatedUV(1, 1));
                     yield return new SimpleVertex(px + ny + nz, Vector3.UnitX, sprite.GetInterpolatedUV(0, 1));
                     break;
-                case BlockFace.NegY:
+                case Direction.NegY:
                     yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitY, sprite.GetInterpolatedUV(0, 1));
                     yield return new SimpleVertex(px + ny + nz, -Vector3.UnitY, sprite.GetInterpolatedUV(1, 1));
                     yield return new SimpleVertex(px + ny + pz, -Vector3.UnitY, sprite.GetInterpolatedUV(1, 0));
@@ -71,7 +71,7 @@ namespace DigBuild.Render
                     yield return new SimpleVertex(nx + ny + pz, -Vector3.UnitY, sprite.GetInterpolatedUV(0, 0));
                     yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitY, sprite.GetInterpolatedUV(0, 1));
                     break;
-                case BlockFace.PosY:
+                case Direction.PosY:
                     yield return new SimpleVertex(nx + py + nz, Vector3.UnitY, sprite.GetInterpolatedUV(0, 1));
                     yield return new SimpleVertex(px + py + pz, Vector3.UnitY, sprite.GetInterpolatedUV(1, 0));
                     yield return new SimpleVertex(px + py + nz, Vector3.UnitY, sprite.GetInterpolatedUV(1, 1));
@@ -80,7 +80,7 @@ namespace DigBuild.Render
                     yield return new SimpleVertex(px + py + pz, Vector3.UnitY, sprite.GetInterpolatedUV(1, 0));
                     yield return new SimpleVertex(nx + py + nz, Vector3.UnitY, sprite.GetInterpolatedUV(0, 1));
                     break;
-                case BlockFace.NegZ:
+                case Direction.NegZ:
                     yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(0, 1));
                     yield return new SimpleVertex(px + py + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(1, 0));
                     yield return new SimpleVertex(px + ny + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(1, 1));
@@ -89,7 +89,7 @@ namespace DigBuild.Render
                     yield return new SimpleVertex(px + py + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(1, 0));
                     yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(0, 1));
                     break;
-                case BlockFace.PosZ:
+                case Direction.PosZ:
                     yield return new SimpleVertex(px + py + pz, Vector3.UnitZ, sprite.GetInterpolatedUV(0, 0));
                     yield return new SimpleVertex(nx + ny + pz, Vector3.UnitZ, sprite.GetInterpolatedUV(1, 1));
                     yield return new SimpleVertex(px + ny + pz, Vector3.UnitZ, sprite.GetInterpolatedUV(0, 1));

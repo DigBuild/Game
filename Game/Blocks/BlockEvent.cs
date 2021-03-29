@@ -1,4 +1,4 @@
-﻿using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Blocks;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Registries;
@@ -61,9 +61,9 @@ namespace DigBuild.Blocks
 
         public sealed class NeighborChanged : IBlockEvent<IBlockContext>
         {
-            public readonly BlockFace Direction;
+            public readonly Direction Direction;
 
-            public NeighborChanged(BlockFace direction)
+            public NeighborChanged(Direction direction)
             {
                 Direction = direction;
             }

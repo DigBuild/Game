@@ -1,6 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using DigBuild.Blocks;
+using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
+using DigBuild.Engine.Physics;
 using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Voxel
@@ -16,16 +19,24 @@ namespace DigBuild.Voxel
             _world = world;
         }
 
-        public bool Visit(Vector3i gridPosition, Vector3 position, RayCaster.Ray ray, [NotNullWhen(true)] out Hit? hit)
+        public bool Visit(Vector3I gridPosition, Vector3 position, Raycast.Ray ray, [NotNullWhen(true)] out Hit? hit)
         {
-            if (_world.GetBlock(gridPosition) == null)
+            var pos = new BlockPos(gridPosition);
+            var block = _world.GetBlock(pos);
+            if (block == null)
             {
                 hit = null;
                 return false;
             }
 
-            var face = BlockFaces.FromOffset(position - gridPosition - Half);
-            hit = new Hit(gridPosition, face);
+            var rayCollider = block.Get(new BlockContext(_world, pos, block), BlockAttributes.RayCollider);
+            if (!rayCollider.TryCollide(ray - (Vector3) gridPosition, out var colliderHit))
+            {
+                hit = null;
+                return false;
+            }
+            
+            hit = new Hit((Vector3) gridPosition, colliderHit.Side);
             return true;
         }
 
@@ -33,9 +44,9 @@ namespace DigBuild.Voxel
         {
             public readonly Vector3 Position;
             public readonly BlockPos BlockPos;
-            public readonly BlockFace Face;
+            public readonly Direction Face;
 
-            public Hit(Vector3 position, BlockFace face)
+            public Hit(Vector3 position, Direction face)
             {
                 Position = position;
                 Face = face;
