@@ -12,10 +12,16 @@ namespace DigBuild.Blocks
 {
     public static class GameBlocks
     {
+        public static readonly AABB[] StoneStairAABBs = {
+            new(0, 0, 0, 1, 0.5f, 1),
+            new(0.5f, 0.5f, 0, 1, 1, 1)
+        };
+
         public static Block Dirt { get; private set; } = null!;
         public static Block Grass { get; private set; } = null!;
         public static Block Water { get; private set; } = null!;
         public static Block Stone { get; private set; } = null!;
+        public static Block StoneStairs { get; private set; } = null!;
         public static Block Crafter { get; private set; } = null!;
 
         internal static void Register(RegistryBuilder<Block> registry)
@@ -40,7 +46,13 @@ namespace DigBuild.Blocks
             Stone = registry.Create(new ResourceName(Game.Domain, "stone"),
                 BlockDrops(() => GameItems.Stone)
             );
-            
+            StoneStairs = registry.Create(new ResourceName(Game.Domain, "stone_stairs"), builder =>
+                {
+                    // builder.Attach(new ColliderBehavior(new VoxelCollider(StoneStairAABBs)));
+                    builder.Attach(new RayColliderBehavior(new VoxelRayCollider(StoneStairAABBs)));
+                },
+                BlockDrops(() => GameItems.StoneStairs)
+            );
             Crafter = registry.Create(new ResourceName(Game.Domain, "crafter"), builder =>
                 {
                     var data = builder.Add<CrafterBlockData>();

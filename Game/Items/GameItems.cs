@@ -14,6 +14,7 @@ namespace DigBuild.Items
         public static Item Grass { get; private set; } = null!;
         public static Item Water { get; private set; } = null!;
         public static Item Stone { get; private set; } = null!;
+        public static Item StoneStairs { get; private set; } = null!;
         public static Item Crafter { get; private set; } = null!;
 
         internal static void Register(RegistryBuilder<Item> registry)
@@ -29,6 +30,9 @@ namespace DigBuild.Items
             );
             Stone = registry.Create(new ResourceName(Game.Domain, "stone"),
                 BlockPlacement(() => GameBlocks.Stone)
+            );
+            StoneStairs = registry.Create(new ResourceName(Game.Domain, "stone_stairs"),
+                BlockPlacement(() => GameBlocks.StoneStairs)
             );
             Crafter = registry.Create(new ResourceName(Game.Domain, "crafter"),
                 BlockPlacement(() => GameBlocks.Crafter)

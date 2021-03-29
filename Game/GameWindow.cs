@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
@@ -289,11 +289,13 @@ namespace DigBuild
             });
             var waterModel = new CuboidBlockModel(AABB.FullBlock, waterTexture);
             var stoneModel = new CuboidBlockModel(AABB.FullBlock, stoneTexture);
+            var stoneStairsModel = new CuboidBlockModel(GameBlocks.StoneStairAABBs, stoneTexture);
             var triangleModel = new SpinnyTriangleModel(stoneTexture);
             _unbakedModels.Add(dirtModel);
             _unbakedModels.Add(grassModel);
             _unbakedModels.Add(waterModel);
             _unbakedModels.Add(stoneModel);
+            _unbakedModels.Add(stoneStairsModel);
 
             var blockModels = new Dictionary<Block, IBlockModel>()
             {
@@ -301,12 +303,14 @@ namespace DigBuild
                 [GameBlocks.Grass] = grassModel,
                 [GameBlocks.Water] = waterModel,
                 [GameBlocks.Stone] = stoneModel,
+                [GameBlocks.StoneStairs] = stoneStairsModel,
                 [GameBlocks.Crafter] = triangleModel
             };
             ItemModels[GameItems.Dirt] = new ItemBlockModel(dirtModel);
             ItemModels[GameItems.Grass] = new ItemBlockModel(grassModel);
             ItemModels[GameItems.Water] = new ItemBlockModel(waterModel);
             ItemModels[GameItems.Stone] = new ItemBlockModel(stoneModel);
+            ItemModels[GameItems.StoneStairs] = new ItemBlockModel(stoneStairsModel);
             ItemModels[GameItems.Crafter] = new ItemBlockModel(triangleModel);
             var entityModels = new Dictionary<Entity, IEntityModel>()
             {

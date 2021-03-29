@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -20,7 +20,7 @@ namespace DigBuild
     public class Game : IDisposable
     {
         public const string Domain = "digbuild";
-        public const int ViewRadius = 16;
+        public const int ViewRadius = 5;
         public static CraftingRecipeLookup RecipeLookup { get; private set; } = null!;
 
         private readonly TickSource _tickSource;
@@ -55,7 +55,7 @@ namespace DigBuild
                         CraftingIngredient.None, CraftingIngredient.None
                     },
                     CraftingIngredient.None,
-                    new ItemInstance(GameItems.Crafter, 3)
+                    new ItemInstance(GameItems.StoneStairs, 3)
                 )
             };
             RecipeLookup = new CraftingRecipeLookup(recipes);

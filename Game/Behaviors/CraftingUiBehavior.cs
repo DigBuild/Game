@@ -16,7 +16,9 @@ namespace DigBuild.Behaviors
         public InventorySlot OutputSlot { get; }
     }
 
-    public sealed class CraftingUiBehavior : IBlockBehavior<ICraftingUiBehavior, ICraftingUiBehavior>, IItemBehavior<ICraftingUiBehavior, ICraftingUiBehavior>
+    public sealed class CraftingUiBehavior :
+        IBlockBehavior<ICraftingUiBehavior, ICraftingUiBehavior>,
+        IItemBehavior<ICraftingUiBehavior, ICraftingUiBehavior>
     {
         public void Build(BlockBehaviorBuilder<ICraftingUiBehavior, ICraftingUiBehavior> block)
         {
