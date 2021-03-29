@@ -1,13 +1,14 @@
-﻿using DigBuild.Engine.Blocks;
+﻿using DigBuild.Blocks;
+using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Physics;
 
-namespace DigBuild.Blocks
+namespace DigBuild.Behaviors
 {
-    public sealed class CustomColliderBehavior : IBlockBehavior
+    public sealed class ColliderBehavior : IBlockBehavior
     {
         private readonly ICollider _collider;
 
-        public CustomColliderBehavior(ICollider collider)
+        public ColliderBehavior(ICollider collider)
         {
             _collider = collider;
         }

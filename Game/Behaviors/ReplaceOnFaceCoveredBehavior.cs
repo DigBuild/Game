@@ -1,16 +1,17 @@
 ﻿using System;
+using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worlds;
 
-namespace DigBuild.Blocks
+namespace DigBuild.Behaviors
 {
-    public sealed class FaceCoveredReplaceBehavior : IBlockBehavior
+    public sealed class ReplaceOnFaceCoveredBehavior : IBlockBehavior
     {
         private readonly Direction _face;
         private readonly Func<Block> _replacementSupplier;
 
-        public FaceCoveredReplaceBehavior(Direction face, Func<Block> replacementSupplier)
+        public ReplaceOnFaceCoveredBehavior(Direction face, Func<Block> replacementSupplier)
         {
             _face = face;
             _replacementSupplier = replacementSupplier;

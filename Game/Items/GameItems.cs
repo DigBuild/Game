@@ -1,4 +1,5 @@
 ﻿using System;
+using DigBuild.Behaviors;
 using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
@@ -13,10 +14,7 @@ namespace DigBuild.Items
         public static Item Grass { get; private set; } = null!;
         public static Item Water { get; private set; } = null!;
         public static Item Stone { get; private set; } = null!;
-        public static Item TriangleItem { get; private set; } = null!;
         public static Item Crafter { get; private set; } = null!;
-
-        public static Item CountingItem { get; private set; } = null!;
 
         internal static void Register(RegistryBuilder<Item> registry)
         {
@@ -32,24 +30,14 @@ namespace DigBuild.Items
             Stone = registry.Create(new ResourceName(Game.Domain, "stone"),
                 BlockPlacement(() => GameBlocks.Stone)
             );
-            TriangleItem = registry.Create(new ResourceName(Game.Domain, "triangle_Item"),
-                BlockPlacement(() => GameBlocks.TriangleBlock)
-            );
             Crafter = registry.Create(new ResourceName(Game.Domain, "crafter"),
                 BlockPlacement(() => GameBlocks.Crafter)
-            );
-
-            CountingItem = registry.Create(new ResourceName(Game.Domain, "counting_item"), builder =>
-                {
-                    var data = builder.Add<CountingData>();
-                    builder.Attach(new CountingBehavior(), data);
-                }
             );
         }
 
         private static Action<ItemBuilder> BlockPlacement(Func<Block> blockSupplier)
         {
-            return builder => builder.Attach(new BlockPlaceBehavior(blockSupplier));
+            return builder => builder.Attach(new PlaceBlockBehavior(blockSupplier));
         }
     }
 }

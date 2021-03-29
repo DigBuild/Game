@@ -1,8 +1,9 @@
 ﻿using System;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
+using DigBuild.Entities;
 
-namespace DigBuild.Entities
+namespace DigBuild.Behaviors
 {
     public interface IItemEntityBehavior
     {

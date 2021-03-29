@@ -1,7 +1,8 @@
 ﻿using System;
+using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 
-namespace DigBuild.Blocks
+namespace DigBuild.Behaviors
 {
     public sealed class NoPunchBehavior : IBlockBehavior
     {

@@ -1,7 +1,8 @@
 ﻿using System.Numerics;
 using DigBuild.Engine.Entities;
+using DigBuild.Entities;
 
-namespace DigBuild.Entities
+namespace DigBuild.Behaviors
 {
     public interface IPhysicalEntityBehavior
     {

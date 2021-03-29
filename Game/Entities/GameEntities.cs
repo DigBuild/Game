@@ -1,8 +1,6 @@
-﻿using System.Numerics;
+﻿using DigBuild.Behaviors;
 using DigBuild.Engine.Entities;
-using DigBuild.Engine.Items;
 using DigBuild.Engine.Registries;
-using DigBuild.Engine.Storage;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Entities
@@ -19,26 +17,6 @@ namespace DigBuild.Entities
                 builder.Attach(new ItemEntityBehavior(), data);
                 builder.Attach(new PhysicalEntityBehavior(), data);
             });
-        }
-
-        private class ItemEntityData : IData<ItemEntityData>, IItemEntityBehavior, IPhysicalEntityBehavior
-        {
-            public ItemInstance Item { get; set; } = ItemInstance.Empty;
-            public long JoinWorldTime { get; set; }
-            IItemEntity? IItemEntityBehavior.Capability { get; set; }
-
-            public Vector3 Position { get; set; }
-            IPhysicalEntity? IPhysicalEntityBehavior.Capability { get; set; }
-
-            public ItemEntityData Copy()
-            {
-                return new()
-                {
-                    Item = Item,
-                    JoinWorldTime = JoinWorldTime,
-                    Position = Position
-                };
-            }
         }
     }
 }

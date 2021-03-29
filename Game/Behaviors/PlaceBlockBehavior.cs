@@ -3,14 +3,15 @@ using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Worlds;
+using DigBuild.Items;
 
-namespace DigBuild.Items
+namespace DigBuild.Behaviors
 {
-    public sealed class BlockPlaceBehavior : IItemBehavior
+    public sealed class PlaceBlockBehavior : IItemBehavior
     {
         private readonly Func<Block> _blockSupplier;
 
-        public BlockPlaceBehavior(Func<Block> blockSupplier)
+        public PlaceBlockBehavior(Func<Block> blockSupplier)
         {
             _blockSupplier = blockSupplier;
         }
@@ -27,15 +28,13 @@ namespace DigBuild.Items
 
             var pos = evt.Hit.BlockPos.Offset(evt.Hit.Face);
             var block = _blockSupplier();
-            if (context.World.SetBlock(pos, block, true, false))
-            {
-                block.OnPlaced(new BlockContext(context.World, pos, block), new BlockEvent.Placed());
-                context.Instance.Count--;
-                Console.WriteLine($"New item count is {context.Instance.Count}");
-                return ItemEvent.Activate.Result.Success;
-            }
 
-            return ItemEvent.Activate.Result.Fail;
+            if (!context.World.SetBlock(pos, block, true, false))
+                return ItemEvent.Activate.Result.Fail;
+
+            block.OnPlaced(new BlockContext(context.World, pos, block), new BlockEvent.Placed());
+            context.Instance.Count--;
+            return ItemEvent.Activate.Result.Success;
         }
     }
 }

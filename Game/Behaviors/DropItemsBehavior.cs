@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Numerics;
+using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Worlds;
 using DigBuild.Entities;
 
-namespace DigBuild.Blocks
+namespace DigBuild.Behaviors
 {
-    public sealed class BlockDropsBehavior : IBlockBehavior
+    public sealed class DropItemsBehavior : IBlockBehavior
     {
         private readonly Func<ItemInstance> _dropSupplier;
 
-        public BlockDropsBehavior(Func<ItemInstance> dropSupplier)
+        public DropItemsBehavior(Func<ItemInstance> dropSupplier)
         {
             _dropSupplier = dropSupplier;
         }

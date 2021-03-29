@@ -1,13 +1,14 @@
-﻿using DigBuild.Engine.Blocks;
+﻿using DigBuild.Blocks;
+using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Physics;
 
-namespace DigBuild.Blocks
+namespace DigBuild.Behaviors
 {
-    public sealed class CustomRayColliderBehavior : IBlockBehavior
+    public sealed class RayColliderBehavior : IBlockBehavior
     {
         private readonly IRayCollider<VoxelRayCollider.Hit> _collider;
 
-        public CustomRayColliderBehavior(IRayCollider<VoxelRayCollider.Hit> collider)
+        public RayColliderBehavior(IRayCollider<VoxelRayCollider.Hit> collider)
         {
             _collider = collider;
         }
