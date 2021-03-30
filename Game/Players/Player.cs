@@ -31,9 +31,9 @@ namespace DigBuild.Players
         {
             var physicalEntity = PhysicalEntity;
             return new PlayerCamera(
-                physicalEntity.Position + physicalEntity.Velocity * partialTick + Vector3.UnitY * 1.75f,
-                physicalEntity.Pitch + physicalEntity.AngularVelocityPitch * partialTick,
-                physicalEntity.Yaw + physicalEntity.AngularVelocityYaw * partialTick,
+                physicalEntity.PrevPosition + physicalEntity.PrevVelocity * partialTick + Vector3.UnitY * 1.75f,
+                physicalEntity.PrevPitch + physicalEntity.AngularVelocityPitch * partialTick,
+                physicalEntity.PrevYaw + physicalEntity.AngularVelocityYaw * partialTick,
                 MathF.PI / 2
             );
         }

@@ -35,7 +35,7 @@ namespace DigBuild.Behaviors
 
         public PhysicalEntityBehavior(
             AABB bounds,
-            float terminalVelocity = 0.5f, float groundDragFactor = 0.2f, float airDragFactor = 0.3f, float jumpForce = 0,
+            float terminalVelocity = 1.5f, float groundDragFactor = 0.2f, float airDragFactor = 0.3f, float jumpForce = 0,
             float jumpKickSpeed = 0, float movementSpeedGround = 0, float movementSpeedAir = 0, float rotationSpeed = 0
         )
         {
@@ -86,7 +86,6 @@ namespace DigBuild.Behaviors
         private sealed class PhysicalEntity : IPhysicalEntity
         {
             private readonly IWorld _world;
-            private readonly AABB _bounds;
             private readonly IPhysicalEntityBehavior _data;
             private readonly float _terminalVelocity, _groundDragFactor, _airDragFactor, _jumpForce;
             private readonly float _jumpKickSpeed, _movementSpeedGround, _movementSpeedAir, _rotationSpeed;
@@ -100,7 +99,7 @@ namespace DigBuild.Behaviors
             )
             {
                 _world = world;
-                _bounds = bounds;
+                Bounds = bounds;
                 _data = data;
                 _terminalVelocity = terminalVelocity;
                 _groundDragFactor = groundDragFactor;
@@ -110,9 +109,10 @@ namespace DigBuild.Behaviors
                 _movementSpeedGround = movementSpeedGround;
                 _movementSpeedAir = movementSpeedAir;
                 _rotationSpeed = rotationSpeed;
+                PrevPosition = data.Position;
             }
 
-            public AABB Bounds => _bounds;
+            public AABB Bounds { get; }
 
             public bool OnGround
             {
@@ -155,10 +155,16 @@ namespace DigBuild.Behaviors
                 get => _data.AngularVelocityYaw;
                 set => _data.AngularVelocityYaw = value;
             }
+            
+            public Vector3 PrevPosition { get; private set; }
+            public Vector3 PrevVelocity { get; private set; }
+            public float PrevPitch { get; private set; }
+            public float PrevYaw { get; private set; }
 
             public void Rotate(float pitchDelta, float yawDelta)
             {
-                var prevPitch = Pitch;
+                PrevPitch = Pitch;
+                PrevYaw = Yaw;
                 AngularVelocityPitch = pitchDelta * pitchDelta * MathF.Sign(pitchDelta) * _rotationSpeed;
                 AngularVelocityYaw = yawDelta * yawDelta * MathF.Sign(yawDelta) * _rotationSpeed;
 
@@ -169,7 +175,7 @@ namespace DigBuild.Behaviors
                         MathF.PI / 2
                     )
                 );
-                AngularVelocityPitch = Pitch - prevPitch;
+                AngularVelocityPitch = Pitch - PrevPitch;
                 Yaw = (MathF.PI * 3 + Yaw + AngularVelocityYaw) % (MathF.PI * 2) - MathF.PI;
             }
 
@@ -240,15 +246,15 @@ namespace DigBuild.Behaviors
                     (colliders, colliders2) = (colliders2, colliders);
                 }
 
-                var prevPosition = Position;
+                PrevPosition = Position;
                 
                 var yVel = OnGround ? 0 : Math.Max(vel.Y, -_terminalVelocity);
                 var dragFactor = OnGround ? _groundDragFactor : _airDragFactor;
                 Position += vel;
-                // PrevVelocity = vel;
+                PrevVelocity = vel;
                 Velocity = new Vector3(vel.X * dragFactor, yVel, vel.Z * dragFactor);
 
-                var prevChunkPos = new BlockPos(prevPosition).ChunkPos;
+                var prevChunkPos = new BlockPos(PrevPosition).ChunkPos;
                 var newChunkPos = new BlockPos(Position).ChunkPos;
                 if (prevChunkPos != newChunkPos)
                     LoadSurroundingChunks();
@@ -313,6 +319,11 @@ namespace DigBuild.Behaviors
         public float Yaw { get; set; }
         public float AngularVelocityPitch { get; set; }
         public float AngularVelocityYaw { get; set; }
+        
+        public Vector3 PrevPosition { get; }
+        public Vector3 PrevVelocity { get; }
+        public float PrevPitch { get; }
+        public float PrevYaw { get; }
 
         public void Rotate(float pitchDelta, float yawDelta);
         public void ApplyMotion(float forwardMotion, float sidewaysMotion);
