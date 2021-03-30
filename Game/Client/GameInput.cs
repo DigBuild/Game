@@ -23,7 +23,7 @@ namespace DigBuild.Client
         {
             Platform.Platform.InputContext.Update();
             _controller ??= Platform.Platform.InputContext.Controllers.FirstOrDefault();
-            if (_controller == null)
+            if (_controller == null || !_controller.Connected)
                 return;
         
             PitchDelta = -Bias(_controller.Joysticks[3]);
