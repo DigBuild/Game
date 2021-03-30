@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using DigBuild.Blocks.Models;
@@ -43,11 +44,18 @@ namespace DigBuild.Client
     
     public class RenderResources
     {
+        private readonly FramebufferFormat _framebufferFormat;
+        private readonly ShaderSamplerHandle _colorTextureHandle;
+        private readonly FramebufferColorAttachment _colorAttachment;
+        private readonly TextureSampler _sampler;
+        private readonly RenderPipeline<Vertex2> _compPipeline;
+        private readonly TextureBinding _cursorTextureBinding;
+
         public readonly RenderStage MainRenderStage;
         public readonly RenderStage UiRenderStage;
-        
-        public readonly Framebuffer WorldFramebuffer;
-        public readonly Framebuffer UiFramebuffer;
+
+        public Framebuffer WorldFramebuffer { get; private set; } = null!;
+        public Framebuffer UiFramebuffer { get; private set; } = null!;
         
         public readonly CommandBuffer WorldCommandBuffer;
         public readonly CommandBuffer UiCommandBuffer;
@@ -73,26 +81,21 @@ namespace DigBuild.Client
             NativeBufferPool bufferPool, SpriteSheet blockSpriteSheet, SpriteSheet uiSpriteSheet)
         {
             // Custom framebuffer format and render stages for preliminary rendering
-            FramebufferFormat framebufferFormat = context
+            _framebufferFormat = context
                 .CreateFramebufferFormat()
-                .WithColorAttachment(out var colorAttachment, TextureFormat.R8G8B8A8SRGB, new Vector4(0, 0, 0, 1))
+                .WithColorAttachment(out _colorAttachment, TextureFormat.R8G8B8A8SRGB, new Vector4(0, 0, 0, 1))
                 .WithDepthStencilAttachment(out var depthStencilAttachment)
-                .WithStage(out MainRenderStage, depthStencilAttachment, colorAttachment);
+                .WithStage(out MainRenderStage, depthStencilAttachment, _colorAttachment);
             UiRenderStage = MainRenderStage;
-
-            // Framebuffer for preliminary rendering
-            WorldFramebuffer = context.CreateFramebuffer(framebufferFormat, surface.Width, surface.Height);
-            UiFramebuffer = context.CreateFramebuffer(framebufferFormat, surface.Width, surface.Height);
             
             IResource vsCompResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/comp.vert.spv"))!;
             IResource fsCompResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/comp.frag.spv"))!;
             
             // Secondary geometry pipeline for compositing
             VertexShader vsComp = context.CreateVertexShader(vsCompResource);
-            FragmentShader fsComp = context
-                .CreateFragmentShader(fsCompResource)
-                .WithSampler(out var colorTextureHandle);
-            RenderPipeline<Vertex2> compPipeline = context.CreatePipeline<Vertex2>(
+            FragmentShader fsComp = context.CreateFragmentShader(fsCompResource)
+                .WithSampler(out _colorTextureHandle);
+            _compPipeline = context.CreatePipeline<Vertex2>(
                 vsComp, fsComp,
                 surface.RenderStage,
                 Topology.Triangles
@@ -113,25 +116,15 @@ namespace DigBuild.Client
             CompVertexBuffer = context.CreateVertexBuffer(compVertexData);
 
             // Create sampler and texture binding
-            TextureSampler sampler = context.CreateTextureSampler();
-            TextureBinding worldFramebufferTextureBinding = context.CreateTextureBinding(
-                colorTextureHandle,
-                sampler,
-                WorldFramebuffer.Get(colorAttachment)
-            );
-            TextureBinding uiFramebufferTextureBinding = context.CreateTextureBinding(
-                colorTextureHandle,
-                sampler,
-                UiFramebuffer.Get(colorAttachment)
-            );
+            _sampler = context.CreateTextureSampler();
             
             IResource cursorResource = resourceManager.GetResource(new ResourceName(Game.Domain, "textures/cursor.png"))!;
             Texture cursorTexture = context.CreateTexture(
                 new Bitmap(cursorResource.OpenStream())
             );
-            TextureBinding cursorTextureBinding = context.CreateTextureBinding(
-                colorTextureHandle,
-                sampler,
+            _cursorTextureBinding = context.CreateTextureBinding(
+                _colorTextureHandle,
+                _sampler,
                 cursorTexture
             );
             
@@ -152,16 +145,6 @@ namespace DigBuild.Client
             UiCommandBuffer = context.CreateCommandBuffer();
 
             CompCommandBuffer = context.CreateCommandBuffer();
-            using (var cmd = CompCommandBuffer.Record(context, surface.Format, bufferPool))
-            {
-                cmd.SetViewportAndScissor(surface);
-                cmd.Using(compPipeline, worldFramebufferTextureBinding);
-                cmd.Draw(compPipeline, CompVertexBuffer);
-                cmd.Using(compPipeline, cursorTextureBinding);
-                cmd.Draw(compPipeline, CompVertexBuffer);
-                cmd.Using(compPipeline, uiFramebufferTextureBinding);
-                cmd.Draw(compPipeline, CompVertexBuffer);
-            }
 
             // Outline stuff idk
             IResource vsOutlineResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/world/outline.vert.spv"))!;
@@ -198,6 +181,37 @@ namespace DigBuild.Client
             );
 
             TextRenderer = new TextRenderer(UiRenderLayer.Text);
+
+            OnResize(surface, context, bufferPool);
+        }
+
+        public void OnResize(RenderSurfaceContext surface, RenderContext context, NativeBufferPool bufferPool)
+        {
+            // Framebuffer for preliminary rendering
+            WorldFramebuffer = context.CreateFramebuffer(_framebufferFormat, surface.Width, surface.Height);
+            UiFramebuffer = context.CreateFramebuffer(_framebufferFormat, surface.Width, surface.Height);
+            
+            TextureBinding worldFramebufferTextureBinding = context.CreateTextureBinding(
+                _colorTextureHandle,
+                _sampler,
+                WorldFramebuffer.Get(_colorAttachment)
+            );
+            TextureBinding uiFramebufferTextureBinding = context.CreateTextureBinding(
+                _colorTextureHandle,
+                _sampler,
+                UiFramebuffer.Get(_colorAttachment)
+            );
+            
+            using (var cmd = CompCommandBuffer.Record(context, surface.Format, bufferPool))
+            {
+                cmd.SetViewportAndScissor(surface);
+                cmd.Using(_compPipeline, worldFramebufferTextureBinding);
+                cmd.Draw(_compPipeline, CompVertexBuffer);
+                cmd.Using(_compPipeline, _cursorTextureBinding);
+                cmd.Draw(_compPipeline, CompVertexBuffer);
+                cmd.Using(_compPipeline, uiFramebufferTextureBinding);
+                cmd.Draw(_compPipeline, CompVertexBuffer);
+            }
         }
 
         public static void GenerateBoundingBoxGeometry(INativeBuffer<SimplerVertex> buffer, AABB aabb)
@@ -253,7 +267,7 @@ namespace DigBuild.Client
         private readonly TextureStitcher _uiStitcher = new();
         private readonly List<CuboidBlockModel> _unbakedModels = new();
         public static readonly Dictionary<Item, IItemModel> ItemModels = new();
-        public static IInventorySlot PickedItemSlot {get; private set; }
+        public static IInventorySlot PickedItemSlot { get; private set; } = null!;
         
         private readonly List<IRenderLayer> _worldRenderLayers = new(){
             WorldRenderLayer.Opaque
@@ -356,6 +370,7 @@ namespace DigBuild.Client
         private readonly UiContainer _ui = new();
         private UiLabel _positionLabel = null!;
         private UiLabel _lookLabel = null!;
+        private UiInventorySlot[] _hotbarSlots = null!;
         private UiUnboundInventorySlot _pickedSlot = null!;
         public static IUiElement? FunnyUi { get; set; }
 
@@ -404,7 +419,7 @@ namespace DigBuild.Client
 
                 foreach (var layer in _worldRenderLayers)
                     layer.Initialize(context, ResourceManager);
-                foreach (var layer in _uiRenderLayers)
+                foreach (var layer in _uiRenderLayers.Where(l => !_worldRenderLayers.Contains(l)))
                     layer.Initialize(context, ResourceManager);
 
                 IUiElement.GlobalTextRenderer = Resources.TextRenderer;
@@ -415,10 +430,11 @@ namespace DigBuild.Client
                 {
                     var off = 60u;
                     var i = 0;
+                    _hotbarSlots = new UiInventorySlot[_player.Inventory.Hotbar.Count];
                     foreach (var slot in _player.Inventory.Hotbar)
                     {
                         var i1 = i;
-                        _ui.Add(off, surface.Height - 60, new UiInventorySlot(
+                        _ui.Add(off, surface.Height - 60, _hotbarSlots[i] = new UiInventorySlot(
                             slot, _player.Inventory.PickedItem, ItemModels, UiRenderLayer.Ui, 
                             () => _player.Inventory.ActiveHotbarSlot == i1)
                         );
@@ -428,6 +444,19 @@ namespace DigBuild.Client
                 }
 
                 _ui.Add(0, 0, _pickedSlot = new UiUnboundInventorySlot(_player.Inventory.PickedItem, ItemModels));
+            }
+
+            if (surface.Resized)
+            {
+                Resources.OnResize(surface, context, BufferPool);
+                
+                var off = 60u;
+                foreach (var slot in _hotbarSlots)
+                {
+                    _ui.Remove(slot);
+                    _ui.Add(off, surface.Height - 60, slot);
+                    off += 100;
+                }
             }
 
             lock (_tickSource)
@@ -454,7 +483,7 @@ namespace DigBuild.Client
                         Resources.OutlineNativeBuffer.Clear();
                         RenderResources.GenerateBoundingBoxGeometry(Resources.OutlineNativeBuffer, hit.Bounds);
                         Resources.OutlineVertexBufferWriter.Write(Resources.OutlineNativeBuffer);
-
+                    
                         Resources.NativeOutlineUniformBuffer[0].Matrix =
                             Matrix4x4.CreateTranslation(hit.Position)
                             * camera.Transform * renderProjMat;

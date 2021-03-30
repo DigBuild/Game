@@ -26,7 +26,7 @@ namespace DigBuild.Render
 
                 // Create spritesheet stuff
                 TextureSampler sampler = ctx.CreateTextureSampler(
-                    TextureFiltering.Nearest, TextureFiltering.Nearest
+                    TextureFiltering.Linear, TextureFiltering.Nearest
                 );
                 TextureBinding blockTextureBinding = ctx.CreateTextureBinding(
                     textureHandle,
@@ -41,9 +41,6 @@ namespace DigBuild.Render
             },
             data => data.Pipeline,
             (data, pool) => data.CreateUniforms(pool),
-            (data, cmd) =>
-            {
-                cmd.Using(data.Pipeline, data.TextureBinding);
-            });
+            (data, cmd) => cmd.Using(data.Pipeline, data.TextureBinding));
     }
 }
