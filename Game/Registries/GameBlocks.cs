@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using DigBuild.Behaviors;
 using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
@@ -58,6 +58,8 @@ namespace DigBuild.Registries
                     var data = builder.Add<CrafterBlockData>();
                     builder.Attach(new FindCraftingRecipeBehavior(), data);
                     builder.Attach(new CraftingUiBehavior(), data);
+
+                    builder.Attach(new LightEmittingBehavior(0xF));
                 },
                 BlockDrops(() => GameItems.Crafter)
             );

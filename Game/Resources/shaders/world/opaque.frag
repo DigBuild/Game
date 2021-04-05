@@ -5,6 +5,7 @@ layout(set = 1, binding = 0) uniform sampler2D tex;
 
 layout(location = 0) in vec2 fragUV;
 layout(location = 1) in vec3 fragNormal;
+layout(location = 2) in float fragBrightness;
 
 layout(location = 0) out vec4 outColor;
 
@@ -14,6 +15,6 @@ float calculateNormalShade(vec3 normal) {
 
 void main() {
     vec4 color = texture(tex, fragUV);
-    float shade = calculateNormalShade(fragNormal);
+    float shade = calculateNormalShade(fragNormal) * (0.25 + fragBrightness * 0.75);
     outColor = vec4(color.rgb * shade, color.a);
 }

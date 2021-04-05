@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
@@ -14,7 +14,9 @@ namespace DigBuild.Worlds
         private const float GravityValue = 2.5f * TickSource.TickDurationSeconds;
 
         public event Action<EntityInstance>? EntityAdded;
-        public event Action<Guid>? EntityRemoved; 
+        public event Action<Guid>? EntityRemoved;
+
+        public event Action<BlockPos>? BlockChanged;
 
         public World(WorldGenerator generator, IStableTickSource tickSource, Func<ChunkPos> generationOriginGetter)
         {
@@ -48,6 +50,7 @@ namespace DigBuild.Worlds
                 var block = this.GetBlock(offset);
                 block?.OnNeighborChanged(new BlockContext(this, offset, block), new BlockEvent.NeighborChanged(face.GetOpposite()));
                 ChunkManager.OnBlockChanged(pos);
+                BlockChanged?.Invoke(pos);
             }
         }
 

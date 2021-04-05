@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Engine.Math;
@@ -11,6 +11,7 @@ namespace DigBuild.Blocks.Models
     public sealed class CuboidBlockModel : IBlockModel
     {
         private readonly SimpleVertex[][] _vertices = new SimpleVertex[6][];
+        public bool Solid { get; set; } = true;
         public readonly Action Initialize;
 
         public CuboidBlockModel(AABB bounds, ISprite sprite) : this(bounds, new[]{ sprite, sprite, sprite, sprite, sprite, sprite })
@@ -38,13 +39,15 @@ namespace DigBuild.Blocks.Models
             };
         }
 
-        public void AddGeometry(DirectionFlags faces, GeometryBufferSet buffers)
+        public void AddGeometry(DirectionFlags faces, GeometryBufferSet buffers, Func<Direction, byte> light)
         {
-            var buf = buffers.Get(WorldRenderLayer.Opaque);
+            var buf = buffers.Get(Layer());
             foreach (var face in Directions.In(faces))
-                buf.Accept(_vertices[(int) face]);
+                buf.Accept(_vertices[(int) face].WithBrightness(light(face) / 15f));
         }
-        
+
+        public bool IsFaceSolid(Direction face) => Solid;
+
         private static IEnumerable<SimpleVertex> GenerateFaceVertices(AABB bounds, Direction face, ISprite sprite)
         {
             var nx = new Vector3(bounds.Min.X, 0, 0);
@@ -57,58 +60,58 @@ namespace DigBuild.Blocks.Models
             switch (face)
             {
                 case Direction.NegX:
-                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Max.Z, bounds.Max.Y));
-                    yield return new SimpleVertex(nx + py + pz, -Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Min.Z, bounds.Min.Y));
-                    yield return new SimpleVertex(nx + py + nz, -Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Max.Z, bounds.Min.Y));
+                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Max.Z, bounds.Max.Y), 1);
+                    yield return new SimpleVertex(nx + py + pz, -Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Min.Z, bounds.Min.Y), 1);
+                    yield return new SimpleVertex(nx + py + nz, -Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Max.Z, bounds.Min.Y), 1);
 
-                    yield return new SimpleVertex(nx + ny + pz, -Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Min.Z, bounds.Max.Y));
-                    yield return new SimpleVertex(nx + py + pz, -Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Min.Z, bounds.Min.Y));
-                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Max.Z, bounds.Max.Y));
+                    yield return new SimpleVertex(nx + ny + pz, -Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Min.Z, bounds.Max.Y), 1);
+                    yield return new SimpleVertex(nx + py + pz, -Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Min.Z, bounds.Min.Y), 1);
+                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Max.Z, bounds.Max.Y), 1);
                     break;
                 case Direction.PosX:
-                    yield return new SimpleVertex(px + ny + nz, Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Min.Z, bounds.Max.Y));
-                    yield return new SimpleVertex(px + py + nz, Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Min.Z, bounds.Min.Y));
-                    yield return new SimpleVertex(px + py + pz, Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Max.Z, bounds.Min.Y));
+                    yield return new SimpleVertex(px + ny + nz, Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Min.Z, bounds.Max.Y), 1);
+                    yield return new SimpleVertex(px + py + nz, Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Min.Z, bounds.Min.Y), 1);
+                    yield return new SimpleVertex(px + py + pz, Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Max.Z, bounds.Min.Y), 1);
 
-                    yield return new SimpleVertex(px + py + pz, Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Max.Z, bounds.Min.Y));
-                    yield return new SimpleVertex(px + ny + pz, Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Max.Z, bounds.Max.Y));
-                    yield return new SimpleVertex(px + ny + nz, Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Min.Z, bounds.Max.Y));
+                    yield return new SimpleVertex(px + py + pz, Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Max.Z, bounds.Min.Y), 1);
+                    yield return new SimpleVertex(px + ny + pz, Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Max.Z, bounds.Max.Y), 1);
+                    yield return new SimpleVertex(px + ny + nz, Vector3.UnitX, sprite.GetInterpolatedUV(bounds.Min.Z, bounds.Max.Y), 1);
                     break;
                 case Direction.NegY:
-                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Max.Z));
-                    yield return new SimpleVertex(px + ny + nz, -Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Max.Z));
-                    yield return new SimpleVertex(px + ny + pz, -Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Min.Z));
+                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Max.Z), 1);
+                    yield return new SimpleVertex(px + ny + nz, -Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Max.Z), 1);
+                    yield return new SimpleVertex(px + ny + pz, -Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Min.Z), 1);
 
-                    yield return new SimpleVertex(px + ny + pz, -Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Min.Z));
-                    yield return new SimpleVertex(nx + ny + pz, -Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Min.Z));
-                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Max.Z));
+                    yield return new SimpleVertex(px + ny + pz, -Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Min.Z), 1);
+                    yield return new SimpleVertex(nx + ny + pz, -Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Min.Z), 1);
+                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Max.Z), 1);
                     break;
                 case Direction.PosY:
-                    yield return new SimpleVertex(nx + py + nz, Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Max.Z));
-                    yield return new SimpleVertex(px + py + pz, Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Min.Z));
-                    yield return new SimpleVertex(px + py + nz, Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Max.Z));
+                    yield return new SimpleVertex(nx + py + nz, Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Max.Z), 1);
+                    yield return new SimpleVertex(px + py + pz, Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Min.Z), 1);
+                    yield return new SimpleVertex(px + py + nz, Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Max.Z), 1);
 
-                    yield return new SimpleVertex(nx + py + pz, Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Min.Z));
-                    yield return new SimpleVertex(px + py + pz, Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Min.Z));
-                    yield return new SimpleVertex(nx + py + nz, Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Max.Z));
+                    yield return new SimpleVertex(nx + py + pz, Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Min.Z), 1);
+                    yield return new SimpleVertex(px + py + pz, Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Min.Z), 1);
+                    yield return new SimpleVertex(nx + py + nz, Vector3.UnitY, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Max.Z), 1);
                     break;
                 case Direction.NegZ:
-                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Max.Y));
-                    yield return new SimpleVertex(px + py + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Min.Y));
-                    yield return new SimpleVertex(px + ny + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Max.Y));
+                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Max.Y), 1);
+                    yield return new SimpleVertex(px + py + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Min.Y), 1);
+                    yield return new SimpleVertex(px + ny + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Max.Y), 1);
                     
-                    yield return new SimpleVertex(nx + py + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Min.Y));
-                    yield return new SimpleVertex(px + py + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Min.Y));
-                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Max.Y));
+                    yield return new SimpleVertex(nx + py + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Min.Y), 1);
+                    yield return new SimpleVertex(px + py + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Min.Y), 1);
+                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Max.Y), 1);
                     break;
                 case Direction.PosZ:
-                    yield return new SimpleVertex(px + py + pz, Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Min.Y));
-                    yield return new SimpleVertex(nx + ny + pz, Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Max.Y));
-                    yield return new SimpleVertex(px + ny + pz, Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Max.Y));
+                    yield return new SimpleVertex(px + py + pz, Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Min.Y), 1);
+                    yield return new SimpleVertex(nx + ny + pz, Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Max.Y), 1);
+                    yield return new SimpleVertex(px + ny + pz, Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Max.Y), 1);
 
-                    yield return new SimpleVertex(nx + py + pz, Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Min.Y));
-                    yield return new SimpleVertex(nx + ny + pz, Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Max.Y));
-                    yield return new SimpleVertex(px + py + pz, Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Min.Y));
+                    yield return new SimpleVertex(nx + py + pz, Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Min.Y), 1);
+                    yield return new SimpleVertex(nx + ny + pz, Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Max.X, bounds.Max.Y), 1);
+                    yield return new SimpleVertex(px + py + pz, Vector3.UnitZ, sprite.GetInterpolatedUV(bounds.Min.X, bounds.Min.Y), 1);
                     break;
             }
         }

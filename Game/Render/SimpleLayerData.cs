@@ -44,7 +44,8 @@ namespace DigBuild.Render
             public Uniforms(
                 UniformHandle<TUniform> uniformHandle,
                 RenderPipeline<TVertex> pipeline,
-                Func<Matrix4x4, TUniform> uniformFactory, NativeBufferPool pool)
+                Func<Matrix4x4, TUniform> uniformFactory, NativeBufferPool pool
+            )
             {
                 _uniformHandle = uniformHandle;
                 _pipeline = pipeline;

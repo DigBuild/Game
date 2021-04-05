@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -65,6 +65,13 @@ namespace DigBuild
             _world.ChunkManager.ChunkUnloaded += chunk => _window.OnChunkUnloaded(chunk);
             _world.EntityAdded += entity => _window.OnEntityAdded(entity);
             _world.EntityRemoved += guid => _window.OnEntityRemoved(guid);
+
+            _world.BlockChanged += pos =>
+            {
+                BlockLightStorage.Update(_world, pos);
+                foreach (var direction in Directions.All)
+                    BlockLightStorage.Update(_world, pos.Offset(direction));
+            };
         }
 
         public void Dispose()
@@ -75,6 +82,7 @@ namespace DigBuild
         private void Tick()
         {
             _input.Update();
+            
             _player.UpdateMovement(_input);
             _player.UpdateHotbar(_input);
             

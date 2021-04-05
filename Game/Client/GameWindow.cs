@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -23,6 +23,7 @@ using DigBuild.Platform.Resource;
 using DigBuild.Platform.Util;
 using DigBuild.Registries;
 using DigBuild.Render;
+using DigBuild.Ui;
 using DigBuild.Worlds;
 
 namespace DigBuild.Client
@@ -331,7 +332,7 @@ namespace DigBuild.Client
                 [GameEntities.Item] = new ItemEntityModel(ItemModels)
             };
 
-            _worldRenderManager = new WorldRenderManager(blockModels, entityModels, _worldRenderLayers, BufferPool);
+            _worldRenderManager = new WorldRenderManager(player.Entity.World, blockModels, entityModels, _worldRenderLayers, BufferPool);
         }
 
         public async Task OpenWaitClosed()
@@ -370,8 +371,10 @@ namespace DigBuild.Client
         private readonly UiContainer _ui = new();
         private UiLabel _positionLabel = null!;
         private UiLabel _lookLabel = null!;
+        private UiLabel _lightLabel = null!;
         private UiInventorySlot[] _hotbarSlots = null!;
         private UiUnboundInventorySlot _pickedSlot = null!;
+
         public static IUiElement? FunnyUi { get; set; }
 
         private IUiElement? _currentFunnyUi;
@@ -426,6 +429,7 @@ namespace DigBuild.Client
 
                 _ui.Add(20, 20, _positionLabel = new UiLabel(""));
                 _ui.Add(20, 50, _lookLabel = new UiLabel(""));
+                _ui.Add(20, 80, _lightLabel = new UiLabel(""));
                 
                 {
                     var off = 60u;
@@ -505,6 +509,7 @@ namespace DigBuild.Client
 
                 _positionLabel.Text = $"Position: {new BlockPos(_player.PhysicalEntity.Position)}";
                 _lookLabel.Text = $"Look: {hit?.Position}";
+                _lightLabel.Text = $"Light: {(hit == null ? "" : _player.Entity.World.GetLight(hit.BlockPos.Offset(hit.Face)))}";
 
                 if (_player.HotbarTransfer)
                 {
