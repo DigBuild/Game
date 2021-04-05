@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Client
@@ -9,27 +10,35 @@ namespace DigBuild.Client
     public sealed class ShaderCompiler : IResourceProvider
     {
         private readonly string _outputDir;
+        private readonly HashSet<ResourceName> _uncompiledShaders = new();
 
         public ShaderCompiler(string outputDir)
         {
             _outputDir = outputDir;
         }
 
-        public IReadOnlySet<ResourceName> GetAndClearModifiedResources(GetAndClearModifiedResourcesDelegate parent)
+        public void AddAndClearModifiedResources(ISet<ResourceName> resources)
         {
-            return parent();
+            foreach (var resource in _uncompiledShaders.Where(resources.Contains))
+                resources.Add(new ResourceName(resource.Domain, resource.Path + ".spv"));
         }
 
         public IResource? GetResource(ResourceName name, GetResourceDelegate parent)
         {
             var resource = parent(name);
             if (resource != null || !name.Path.ToLower().EndsWith(".spv"))
+            {
+                _uncompiledShaders.Remove(new ResourceName(name.Domain, name.Path[..^4]));
                 return resource;
+            }
             
             var originalPath = name.Path[..^4];
-            var originalResource = parent(new ResourceName(name.Domain, originalPath));
+            var originalResourceName = new ResourceName(name.Domain, originalPath);
+            var originalResource = parent(originalResourceName);
             if (originalResource == null)
                 return null;
+
+            _uncompiledShaders.Add(originalResourceName);
 
             var fullPath = Path.GetFullPath(
                 Path.TrimEndingDirectorySeparator(_outputDir) +

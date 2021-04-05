@@ -256,7 +256,8 @@ namespace DigBuild.Client
                 new Dictionary<string, string>
                 {
                     [Game.Domain] = "../../Game/Resources"
-                }
+                },
+                true
             )
         );
 
