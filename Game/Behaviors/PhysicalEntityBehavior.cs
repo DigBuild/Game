@@ -7,6 +7,7 @@ using DigBuild.Engine.Entities;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Storage;
+using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Worlds;
 using DigBuild.Registries;
 
@@ -66,7 +67,7 @@ namespace DigBuild.Behaviors
                 _jumpKickSpeed, _movementSpeedGround, _movementSpeedAir, _rotationSpeed
             );
             data.InWorld = true;
-            context.Entity.World.TickScheduler.After(1).Tick += () => Update(context, data);
+            context.Entity.World.TickScheduler.After(1).Enqueue(GameJobs.PhysicalEntityMove, data.Capability);
         }
 
         private void OnLeavingWorld(IEntityContext context, IPhysicalEntityBehavior data, BuiltInEntityEvent.LeavingWorld evt, Action next)
@@ -74,13 +75,13 @@ namespace DigBuild.Behaviors
             data.InWorld = false;
         }
 
-        private void Update(IEntityContext context, IPhysicalEntityBehavior data)
+        public static void Update(Scheduler scheduler, IPhysicalEntity entity)
         {
-            if (data.InWorld == false)
+            if (((PhysicalEntity) entity).InWorld == false)
                 return;
 
-            data.Capability!.Move();
-            context.Entity.World.TickScheduler.After(1).Tick += () => Update(context, data);
+            entity.Move();
+            scheduler.After(1).Enqueue(GameJobs.PhysicalEntityMove, entity);
         }
 
         private sealed class PhysicalEntity : IPhysicalEntity
@@ -111,6 +112,8 @@ namespace DigBuild.Behaviors
                 _rotationSpeed = rotationSpeed;
                 PrevPosition = data.Position;
             }
+
+            public bool InWorld => _data.InWorld;
 
             public AABB Bounds { get; }
 
