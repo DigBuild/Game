@@ -22,10 +22,13 @@ namespace DigBuild.Worlds
 
         private readonly WorldGenerator _generator;
 
+        private readonly object _lockObject = new();
         private readonly Thread _generationThread;
         private bool _generationThreadActive = true;
-        private readonly ConcurrentDictionary<WorldSlicePos, object> _requestedChunks = new();
+        private HashSet<WorldSlicePos> _requestedChunks = new();
+        private HashSet<WorldSlicePos> _requestedChunks2 = new();
         private readonly ConcurrentQueue<Chunk> _generatedChunks = new();
+        private readonly ManualResetEventSlim _generatedChunksUpdateEvent = new();
 
         public event ChunkChangedEvent? ChunkChanged;
         public event ChunkUnloadedEvent? ChunkUnloaded;
@@ -37,18 +40,26 @@ namespace DigBuild.Worlds
             {
                 while (_generationThreadActive)
                 {
+                    lock (_lockObject)
+                    {
+                        _generatedChunksUpdateEvent.Reset();
+                        (_requestedChunks2, _requestedChunks) = (_requestedChunks, _requestedChunks2);
+                    }
+
                     var origin = generationOriginGetter();
-                    var toGenerate = _requestedChunks.Keys
+                    var toGenerate = _requestedChunks2
                         .OrderBy(c => new Vector3I(c.X - origin.X, 0, c.Z - origin.Z).LengthSquared())
                         .ToList();
+                    _requestedChunks2.Clear();
 
                     Parallel.ForEach(toGenerate, slicePos =>
                     {
                         var slice = GenerateSlice(slicePos);
                         foreach (var chunk in slice)
                             _generatedChunks.Enqueue(chunk);
-                        _requestedChunks.TryRemove(slicePos, out _);
                     });
+                    
+                    _generatedChunksUpdateEvent.Wait();
                 }
             });
             _generationThread.Start();
@@ -57,6 +68,7 @@ namespace DigBuild.Worlds
         public void Dispose()
         {
             _generationThreadActive = false;
+            _generatedChunksUpdateEvent.Set();
             _generationThread.Join();
         }
 
@@ -118,10 +130,16 @@ namespace DigBuild.Worlds
                 if (!_tickets.TryGetValue(pos, out var tickets))
                 {
                     _tickets[pos] = tickets = new HashSet<LoadingTicket>();
-                    _requestedChunks.TryAdd(new WorldSlicePos(pos.X, pos.Z), pos);
+                    _requestedChunks.Add(new WorldSlicePos(pos.X, pos.Z));
                 }
                 tickets.Add((LoadingTicket) ticket);
             }
+
+            lock (_lockObject)
+            {
+                _generatedChunksUpdateEvent.Set();
+            }
+
             return true;
         }
 
