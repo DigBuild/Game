@@ -55,11 +55,12 @@ namespace DigBuild
             _player = new PlayerController(_world.AddPlayer(new Vector3(0, 50, 0)));
             _player.Inventory.Hotbar[0].Item = new ItemInstance(GameItems.Stone, 5);
             _player.Inventory.Hotbar[1].Item = new ItemInstance(GameItems.Stone, 5);
-            _player.Inventory.Hotbar[2].Item = new ItemInstance(GameItems.Crafter, 2);
+            _player.Inventory.Hotbar[2].Item = new ItemInstance(GameItems.Crafter, 17);
             _player.Inventory.Hotbar[3].Item = new ItemInstance(GameItems.Dirt, 12);
             _player.Inventory.Hotbar[4].Item = new ItemInstance(GameItems.Stone, 8);
+            _player.Inventory.Hotbar[5].Item = new ItemInstance(GameItems.Glowy, 8);
             
-            _window = new GameWindow(_tickSource, _player, _rayCastContext);
+            _window = new GameWindow(_tickSource, _player, _input, _rayCastContext);
             
             _world.ChunkManager.ChunkChanged += chunk => _window.OnChunkChanged(chunk);
             _world.ChunkManager.ChunkUnloaded += chunk => _window.OnChunkUnloaded(chunk);

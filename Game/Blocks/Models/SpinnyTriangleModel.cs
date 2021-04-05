@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Numerics;
+using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Textures;
 using DigBuild.Render;
@@ -19,6 +20,8 @@ namespace DigBuild.Blocks.Models
         {
         }
 
+        public bool IsFaceSolid(Direction face) => false;
+
         public bool HasDynamicGeometry => true;
 
         public void AddDynamicGeometry(GeometryBufferSet buffers, Func<Direction, byte> light)
@@ -32,7 +35,7 @@ namespace DigBuild.Blocks.Models
             var v2 = new SimpleVertex(Vector3.Transform(new Vector3(0.5f, 0, 0), matrix), normal, _sprite.GetInterpolatedUV(0, 0), 1);
             var v3 = new SimpleVertex(Vector3.Transform(new Vector3(0.5f, 0, 1), matrix), normal, _sprite.GetInterpolatedUV(1, 0), 1);
 
-            var buf = buffers.Get(WorldRenderLayer.Opaque);
+            var buf = buffers.Get(WorldRenderLayer.Glowy);
             buf.Accept(v1, v2, v3);
             buf.Accept(v1, v3, v2);
         }

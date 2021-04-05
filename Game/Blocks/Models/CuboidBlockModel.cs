@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Engine.Math;
@@ -11,6 +11,7 @@ namespace DigBuild.Blocks.Models
     public sealed class CuboidBlockModel : IBlockModel
     {
         private readonly SimpleVertex[][] _vertices = new SimpleVertex[6][];
+        public Func<RenderLayer<SimpleVertex>> Layer { get; set; } = () => WorldRenderLayer.Opaque;
         public bool Solid { get; set; } = true;
         public readonly Action Initialize;
 

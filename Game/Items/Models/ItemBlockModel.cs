@@ -20,7 +20,7 @@ namespace DigBuild.Items.Models
         {
             if (transform == ItemModelTransform.Inventory)
                 buffers.Transform = Ortho * buffers.Transform;
-            _parent.AddGeometry(DirectionFlags.All, buffers);
+            _parent.AddGeometry(DirectionFlags.All, buffers, _ => 0xF);
         }
 
         public bool HasDynamicGeometry => _parent.HasDynamicGeometry;
@@ -29,7 +29,7 @@ namespace DigBuild.Items.Models
         {
             if (transform == ItemModelTransform.Inventory)
                 buffers.Transform = Ortho * buffers.Transform;
-            _parent.AddDynamicGeometry(buffers);
+            _parent.AddDynamicGeometry(buffers, _ => 0xF);
         }
     }
 }

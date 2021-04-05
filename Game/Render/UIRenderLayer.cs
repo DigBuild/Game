@@ -22,7 +22,9 @@ namespace DigBuild.Render
                 RenderPipeline<UiVertex> pipeline = ctx.CreatePipeline<UiVertex>(
                     vs, fs,
                     renderStage, Topology.Triangles
-                ).WithStandardBlending(GameWindow.Resources!.UiFramebuffer.Format.Attachments[0]);
+                )
+                    .WithStandardBlending(GameWindow.Resources!.UiFramebuffer.Format.Attachments[0])
+                    .WithStandardBlending(GameWindow.Resources!.UiFramebuffer.Format.Attachments[1]);
 
                 // Create spritesheet stuff
                 TextureSampler sampler = ctx.CreateTextureSampler(
@@ -61,7 +63,9 @@ namespace DigBuild.Render
                 RenderPipeline<UiVertex> pipeline = ctx.CreatePipeline<UiVertex>(
                     vs, fs,
                     renderStage, Topology.Triangles
-                ).WithStandardBlending(GameWindow.Resources!.UiFramebuffer.Format.Attachments[0]);
+                )
+                    .WithStandardBlending(GameWindow.Resources!.UiFramebuffer.Format.Attachments[0])
+                    .WithStandardBlending(GameWindow.Resources!.UiFramebuffer.Format.Attachments[1]);
 
                 // Create spritesheet stuff
                 TextureSampler sampler = ctx.CreateTextureSampler(
