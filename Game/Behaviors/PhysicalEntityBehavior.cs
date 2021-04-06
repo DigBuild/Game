@@ -61,11 +61,7 @@ namespace DigBuild.Behaviors
 
         private void OnJoinedWorld(IEntityContext context, IPhysicalEntityBehavior data, BuiltInEntityEvent.JoinedWorld evt, Action next)
         {
-            data.Capability = new PhysicalEntity(
-                context.Entity.World, _bounds, data,
-                _terminalVelocity, _groundDragFactor, _airDragFactor, _jumpForce,
-                _jumpKickSpeed, _movementSpeedGround, _movementSpeedAir, _rotationSpeed
-            );
+            data.Capability = new PhysicalEntity(context.Entity.World, _bounds, data, this);
             data.InWorld = true;
             context.Entity.World.TickScheduler.After(1).Enqueue(GameJobs.PhysicalEntityMove, data.Capability);
         }
@@ -77,7 +73,7 @@ namespace DigBuild.Behaviors
 
         public static void Update(Scheduler scheduler, IPhysicalEntity entity)
         {
-            if (((PhysicalEntity) entity).InWorld == false)
+            if (!entity.InWorld)
                 return;
 
             entity.Move();
@@ -88,28 +84,17 @@ namespace DigBuild.Behaviors
         {
             private readonly IWorld _world;
             private readonly IPhysicalEntityBehavior _data;
-            private readonly float _terminalVelocity, _groundDragFactor, _airDragFactor, _jumpForce;
-            private readonly float _jumpKickSpeed, _movementSpeedGround, _movementSpeedAir, _rotationSpeed;
+            private readonly PhysicalEntityBehavior _behavior;
             
             private IChunkLoadingTicket? _chunkLoadingTicket;
 
             public PhysicalEntity(
-                IWorld world, AABB bounds, IPhysicalEntityBehavior data,
-                float terminalVelocity, float groundDragFactor, float airDragFactor, float jumpForce,
-                float jumpKickSpeed, float movementSpeedGround, float movementSpeedAir, float rotationSpeed
-            )
+                IWorld world, AABB bounds, IPhysicalEntityBehavior data, PhysicalEntityBehavior behavior)
             {
                 _world = world;
                 Bounds = bounds;
                 _data = data;
-                _terminalVelocity = terminalVelocity;
-                _groundDragFactor = groundDragFactor;
-                _airDragFactor = airDragFactor;
-                _jumpForce = jumpForce;
-                _jumpKickSpeed = jumpKickSpeed;
-                _movementSpeedGround = movementSpeedGround;
-                _movementSpeedAir = movementSpeedAir;
-                _rotationSpeed = rotationSpeed;
+                _behavior = behavior;
                 PrevPosition = data.Position;
             }
 
@@ -168,8 +153,8 @@ namespace DigBuild.Behaviors
             {
                 PrevPitch = Pitch;
                 PrevYaw = Yaw;
-                AngularVelocityPitch = pitchDelta * pitchDelta * MathF.Sign(pitchDelta) * _rotationSpeed;
-                AngularVelocityYaw = yawDelta * yawDelta * MathF.Sign(yawDelta) * _rotationSpeed;
+                AngularVelocityPitch = pitchDelta * pitchDelta * MathF.Sign(pitchDelta) * _behavior._rotationSpeed;
+                AngularVelocityYaw = yawDelta * yawDelta * MathF.Sign(yawDelta) * _behavior._rotationSpeed;
 
                 Pitch = MathF.Max(
                     -MathF.PI / 2,
@@ -187,7 +172,7 @@ namespace DigBuild.Behaviors
                 Velocity += Vector3.Transform(
                     new Vector3(sidewaysMotion, 0, forwardMotion),
                     Matrix4x4.CreateRotationY(Yaw)
-                ) * (!OnGround ? _movementSpeedAir : _movementSpeedGround);
+                ) * (!OnGround ? _behavior._movementSpeedAir : _behavior._movementSpeedGround);
             }
 
             public void ApplyJumpMotion(float forwardMotion)
@@ -198,8 +183,8 @@ namespace DigBuild.Behaviors
                 Velocity += Vector3.Transform(
                     new Vector3(0, 0, forwardMotion),
                     Matrix4x4.CreateRotationY(Yaw)
-                ) * _jumpKickSpeed;
-                Velocity += Vector3.UnitY * _jumpForce;
+                ) * _behavior._jumpKickSpeed;
+                Velocity += Vector3.UnitY * _behavior._jumpForce;
             }
 
             public void Move()
@@ -251,8 +236,8 @@ namespace DigBuild.Behaviors
 
                 PrevPosition = Position;
                 
-                var yVel = OnGround ? 0 : Math.Max(vel.Y, -_terminalVelocity);
-                var dragFactor = OnGround ? _groundDragFactor : _airDragFactor;
+                var yVel = OnGround ? 0 : Math.Max(vel.Y, -_behavior._terminalVelocity);
+                var dragFactor = OnGround ? _behavior._groundDragFactor : _behavior._airDragFactor;
                 Position += vel;
                 PrevVelocity = vel;
                 Velocity = new Vector3(vel.X * dragFactor, yVel, vel.Z * dragFactor);
@@ -313,6 +298,7 @@ namespace DigBuild.Behaviors
 
     public interface IPhysicalEntity
     {
+        public bool InWorld { get; }
         public AABB Bounds { get; }
         public bool OnGround { get; set; }
 
