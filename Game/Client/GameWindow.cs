@@ -306,7 +306,7 @@ namespace DigBuild.Client
                     BlurFramebuffer0.Get(BlurFramebuffer0.Format.Attachments[0])
                 );
             
-                PixelSizeNativeUniformBuffer1[0] = new PixelSize {Size = 1f / BlurFramebuffer0.Width};
+                PixelSizeNativeUniformBuffer1[0] = new PixelSize {Size = 1f / BlurFramebuffer1.Width};
                 PixelSizeUniformBuffer1.Write(PixelSizeNativeUniformBuffer1);
             
                 using (var cmd = PostCommandBuffer1.Record(context, _compFormat, bufferPool))
@@ -325,7 +325,7 @@ namespace DigBuild.Client
                     BlurFramebuffer1.Get(BlurFramebuffer1.Format.Attachments[0])
                 );
             
-                PixelSizeNativeUniformBuffer2[0] = new PixelSize {Size = 1f / BlurFramebuffer1.Height};
+                PixelSizeNativeUniformBuffer2[0] = new PixelSize {Size = 1f / BlurFramebuffer2.Height};
                 PixelSizeUniformBuffer2.Write(PixelSizeNativeUniformBuffer2);
             
                 using (var cmd = PostCommandBuffer2.Record(context, _compFormat, bufferPool))
