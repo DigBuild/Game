@@ -15,7 +15,7 @@ namespace DigBuild.Render
 
         public static Shader? Load(ResourceManager manager, ResourceName name)
         {
-            var actualResourceName = new ResourceName(name.Domain, "shaders/" + name.Path + ".spv");
+            var actualResourceName = new ResourceName(name.Domain, $"shaders/{name.Path}.spv");
             if (manager.TryGetResource(actualResourceName, out var actualResource))
                 return new Shader(name, actualResource);
             return null;
