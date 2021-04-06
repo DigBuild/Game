@@ -13,11 +13,11 @@ namespace DigBuild.Render
             ctx => GameWindow.Resources!.UiRenderStage,
             (ctx, resourceManager, renderStage) =>
             {
-                var vsResource = resourceManager.GetResource(Game.Domain, "shaders/ui.vert.spv")!;
-                var fsResource = resourceManager.GetResource(Game.Domain, "shaders/ui.frag.spv")!;
-                VertexShader vs = ctx.CreateVertexShader(vsResource)
+                var vsResource = resourceManager.Get<Shader>(Game.Domain, "ui.vert")!;
+                var fsResource = resourceManager.Get<Shader>(Game.Domain, "ui.frag")!;
+                VertexShader vs = ctx.CreateVertexShader(vsResource.Resource)
                     .WithUniform<SimpleUniform>(out var uniform);
-                FragmentShader fs = ctx.CreateFragmentShader(fsResource)
+                FragmentShader fs = ctx.CreateFragmentShader(fsResource.Resource)
                     .WithSampler(out var textureHandle);
                 RenderPipeline<UiVertex> pipeline = ctx.CreatePipeline<UiVertex>(
                     vs, fs,
@@ -54,11 +54,11 @@ namespace DigBuild.Render
             ctx => GameWindow.Resources!.UiRenderStage,
             (ctx, resourceManager, renderStage) =>
             {
-                var vsResource = resourceManager.GetResource(Game.Domain, "shaders/ui.vert.spv")!;
-                var fsResource = resourceManager.GetResource(Game.Domain, "shaders/ui.frag.spv")!;
-                VertexShader vs = ctx.CreateVertexShader(vsResource)
+                var vsResource = resourceManager.Get<Shader>(Game.Domain, "ui.vert")!;
+                var fsResource = resourceManager.Get<Shader>(Game.Domain, "ui.frag")!;
+                VertexShader vs = ctx.CreateVertexShader(vsResource.Resource)
                     .WithUniform<SimpleUniform>(out var uniform);
-                FragmentShader fs = ctx.CreateFragmentShader(fsResource)
+                FragmentShader fs = ctx.CreateFragmentShader(fsResource.Resource)
                     .WithSampler(out var textureHandle);
                 RenderPipeline<UiVertex> pipeline = ctx.CreatePipeline<UiVertex>(
                     vs, fs,

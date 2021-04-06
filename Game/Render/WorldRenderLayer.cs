@@ -12,11 +12,11 @@ namespace DigBuild.Render
             ctx => GameWindow.Resources!.MainRenderStage,
             (ctx, resourceManager, renderStage) =>
             {
-                var vsResource = resourceManager.GetResource(Game.Domain, "shaders/world/opaque.vert.spv")!;
-                var fsResource = resourceManager.GetResource(Game.Domain, "shaders/world/opaque.frag.spv")!;
-                VertexShader vs = ctx.CreateVertexShader(vsResource)
+                var vsResource = resourceManager.Get<Shader>(Game.Domain, "world/opaque.vert")!;
+                var fsResource = resourceManager.Get<Shader>(Game.Domain, "world/opaque.frag")!;
+                VertexShader vs = ctx.CreateVertexShader(vsResource.Resource)
                     .WithUniform<SimpleUniform>(out var uniform);
-                FragmentShader fs = ctx.CreateFragmentShader(fsResource)
+                FragmentShader fs = ctx.CreateFragmentShader(fsResource.Resource)
                     .WithSampler(out var textureHandle);
                 RenderPipeline<SimpleVertex> pipeline = ctx.CreatePipeline<SimpleVertex>(
                         vs, fs,
@@ -48,11 +48,11 @@ namespace DigBuild.Render
             ctx => GameWindow.Resources!.MainRenderStage,
             (ctx, resourceManager, renderStage) =>
             {
-                var vsResource = resourceManager.GetResource(Game.Domain, "shaders/world/opaque.vert.spv")!;
-                var fsResource = resourceManager.GetResource(Game.Domain, "shaders/world/opaque.frag.spv")!;
-                VertexShader vs = ctx.CreateVertexShader(vsResource)
+                var vsResource = resourceManager.Get<Shader>(Game.Domain, "world/opaque.vert")!;
+                var fsResource = resourceManager.Get<Shader>(Game.Domain, "world/opaque.frag")!;
+                VertexShader vs = ctx.CreateVertexShader(vsResource.Resource)
                     .WithUniform<SimpleUniform>(out var uniform);
-                FragmentShader fs = ctx.CreateFragmentShader(fsResource)
+                FragmentShader fs = ctx.CreateFragmentShader(fsResource.Resource)
                     .WithSampler(out var textureHandle);
                 RenderPipeline<SimpleVertex> pipeline = ctx.CreatePipeline<SimpleVertex>(
                         vs, fs,

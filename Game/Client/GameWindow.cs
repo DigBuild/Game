@@ -176,12 +176,12 @@ namespace DigBuild.Client
         public void RefreshResources(RenderSurfaceContext surface, RenderContext context,
             ResourceManager resourceManager, TextureStitcher blockStitcher, TextureStitcher uiStitcher)
         {
-            IResource vsCompResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/comp.vert.spv"))!;
-            IResource fsCompResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/comp.frag.spv"))!;
+            var vsCompResource = resourceManager.Get<Shader>(Game.Domain, "comp.vert")!;
+            var fsCompResource = resourceManager.Get<Shader>(Game.Domain, "comp.frag")!;
             
             // Secondary geometry pipeline for compositing
-            VertexShader vsComp = context.CreateVertexShader(vsCompResource);
-            FragmentShader fsComp = context.CreateFragmentShader(fsCompResource)
+            VertexShader vsComp = context.CreateVertexShader(vsCompResource.Resource);
+            FragmentShader fsComp = context.CreateFragmentShader(fsCompResource.Resource)
                 .WithSampler(out _colorTextureHandle);
             _compPipeline = context.CreatePipeline<Vertex2>(
                 vsComp, fsComp,
@@ -194,17 +194,17 @@ namespace DigBuild.Client
                 Topology.Triangles
             ).WithBlending(surface.ColorAttachment, BlendFactor.SrcAlpha, BlendFactor.One, BlendOperation.Add);
 
+            
+            var vsHBlurResource = resourceManager.Get<Shader>(Game.Domain, "effects/hblur.vert")!;
+            var vsVBlurResource = resourceManager.Get<Shader>(Game.Domain, "effects/vblur.vert")!;
+            var fsBlurResource = resourceManager.Get<Shader>(Game.Domain, "effects/blur.frag")!;
 
             
-            IResource vsHBlurResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/effects/hblur.vert.spv"))!;
-            IResource vsVBlurResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/effects/vblur.vert.spv"))!;
-            IResource fsBlurResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/effects/blur.frag.spv"))!;
-            
-            VertexShader vsHBlur = context.CreateVertexShader(vsHBlurResource)
+            VertexShader vsHBlur = context.CreateVertexShader(vsHBlurResource.Resource)
                 .WithUniform<PixelSize>(out var pixelSizeH);
-            VertexShader vsVBlur = context.CreateVertexShader(vsVBlurResource)
+            VertexShader vsVBlur = context.CreateVertexShader(vsVBlurResource.Resource)
                 .WithUniform<PixelSize>(out var pixelSizeV);
-            FragmentShader fsBlur = context.CreateFragmentShader(fsBlurResource)
+            FragmentShader fsBlur = context.CreateFragmentShader(fsBlurResource.Resource)
                 .WithSampler(out _blurColorTextureHandle);
             _downscalePipeline = context.CreatePipeline<Vertex2>(
                 vsComp, fsComp,
@@ -227,21 +227,19 @@ namespace DigBuild.Client
 
 
             
-            IResource cursorResource = resourceManager.GetResource(new ResourceName(Game.Domain, "textures/cursor.png"))!;
-            Texture cursorTexture = context.CreateTexture(
-                new Bitmap(cursorResource.OpenStream())
-            );
+            var cursorResource = resourceManager.Get<BitmapTexture>(Game.Domain, "textures/cursor.png")!;
+            Texture cursorTexture = context.CreateTexture(cursorResource.Bitmap);
             _cursorTextureBinding = context.CreateTextureBinding(
                 _colorTextureHandle,
                 _compSampler,
                 cursorTexture
             );
 
-            IResource vsClearResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/clear.vert.spv"))!;
-            IResource fsClearResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/clear.frag.spv"))!;
+            var vsClearResource = resourceManager.Get<Shader>(Game.Domain, "clear.vert")!;
+            var fsClearResource = resourceManager.Get<Shader>(Game.Domain, "clear.frag")!;
             
-            VertexShader vsClear = context.CreateVertexShader(vsClearResource);
-            FragmentShader fsClear = context.CreateFragmentShader(fsClearResource);
+            VertexShader vsClear = context.CreateVertexShader(vsClearResource.Resource);
+            FragmentShader fsClear = context.CreateFragmentShader(fsClearResource.Resource);
             ClearPipeline = context.CreatePipeline<Vertex2>(
                 vsClear, fsClear,
                 MainRenderStage,
@@ -249,13 +247,13 @@ namespace DigBuild.Client
             );
 
             // Outline stuff idk
-            IResource vsOutlineResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/world/outline.vert.spv"))!;
-            IResource fsOutlineResource = resourceManager.GetResource(new ResourceName(Game.Domain, "shaders/world/outline.frag.spv"))!;
+            var vsOutlineResource = resourceManager.Get<Shader>(Game.Domain, "world/outline.vert")!;
+            var fsOutlineResource = resourceManager.Get<Shader>(Game.Domain, "world/outline.frag")!;
             
             VertexShader vsOutline = context
-                .CreateVertexShader(vsOutlineResource)
+                .CreateVertexShader(vsOutlineResource.Resource)
                 .WithUniform<SimpleTransform>(out var outlineUniform);
-            FragmentShader fsOutline = context.CreateFragmentShader(fsOutlineResource);
+            FragmentShader fsOutline = context.CreateFragmentShader(fsOutlineResource.Resource);
             OutlinePipeline = context.CreatePipeline<SimplerVertex>(
                     vsOutline, fsOutline,
                     MainRenderStage,
@@ -266,14 +264,14 @@ namespace DigBuild.Client
                 .WithStandardBlending(_bloomAttachment);
             
             OutlineUniformBuffer = context.CreateUniformBuffer(outlineUniform);
-            
-            BlockTexture = context.CreateTexture(blockStitcher.Stitch(new ResourceName(Game.Domain, "blocks"), "block_spritesheet.png").Bitmap);
-            UiTexture = context.CreateTexture(uiStitcher.Stitch(new ResourceName(Game.Domain, "ui"), "ui_spritesheet.png").Bitmap);
 
-            IResource fontResource = resourceManager.GetResource(new ResourceName(Game.Domain, "textures/font.png"))!;
-            FontTexture = context.CreateTexture(
-                new Bitmap(fontResource.OpenStream())
-            );
+            var blockResource = blockStitcher.Stitch(new ResourceName(Game.Domain, "blocks"), "block_spritesheet.png");
+            var uiResource = uiStitcher.Stitch(new ResourceName(Game.Domain, "ui"), "ui_spritesheet.png");
+            var fontResource = resourceManager.Get<BitmapTexture>(Game.Domain, "textures/font.png")!;
+            
+            BlockTexture = context.CreateTexture(blockResource.Bitmap);
+            UiTexture = context.CreateTexture(uiResource.Bitmap);
+            FontTexture = context.CreateTexture(fontResource.Bitmap);
         }
 
         public void OnResize(RenderSurfaceContext surface, RenderContext context, NativeBufferPool bufferPool)
@@ -453,23 +451,14 @@ namespace DigBuild.Client
             _input = input;
             PickedItemSlot = _player.Inventory.PickedItem;
             _rayCastContext = rayCastContext;
-            
-            var dirtTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/dirt.png")!);
-            var grassTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/grass.png")!);
-            var grassSideTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/grass_side.png")!);
-            var waterTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/water.png")!);
-            var stoneTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/stone.png")!);
-            var glowyTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/glowy.png")!);
 
-            var noGlowTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/noglow.png")!);
-            var glowyTextureGlow = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/glowy.glow.png")!);
-            
-            var dirtMS = new MultiSprite(dirtTexture, noGlowTexture);
-            var grassMS = new MultiSprite(grassTexture, noGlowTexture);
-            var grassSideMS = new MultiSprite(grassSideTexture, noGlowTexture);
-            var waterMS = new MultiSprite(waterTexture, noGlowTexture);
-            var stoneMS = new MultiSprite(stoneTexture, noGlowTexture);
-            var glowyMS = new MultiSprite(glowyTexture, glowyTextureGlow);
+            var msLoader = MultiSprite.Loader(ResourceManager, _blockStitcher);
+            var dirtMS = msLoader.Load(Game.Domain, "blocks/dirt")!;
+            var grassMS = msLoader.Load(Game.Domain, "blocks/grass")!;
+            var grassSideMS = msLoader.Load(Game.Domain, "blocks/grass_side")!;
+            var waterMS = msLoader.Load(Game.Domain, "blocks/water")!;
+            var stoneMS = msLoader.Load(Game.Domain, "blocks/stone")!;
+            var glowyMS = msLoader.Load(Game.Domain, "blocks/glowy")!;
 
             var dirtModel = new CuboidBlockModel(AABB.FullBlock, dirtMS);
             var grassModel = new CuboidBlockModel(AABB.FullBlock, new[]
