@@ -1,5 +1,6 @@
 ﻿using DigBuild.Engine.Items;
 using DigBuild.Engine.Registries;
+using DigBuild.Players;
 using DigBuild.Worlds;
 
 namespace DigBuild.Items
@@ -8,16 +9,18 @@ namespace DigBuild.Items
     {
         public static void Register(ExtendedTypeRegistryBuilder<IItemEvent, ItemEventInfo> registry)
         {
-            registry.Register((IPlayerItemContext _, Activate _) => Activate.Result.Fail);
-            registry.Register((IPlayerItemContext _, Punch _) => Punch.Result.Fail);
+            registry.Register((IItemContext _, Activate _) => Activate.Result.Fail);
+            registry.Register((IItemContext _, Punch _) => Punch.Result.Fail);
         }
 
-        public sealed class Activate : IItemEvent<IPlayerItemContext, Activate.Result>
+        public sealed class Activate : IItemEvent<Activate.Result>
         {
+            public readonly IPlayer Player;
             public readonly WorldRayCastContext.Hit? Hit;
 
-            public Activate(WorldRayCastContext.Hit? hit)
+            public Activate(IPlayer player, WorldRayCastContext.Hit? hit)
             {
+                Player = player;
                 Hit = hit;
             }
 
@@ -27,12 +30,14 @@ namespace DigBuild.Items
             }
         }
 
-        public sealed class Punch : IItemEvent<IPlayerItemContext, Punch.Result>
+        public sealed class Punch : IItemEvent<Punch.Result>
         {
+            public readonly IPlayer Player;
             public readonly WorldRayCastContext.Hit? Hit;
 
-            public Punch(WorldRayCastContext.Hit? hit)
+            public Punch(IPlayer player, WorldRayCastContext.Hit? hit)
             {
+                Player = player;
                 Hit = hit;
             }
 
@@ -47,30 +52,30 @@ namespace DigBuild.Items
     {
         public static void Subscribe<TReadOnlyData, TData>(
             this IItemBehaviorBuilder<TReadOnlyData, TData> builder,
-            ItemEventDelegate<IPlayerItemContext, TData, ItemEvent.Activate, ItemEvent.Activate.Result> onActivate
+            ItemEventDelegate<TData, ItemEvent.Activate, ItemEvent.Activate.Result> onActivate
         )
             where TData : TReadOnlyData
         {
             builder.Subscribe(onActivate);
         }
 
-        public static ItemEvent.Activate.Result OnActivate(this IItem item, IPlayerItemContext context, ItemEvent.Activate evt)
+        public static ItemEvent.Activate.Result OnActivate(this IItem item, IItemContext context, ItemEvent.Activate evt)
         {
-            return item.Post<IPlayerItemContext, ItemEvent.Activate, ItemEvent.Activate.Result>(context, evt);
+            return item.Post<ItemEvent.Activate, ItemEvent.Activate.Result>(context, evt);
         }
 
         public static void Subscribe<TReadOnlyData, TData>(
             this IItemBehaviorBuilder<TReadOnlyData, TData> builder,
-            ItemEventDelegate<IPlayerItemContext, TData, ItemEvent.Punch, ItemEvent.Punch.Result> onPunch
+            ItemEventDelegate<TData, ItemEvent.Punch, ItemEvent.Punch.Result> onPunch
         )
             where TData : TReadOnlyData
         {
             builder.Subscribe(onPunch);
         }
 
-        public static ItemEvent.Punch.Result OnPunch(this IItem item, IPlayerItemContext context, ItemEvent.Punch evt)
+        public static ItemEvent.Punch.Result OnPunch(this IItem item, IItemContext context, ItemEvent.Punch evt)
         {
-            return item.Post<IPlayerItemContext, ItemEvent.Punch, ItemEvent.Punch.Result>(context, evt);
+            return item.Post<ItemEvent.Punch, ItemEvent.Punch.Result>(context, evt);
         }
     }
 }

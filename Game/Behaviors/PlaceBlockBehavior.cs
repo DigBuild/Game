@@ -21,18 +21,19 @@ namespace DigBuild.Behaviors
             item.Subscribe(OnActivate);
         }
 
-        private ItemEvent.Activate.Result OnActivate(IPlayerItemContext context, object data, ItemEvent.Activate evt, Func<ItemEvent.Activate.Result> next)
+        private ItemEvent.Activate.Result OnActivate(IItemContext context, object data, ItemEvent.Activate evt, Func<ItemEvent.Activate.Result> next)
         {
             if (evt.Hit == null)
                 return next();
 
             var pos = evt.Hit.BlockPos.Offset(evt.Hit.Face);
             var block = _blockSupplier();
+            var world = evt.Player.Entity.World;
 
-            if (!context.World.SetBlock(pos, block, true, false))
+            if (!world.SetBlock(pos, block, true, false))
                 return ItemEvent.Activate.Result.Fail;
 
-            block.OnPlaced(new BlockContext(context.World, pos, block), new BlockEvent.Placed());
+            block.OnPlaced(new BlockContext(world, pos, block), new BlockEvent.Placed());
             context.Instance.Count--;
             return ItemEvent.Activate.Result.Success;
         }

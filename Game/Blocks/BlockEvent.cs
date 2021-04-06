@@ -29,7 +29,7 @@ namespace DigBuild.Blocks
             });
         }
 
-        public sealed class Activate : IBlockEvent<IBlockContext, Activate.Result>
+        public sealed class Activate : IBlockEvent<Activate.Result>
         {
             public readonly WorldRayCastContext.Hit Hit;
 
@@ -44,7 +44,7 @@ namespace DigBuild.Blocks
             }
         }
 
-        public sealed class Punch : IBlockEvent<IBlockContext, Punch.Result>
+        public sealed class Punch : IBlockEvent<Punch.Result>
         {
             public readonly WorldRayCastContext.Hit Hit;
 
@@ -59,7 +59,7 @@ namespace DigBuild.Blocks
             }
         }
 
-        public sealed class NeighborChanged : IBlockEvent<IBlockContext>
+        public sealed class NeighborChanged : IBlockEvent
         {
             public readonly Direction Direction;
 
@@ -69,14 +69,14 @@ namespace DigBuild.Blocks
             }
         }
 
-        public sealed class Placed : IBlockEvent<IBlockContext>
+        public sealed class Placed : IBlockEvent
         {
             public Placed()
             {
             }
         }
 
-        public sealed class Breaking : IBlockEvent<IBlockContext>
+        public sealed class Breaking : IBlockEvent
         {
             public Breaking()
             {
@@ -88,7 +88,7 @@ namespace DigBuild.Blocks
     {
         public static void Subscribe<TReadOnlyData, TData>(
             this IBlockBehaviorBuilder<TReadOnlyData, TData> builder,
-            BlockEventDelegate<IBlockContext, TData, BlockEvent.Activate, BlockEvent.Activate.Result> onActivate
+            BlockEventDelegate<TData, BlockEvent.Activate, BlockEvent.Activate.Result> onActivate
         )
             where TData : TReadOnlyData
         {
@@ -97,12 +97,12 @@ namespace DigBuild.Blocks
 
         public static BlockEvent.Activate.Result OnActivate(this IBlock block, IBlockContext context, BlockEvent.Activate evt)
         {
-            return block.Post<IBlockContext, BlockEvent.Activate, BlockEvent.Activate.Result>(context, evt);
+            return block.Post<BlockEvent.Activate, BlockEvent.Activate.Result>(context, evt);
         }
 
         public static void Subscribe<TReadOnlyData, TData>(
             this IBlockBehaviorBuilder<TReadOnlyData, TData> builder,
-            BlockEventDelegate<IBlockContext, TData, BlockEvent.Punch, BlockEvent.Punch.Result> onPunch
+            BlockEventDelegate<TData, BlockEvent.Punch, BlockEvent.Punch.Result> onPunch
         )
             where TData : TReadOnlyData
         {
@@ -111,12 +111,12 @@ namespace DigBuild.Blocks
 
         public static BlockEvent.Punch.Result OnPunch(this IBlock block, IBlockContext context, BlockEvent.Punch evt)
         {
-            return block.Post<IBlockContext, BlockEvent.Punch, BlockEvent.Punch.Result>(context, evt);
+            return block.Post<BlockEvent.Punch, BlockEvent.Punch.Result>(context, evt);
         }
         
         public static void Subscribe<TReadOnlyData, TData>(
             this IBlockBehaviorBuilder<TReadOnlyData, TData> builder,
-            BlockEventDelegate<IBlockContext, TData, BlockEvent.NeighborChanged> onNeighborChanged
+            BlockEventDelegate<TData, BlockEvent.NeighborChanged> onNeighborChanged
         )
             where TData : TReadOnlyData
         {
@@ -130,7 +130,7 @@ namespace DigBuild.Blocks
         
         public static void Subscribe<TReadOnlyData, TData>(
             this IBlockBehaviorBuilder<TReadOnlyData, TData> builder,
-            BlockEventDelegate<IBlockContext, TData, BlockEvent.Placed> onPlaced
+            BlockEventDelegate<TData, BlockEvent.Placed> onPlaced
         )
             where TData : TReadOnlyData
         {
@@ -144,7 +144,7 @@ namespace DigBuild.Blocks
         
         public static void Subscribe<TReadOnlyData, TData>(
             this IBlockBehaviorBuilder<TReadOnlyData, TData> builder,
-            BlockEventDelegate<IBlockContext, TData, BlockEvent.Breaking> onBreaking
+            BlockEventDelegate<TData, BlockEvent.Breaking> onBreaking
         )
             where TData : TReadOnlyData
         {

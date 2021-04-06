@@ -37,7 +37,7 @@ namespace DigBuild.Behaviors
             return BlockEvent.Activate.Result.Success;
         }
 
-        private ItemEvent.Activate.Result OnActivate(IPlayerItemContext context, ICraftingUiBehavior data, ItemEvent.Activate evt, Func<ItemEvent.Activate.Result> next)
+        private ItemEvent.Activate.Result OnActivate(IItemContext context, ICraftingUiBehavior data, ItemEvent.Activate evt, Func<ItemEvent.Activate.Result> next)
         {
             GameWindow.FunnyUi = CraftingUi.Create(new CraftingInventory(data), GameWindow.PickedItemSlot, GameWindow.ItemModels);
             return ItemEvent.Activate.Result.Success;

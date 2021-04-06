@@ -57,7 +57,7 @@ namespace DigBuild.Client
             if (!input.PrevActivate && input.Activate)
             {
                 var itemResult = hand.Item.Count > 0 ?
-                    hand.Item.Type.OnActivate(new PlayerItemContext(hand.Item, world), new ItemEvent.Activate(hit)) :
+                    hand.Item.Type.OnActivate(new ItemContext(hand.Item), new ItemEvent.Activate(_player, hit)) :
                     ItemEvent.Activate.Result.Fail;
                 Console.WriteLine($"Interacted with item in slot {_player.Inventory.ActiveHotbarSlot}! Result: {itemResult}");
 
@@ -75,7 +75,7 @@ namespace DigBuild.Client
             if (!input.PrevPunch && input.Punch)
             {
                 var itemResult = hand.Item.Count > 0 ?
-                    hand.Item.Type.OnPunch(new PlayerItemContext(hand.Item, world), new ItemEvent.Punch(hit)) :
+                    hand.Item.Type.OnPunch(new ItemContext(hand.Item), new ItemEvent.Punch(_player, hit)) :
                     ItemEvent.Punch.Result.Fail;
                 Console.WriteLine($"Punched with item {_player.Inventory.ActiveHotbarSlot}! Result: {itemResult}");
 
