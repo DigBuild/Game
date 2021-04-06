@@ -2,16 +2,15 @@
 using System.Numerics;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
-using DigBuild.Engine.Textures;
 using DigBuild.Render;
 
 namespace DigBuild.Blocks.Models
 {
     public sealed class SpinnyTriangleModel : IBlockModel
     {
-        private readonly ISprite _sprite;
+        private readonly MultiSprite _sprite;
         
-        public SpinnyTriangleModel(ISprite sprite)
+        public SpinnyTriangleModel(MultiSprite sprite)
         {
             _sprite = sprite;
         }
@@ -31,11 +30,11 @@ namespace DigBuild.Blocks.Models
 
             var normal = Vector3.TransformNormal(new Vector3(0, 0, 1), matrix);
             
-            var v1 = new SimpleVertex(new Vector3(0.5f, 1f, 0.5f), normal, _sprite.GetInterpolatedUV(0.5f, 1), 1);
-            var v2 = new SimpleVertex(Vector3.Transform(new Vector3(0.5f, 0, 0), matrix), normal, _sprite.GetInterpolatedUV(0, 0), 1);
-            var v3 = new SimpleVertex(Vector3.Transform(new Vector3(0.5f, 0, 1), matrix), normal, _sprite.GetInterpolatedUV(1, 0), 1);
+            var v1 = new SimpleVertex(new Vector3(0.5f, 1f, 0.5f), normal, _sprite, 0.5f, 1, 1);
+            var v2 = new SimpleVertex(Vector3.Transform(new Vector3(0.5f, 0, 0), matrix), normal, _sprite, 0, 0, 1);
+            var v3 = new SimpleVertex(Vector3.Transform(new Vector3(0.5f, 0, 1), matrix), normal, _sprite, 1, 0, 1);
 
-            var buf = buffers.Get(WorldRenderLayer.Glowy);
+            var buf = buffers.Get(WorldRenderLayer.Opaque);
             buf.Accept(v1, v2, v3);
             buf.Accept(v1, v3, v2);
         }

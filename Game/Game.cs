@@ -18,7 +18,7 @@ namespace DigBuild
     public class Game : IDisposable
     {
         public const string Domain = "digbuild";
-        public const int ViewRadius = 5;
+        public const int ViewRadius = 12;
         public static CraftingRecipeLookup RecipeLookup { get; private set; } = null!;
 
         private readonly TickSource _tickSource;

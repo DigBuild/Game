@@ -434,13 +434,11 @@ namespace DigBuild.Client
         
         private readonly List<IRenderLayer> _worldRenderLayers = new(){
             WorldRenderLayer.Opaque,
-            WorldRenderLayer.Glowy,
             WorldRenderLayer.Translucent
         };
         private readonly List<IRenderLayer> _uiRenderLayers = new(){
             UiRenderLayer.Ui,
             WorldRenderLayer.Opaque,
-            WorldRenderLayer.Glowy,
             WorldRenderLayer.Translucent,
             UiRenderLayer.Text,
         };
@@ -462,19 +460,29 @@ namespace DigBuild.Client
             var waterTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/water.png")!);
             var stoneTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/stone.png")!);
             var glowyTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/glowy.png")!);
+
+            var noGlowTexture = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/noglow.png")!);
+            var glowyTextureGlow = _blockStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/blocks/glowy.glow.png")!);
             
-            var dirtModel = new CuboidBlockModel(AABB.FullBlock, dirtTexture);
+            var dirtMS = new MultiSprite(dirtTexture, noGlowTexture);
+            var grassMS = new MultiSprite(grassTexture, noGlowTexture);
+            var grassSideMS = new MultiSprite(grassSideTexture, noGlowTexture);
+            var waterMS = new MultiSprite(waterTexture, noGlowTexture);
+            var stoneMS = new MultiSprite(stoneTexture, noGlowTexture);
+            var glowyMS = new MultiSprite(glowyTexture, glowyTextureGlow);
+
+            var dirtModel = new CuboidBlockModel(AABB.FullBlock, dirtMS);
             var grassModel = new CuboidBlockModel(AABB.FullBlock, new[]
             {
-                grassSideTexture, grassSideTexture,
-                dirtTexture, grassTexture,
-                grassSideTexture, grassSideTexture
+                grassSideMS, grassSideMS,
+                dirtMS, grassMS,
+                grassSideMS, grassSideMS
             });
-            var waterModel = new CuboidBlockModel(AABB.FullBlock, waterTexture);
-            var stoneModel = new CuboidBlockModel(AABB.FullBlock, stoneTexture);
-            var stoneStairsModel = new CuboidBlockModel(GameBlocks.StoneStairAABBs, stoneTexture);
-            var triangleModel = new SpinnyTriangleModel(stoneTexture);
-            var glowyModel = new CuboidBlockModel(AABB.FullBlock, glowyTexture);
+            var waterModel = new CuboidBlockModel(AABB.FullBlock, waterMS);
+            var stoneModel = new CuboidBlockModel(AABB.FullBlock, stoneMS);
+            var stoneStairsModel = new CuboidBlockModel(GameBlocks.StoneStairAABBs, stoneMS);
+            var triangleModel = new SpinnyTriangleModel(stoneMS);
+            var glowyModel = new CuboidBlockModel(AABB.FullBlock, glowyMS);
             _unbakedModels.Add(dirtModel);
             _unbakedModels.Add(grassModel);
             _unbakedModels.Add(waterModel);
@@ -484,8 +492,6 @@ namespace DigBuild.Client
 
             waterModel.Layer = () => WorldRenderLayer.Translucent;
             waterModel.Solid = false;
-
-            glowyModel.Layer = () => WorldRenderLayer.Glowy;
 
             var blockModels = new Dictionary<Block, IBlockModel>()
             {
@@ -503,6 +509,7 @@ namespace DigBuild.Client
             ItemModels[GameItems.Stone] = new ItemBlockModel(stoneModel);
             ItemModels[GameItems.StoneStairs] = new ItemBlockModel(stoneStairsModel);
             ItemModels[GameItems.Crafter] = new ItemBlockModel(triangleModel);
+            ItemModels[GameItems.Glowy] = new ItemBlockModel(glowyModel);
             var entityModels = new Dictionary<Entity, IEntityModel>()
             {
                 [GameEntities.Item] = new ItemEntityModel(ItemModels)
