@@ -21,7 +21,7 @@ namespace DigBuild.Behaviors
             item.Subscribe(OnActivate);
         }
 
-        private ItemEvent.Activate.Result OnActivate(IItemContext context, object data, ItemEvent.Activate evt, Func<ItemEvent.Activate.Result> next)
+        private ItemEvent.Activate.Result OnActivate(ItemEvent.Activate evt, object data, Func<ItemEvent.Activate.Result> next)
         {
             if (evt.Hit == null)
                 return next();
@@ -33,8 +33,8 @@ namespace DigBuild.Behaviors
             if (!world.SetBlock(pos, block, true, false))
                 return ItemEvent.Activate.Result.Fail;
 
-            block.OnPlaced(new BlockContext(world, pos, block), new BlockEvent.Placed());
-            context.Instance.Count--;
+            block.OnPlaced(world, pos);
+            evt.Instance.Count--;
             return ItemEvent.Activate.Result.Success;
         }
     }

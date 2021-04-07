@@ -1,7 +1,6 @@
 ﻿using System;
 using DigBuild.Behaviors;
 using DigBuild.Blocks;
-using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Worlds;
@@ -57,17 +56,14 @@ namespace DigBuild.Client
             if (!input.PrevActivate && input.Activate)
             {
                 var itemResult = hand.Item.Count > 0 ?
-                    hand.Item.Type.OnActivate(new ItemContext(hand.Item), new ItemEvent.Activate(_player, hit)) :
+                    hand.Item.Type.OnActivate(hand.Item, _player, hit) :
                     ItemEvent.Activate.Result.Fail;
                 Console.WriteLine($"Interacted with item in slot {_player.Inventory.ActiveHotbarSlot}! Result: {itemResult}");
 
                 if (itemResult == ItemEvent.Activate.Result.Fail && hit != null)
                 {
                     var block = world.GetBlock(hit.BlockPos)!;
-                    var blockResult = block.OnActivate(
-                        new BlockContext(world, hit.BlockPos, block),
-                        new BlockEvent.Activate(hit)
-                    );
+                    var blockResult = block.OnActivate(world, hit.BlockPos, hit);
                     Console.WriteLine($"Interacted with block at {hit.BlockPos} on face {hit.Face}! Result: {blockResult}"); 
                 }
             }
@@ -75,17 +71,14 @@ namespace DigBuild.Client
             if (!input.PrevPunch && input.Punch)
             {
                 var itemResult = hand.Item.Count > 0 ?
-                    hand.Item.Type.OnPunch(new ItemContext(hand.Item), new ItemEvent.Punch(_player, hit)) :
+                    hand.Item.Type.OnPunch(hand.Item, _player, hit) :
                     ItemEvent.Punch.Result.Fail;
                 Console.WriteLine($"Punched with item {_player.Inventory.ActiveHotbarSlot}! Result: {itemResult}");
 
                 if (itemResult == ItemEvent.Punch.Result.Fail && hit != null)
                 {
                     var block = world.GetBlock(hit.BlockPos)!;
-                    var blockResult = block.OnPunch(
-                        new BlockContext(world, hit.BlockPos, block),
-                        new BlockEvent.Punch(hit)
-                    );
+                    var blockResult = block.OnPunch(world, hit.BlockPos, hit);
                     Console.WriteLine($"Punched block at {hit.BlockPos} on face {hit.Face}! Result: {blockResult}"); 
                 }
             }

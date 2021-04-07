@@ -54,20 +54,20 @@ namespace DigBuild.Behaviors
         
         public void Build(EntityBehaviorBuilder<IPhysicalEntityBehavior, IPhysicalEntityBehavior> entity)
         {
-            entity.Add(EntityAttributes.Position, (_, data, _, _) => data.Position);
-            entity.Add(EntityCapabilities.PhysicalEntity, (_, data, _, _) => data.Capability);
+            entity.Add(EntityAttributes.Position, (_, data, _) => data.Position);
+            entity.Add(EntityCapabilities.PhysicalEntity, (_, data, _) => data.Capability);
             entity.Subscribe(OnJoinedWorld);
             entity.Subscribe(OnLeavingWorld);
         }
-
-        private void OnJoinedWorld(IEntityContext context, IPhysicalEntityBehavior data, BuiltInEntityEvent.JoinedWorld evt, Action next)
+        
+        private void OnJoinedWorld(BuiltInEntityEvent.JoinedWorld evt, IPhysicalEntityBehavior data, Action next)
         {
-            data.Capability = new PhysicalEntity(context.Entity.World, _bounds, data, this);
+            data.Capability = new PhysicalEntity(evt.Entity.World, _bounds, data, this);
             data.InWorld = true;
-            context.Entity.World.TickScheduler.After(1).Enqueue(GameJobs.PhysicalEntityMove, data.Capability);
+            evt.Entity.World.TickScheduler.After(1).Enqueue(GameJobs.PhysicalEntityMove, data.Capability);
         }
 
-        private void OnLeavingWorld(IEntityContext context, IPhysicalEntityBehavior data, BuiltInEntityEvent.LeavingWorld evt, Action next)
+        private void OnLeavingWorld(BuiltInEntityEvent.LeavingWorld evt, IPhysicalEntityBehavior data, Action next)
         {
             data.InWorld = false;
         }

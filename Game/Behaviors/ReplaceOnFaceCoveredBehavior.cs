@@ -22,11 +22,11 @@ namespace DigBuild.Behaviors
             block.Subscribe(OnNeighborChanged);
         }
 
-        private void OnNeighborChanged(IBlockContext context, object data, BlockEvent.NeighborChanged evt, Action next)
+        private void OnNeighborChanged(BlockEvent.NeighborChanged evt, object data, Action next)
         {
-            if (evt.Direction == _face && context.World.GetBlock(context.Pos.Offset(_face)) != null)
+            if (evt.Direction == _face && evt.World.GetBlock(evt.Pos.Offset(_face)) != null)
             {
-                context.World.SetBlock(context.Pos, _replacementSupplier());
+                evt.World.SetBlock(evt.Pos, _replacementSupplier());
             }
             else
             {

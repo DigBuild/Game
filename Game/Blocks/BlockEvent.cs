@@ -11,29 +11,29 @@ namespace DigBuild.Blocks
     {
         public static void Register(ExtendedTypeRegistryBuilder<IBlockEvent, BlockEventInfo> registry)
         {
-            registry.Register((IBlockContext context, Activate evt) => Activate.Result.Fail);
-            registry.Register((IBlockContext context, Punch evt) =>
+            registry.Register((Activate evt) => Activate.Result.Fail);
+            registry.Register((Punch evt) =>
             {
-                context.Block.OnBreaking(context, new Breaking());
-                context.World.SetBlock(evt.Hit.BlockPos, null, false, true);
+                evt.Block.OnBreaking(evt.World, evt.Pos);
+                evt.World.SetBlock(evt.Hit.BlockPos, null, false, true);
                 return Punch.Result.Success;
             });
-            registry.Register((IBlockContext context, NeighborChanged evt) => { });
-            registry.Register((IBlockContext context, Placed evt) =>
+            registry.Register((NeighborChanged evt) => { });
+            registry.Register((Placed evt) =>
             {
-                context.Block.OnJoinedWorld(context, new BuiltInBlockEvent.JoinedWorld());
+                evt.Block.OnJoinedWorld(evt.World, evt.Pos);
             });
-            registry.Register((IBlockContext context, Breaking evt) =>
+            registry.Register((Breaking evt) =>
             {
-                context.Block.OnLeavingWorld(context, new BuiltInBlockEvent.LeavingWorld());
+                evt.Block.OnLeavingWorld(evt.World, evt.Pos);
             });
         }
 
-        public sealed class Activate : IBlockEvent<Activate.Result>
+        public sealed class Activate : BlockContext, IBlockEvent<Activate.Result>
         {
             public readonly WorldRayCastContext.Hit Hit;
 
-            public Activate(WorldRayCastContext.Hit hit)
+            public Activate(IWorld world, BlockPos pos, Block block, WorldRayCastContext.Hit hit) : base(world, pos, block)
             {
                 Hit = hit;
             }
@@ -44,11 +44,11 @@ namespace DigBuild.Blocks
             }
         }
 
-        public sealed class Punch : IBlockEvent<Punch.Result>
+        public sealed class Punch : BlockContext, IBlockEvent<Punch.Result>
         {
             public readonly WorldRayCastContext.Hit Hit;
 
-            public Punch(WorldRayCastContext.Hit hit)
+            public Punch(IWorld world, BlockPos pos, Block block, WorldRayCastContext.Hit hit) : base(world, pos, block)
             {
                 Hit = hit;
             }
@@ -59,26 +59,26 @@ namespace DigBuild.Blocks
             }
         }
 
-        public sealed class NeighborChanged : IBlockEvent
+        public sealed class NeighborChanged : BlockContext, IBlockEvent
         {
             public readonly Direction Direction;
 
-            public NeighborChanged(Direction direction)
+            public NeighborChanged(IWorld world, BlockPos pos, Block block, Direction direction) : base(world, pos, block)
             {
                 Direction = direction;
             }
         }
 
-        public sealed class Placed : IBlockEvent
+        public sealed class Placed : BlockContext, IBlockEvent
         {
-            public Placed()
+            public Placed(IWorld world, BlockPos pos, Block block) : base(world, pos, block)
             {
             }
         }
 
-        public sealed class Breaking : IBlockEvent
+        public sealed class Breaking : BlockContext, IBlockEvent
         {
-            public Breaking()
+            public Breaking(IWorld world, BlockPos pos, Block block) : base(world, pos, block)
             {
             }
         }
@@ -95,9 +95,9 @@ namespace DigBuild.Blocks
             builder.Subscribe(onActivate);
         }
 
-        public static BlockEvent.Activate.Result OnActivate(this IBlock block, IBlockContext context, BlockEvent.Activate evt)
+        public static BlockEvent.Activate.Result OnActivate(this Block block, IWorld world, BlockPos pos, WorldRayCastContext.Hit hit)
         {
-            return block.Post<BlockEvent.Activate, BlockEvent.Activate.Result>(context, evt);
+            return block.Post<BlockEvent.Activate, BlockEvent.Activate.Result>(new BlockEvent.Activate(world, pos, block, hit));
         }
 
         public static void Subscribe<TReadOnlyData, TData>(
@@ -109,9 +109,9 @@ namespace DigBuild.Blocks
             builder.Subscribe(onPunch);
         }
 
-        public static BlockEvent.Punch.Result OnPunch(this IBlock block, IBlockContext context, BlockEvent.Punch evt)
+        public static BlockEvent.Punch.Result OnPunch(this Block block, IWorld world, BlockPos pos, WorldRayCastContext.Hit hit)
         {
-            return block.Post<BlockEvent.Punch, BlockEvent.Punch.Result>(context, evt);
+            return block.Post<BlockEvent.Punch, BlockEvent.Punch.Result>(new BlockEvent.Punch(world, pos, block, hit));
         }
         
         public static void Subscribe<TReadOnlyData, TData>(
@@ -123,9 +123,9 @@ namespace DigBuild.Blocks
             builder.Subscribe(onNeighborChanged);
         }
 
-        public static void OnNeighborChanged(this IBlock block, IBlockContext context, BlockEvent.NeighborChanged evt)
+        public static void OnNeighborChanged(this Block block, IWorld world, BlockPos pos, Direction direction)
         {
-            block.Post(context, evt);
+            block.Post(new BlockEvent.NeighborChanged(world, pos, block, direction));
         }
         
         public static void Subscribe<TReadOnlyData, TData>(
@@ -137,9 +137,9 @@ namespace DigBuild.Blocks
             builder.Subscribe(onPlaced);
         }
 
-        public static void OnPlaced(this IBlock block, IBlockContext context, BlockEvent.Placed evt)
+        public static void OnPlaced(this Block block, IWorld world, BlockPos pos)
         {
-            block.Post(context, evt);
+            block.Post(new BlockEvent.Placed(world, pos, block));
         }
         
         public static void Subscribe<TReadOnlyData, TData>(
@@ -151,9 +151,9 @@ namespace DigBuild.Blocks
             builder.Subscribe(onBreaking);
         }
 
-        public static void OnBreaking(this IBlock block, IBlockContext context, BlockEvent.Breaking evt)
+        public static void OnBreaking(this Block block, IWorld world, BlockPos pos)
         {
-            block.Post(context, evt);
+            block.Post(new BlockEvent.Breaking(world, pos, block));
         }
     }
 }

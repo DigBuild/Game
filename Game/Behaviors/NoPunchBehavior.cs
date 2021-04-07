@@ -11,7 +11,7 @@ namespace DigBuild.Behaviors
             block.Subscribe(OnPunch);
         }
 
-        private BlockEvent.Punch.Result OnPunch(IBlockContext context, object data, BlockEvent.Punch evt, Func<BlockEvent.Punch.Result> next)
+        private BlockEvent.Punch.Result OnPunch(BlockEvent.Punch evt, object data, Func<BlockEvent.Punch.Result> next)
         {
             return BlockEvent.Punch.Result.Fail;
         }

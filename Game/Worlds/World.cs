@@ -1,6 +1,5 @@
 using System;
 using DigBuild.Blocks;
-using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Ticking;
@@ -48,7 +47,7 @@ namespace DigBuild.Worlds
             {
                 var offset = pos.Offset(face);
                 var block = this.GetBlock(offset);
-                block?.OnNeighborChanged(new BlockContext(this, offset, block), new BlockEvent.NeighborChanged(face.GetOpposite()));
+                block?.OnNeighborChanged(this, offset, face.GetOpposite());
                 ChunkManager.OnBlockChanged(pos);
                 BlockChanged?.Invoke(pos);
             }

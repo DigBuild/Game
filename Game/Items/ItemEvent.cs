@@ -9,16 +9,16 @@ namespace DigBuild.Items
     {
         public static void Register(ExtendedTypeRegistryBuilder<IItemEvent, ItemEventInfo> registry)
         {
-            registry.Register((IItemContext _, Activate _) => Activate.Result.Fail);
-            registry.Register((IItemContext _, Punch _) => Punch.Result.Fail);
+            registry.Register((Activate _) => Activate.Result.Fail);
+            registry.Register((Punch _) => Punch.Result.Fail);
         }
 
-        public sealed class Activate : IItemEvent<Activate.Result>
+        public sealed class Activate : ItemContext, IItemEvent<Activate.Result>
         {
             public readonly IPlayer Player;
             public readonly WorldRayCastContext.Hit? Hit;
 
-            public Activate(IPlayer player, WorldRayCastContext.Hit? hit)
+            public Activate(ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit) : base(instance)
             {
                 Player = player;
                 Hit = hit;
@@ -30,12 +30,12 @@ namespace DigBuild.Items
             }
         }
 
-        public sealed class Punch : IItemEvent<Punch.Result>
+        public sealed class Punch : ItemContext, IItemEvent<Punch.Result>
         {
             public readonly IPlayer Player;
             public readonly WorldRayCastContext.Hit? Hit;
 
-            public Punch(IPlayer player, WorldRayCastContext.Hit? hit)
+            public Punch(ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit) : base(instance)
             {
                 Player = player;
                 Hit = hit;
@@ -59,9 +59,9 @@ namespace DigBuild.Items
             builder.Subscribe(onActivate);
         }
 
-        public static ItemEvent.Activate.Result OnActivate(this IItem item, IItemContext context, ItemEvent.Activate evt)
+        public static ItemEvent.Activate.Result OnActivate(this Item item, ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit)
         {
-            return item.Post<ItemEvent.Activate, ItemEvent.Activate.Result>(context, evt);
+            return item.Post<ItemEvent.Activate, ItemEvent.Activate.Result>(new ItemEvent.Activate(instance, player, hit));
         }
 
         public static void Subscribe<TReadOnlyData, TData>(
@@ -73,9 +73,9 @@ namespace DigBuild.Items
             builder.Subscribe(onPunch);
         }
 
-        public static ItemEvent.Punch.Result OnPunch(this IItem item, IItemContext context, ItemEvent.Punch evt)
+        public static ItemEvent.Punch.Result OnPunch(this Item item, ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit)
         {
-            return item.Post<ItemEvent.Punch, ItemEvent.Punch.Result>(context, evt);
+            return item.Post<ItemEvent.Punch, ItemEvent.Punch.Result>(new ItemEvent.Punch(instance, player, hit));
         }
     }
 }

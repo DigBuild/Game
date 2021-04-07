@@ -25,9 +25,9 @@ namespace DigBuild.Behaviors
 
         public void Build(EntityBehaviorBuilder<IItemEntityBehavior, IItemEntityBehavior> entity)
         {
-            entity.Add(EntityAttributes.Item, (_, data, _, _) => data.Item);
-            entity.Add(EntityAttributes.ItemJoinWorldTime, (_, data, _, _) => data.JoinWorldTime);
-            entity.Add(EntityCapabilities.ItemEntity, (_, data, _, _) => data.Capability);
+            entity.Add(EntityAttributes.Item, (_, data, _) => data.Item);
+            entity.Add(EntityAttributes.ItemJoinWorldTime, (_, data, _) => data.JoinWorldTime);
+            entity.Add(EntityCapabilities.ItemEntity, (_, data, _) => data.Capability);
         }
 
         private sealed class ItemEntity : IItemEntity

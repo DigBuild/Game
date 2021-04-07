@@ -22,10 +22,10 @@ namespace DigBuild.Behaviors
             block.Subscribe(OnBreaking);
         }
 
-        private void OnBreaking(IBlockContext context, object data, BlockEvent.Breaking evt, Action next)
+        private void OnBreaking(BlockEvent.Breaking evt, object data, Action next)
         {
-            context.World.AddEntity(GameEntities.Item)
-                .WithPosition(((Vector3) context.Pos) + new Vector3(0.5f, 0, 0.5f))
+            evt.World.AddEntity(GameEntities.Item)
+                .WithPosition(((Vector3) evt.Pos) + new Vector3(0.5f, 0, 0.5f))
                 .WithItem(_dropSupplier());
             next();
         }
