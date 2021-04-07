@@ -4,7 +4,6 @@ using DigBuild.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Worlds;
-using DigBuild.Entities;
 using DigBuild.Registries;
 
 namespace DigBuild.Behaviors

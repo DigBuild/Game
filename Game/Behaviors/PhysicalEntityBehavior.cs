@@ -6,6 +6,7 @@ using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
+using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
 using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Worlds;
@@ -294,6 +295,19 @@ namespace DigBuild.Behaviors
                 AngularVelocityYaw = AngularVelocityYaw
             };
         }
+
+        public static ISerdes<PhysicalEntityData> Serdes { get; } =
+            new CompositeSerdes<PhysicalEntityData>(() => new PhysicalEntityData())
+            {
+                {1u, d => d.InWorld, UnmanagedSerdes<bool>.NotNull},
+                {2u, d => d.OnGround, UnmanagedSerdes<bool>.NotNull},
+                {3u, d => d.Position, UnmanagedSerdes<Vector3>.NotNull},
+                {4u, d => d.Velocity, UnmanagedSerdes<Vector3>.NotNull},
+                {5u, d => d.Pitch, UnmanagedSerdes<float>.NotNull},
+                {6u, d => d.Yaw, UnmanagedSerdes<float>.NotNull},
+                {7u, d => d.AngularVelocityPitch, UnmanagedSerdes<float>.NotNull},
+                {8u, d => d.AngularVelocityYaw, UnmanagedSerdes<float>.NotNull},
+            };
     }
 
     public interface IPhysicalEntity

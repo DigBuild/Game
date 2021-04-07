@@ -1,7 +1,8 @@
 ﻿using System;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
-using DigBuild.Entities;
+using DigBuild.Engine.Serialization;
+using DigBuild.Engine.Storage;
 using DigBuild.Registries;
 
 namespace DigBuild.Behaviors
@@ -44,6 +45,28 @@ namespace DigBuild.Behaviors
                 set => _data.Item = value;
             }
         }
+    }
+    internal sealed class ItemEntityData : IData<ItemEntityData>, IItemEntityBehavior
+    {
+        public ItemInstance Item { get; set; } = ItemInstance.Empty;
+        public long JoinWorldTime { get; set; }
+        IItemEntity? IItemEntityBehavior.Capability { get; set; }
+
+        public ItemEntityData Copy()
+        {
+            return new()
+            {
+                Item = Item,
+                JoinWorldTime = JoinWorldTime
+            };
+        }
+
+        public static ISerdes<ItemEntityData> Serdes { get; } =
+            new CompositeSerdes<ItemEntityData>(() => new ItemEntityData())
+            {
+                {1u, d => d.Item, ItemInstance.Serdes},
+                {2u, d => d.JoinWorldTime, UnmanagedSerdes<long>.NotNull}
+            };
     }
 
     public interface IItemEntity
