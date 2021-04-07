@@ -669,7 +669,7 @@ namespace DigBuild.Client
                 var camera = _player.GetCamera(_tickSource.CurrentTick.Value);
                 var hit = Raycast.Cast(_rayCastContext, camera.Ray);
                 var physicalProjMat = Matrix4x4.CreatePerspectiveFieldOfView(
-                    MathF.PI / 2, surface.Width / (float) surface.Height, 0.001f, 500f
+                    camera.FieldOfView, surface.Width / (float) surface.Height, 0.001f, 500f
                 );
                 var renderProjMat = physicalProjMat * Matrix4x4.CreateRotationZ(MathF.PI);
                 var viewFrustum = new ViewFrustum(camera.Transform * physicalProjMat);
