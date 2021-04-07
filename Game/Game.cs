@@ -18,7 +18,7 @@ namespace DigBuild
     public class Game : IDisposable
     {
         public const string Domain = "digbuild";
-        public const int ViewRadius = 12;
+        public const int ViewRadius = 8;
         public static CraftingRecipeLookup RecipeLookup { get; private set; } = null!;
 
         private readonly TickSource _tickSource;
@@ -42,7 +42,9 @@ namespace DigBuild
             var features = new List<IWorldgenFeature>
             {
                 WorldgenFeatures.Terrain,
-                WorldgenFeatures.Water
+                WorldgenFeatures.Water,
+                WorldgenFeatures.Lushness,
+                WorldgenFeatures.Trees
             };
             var generator = new WorldGenerator(
                 features, 0,
@@ -53,13 +55,13 @@ namespace DigBuild
             _rayCastContext = new WorldRayCastContext(_world);
 
             _player = new PlayerController(_world.AddPlayer(new Vector3(0, 50, 0)));
-            _player.Inventory.Hotbar[0].Item = new ItemInstance(GameItems.Stone, 5);
-            _player.Inventory.Hotbar[1].Item = new ItemInstance(GameItems.Stone, 5);
-            _player.Inventory.Hotbar[2].Item = new ItemInstance(GameItems.Crafter, 17);
-            _player.Inventory.Hotbar[3].Item = new ItemInstance(GameItems.Dirt, 12);
-            _player.Inventory.Hotbar[4].Item = new ItemInstance(GameItems.Stone, 8);
-            _player.Inventory.Hotbar[5].Item = new ItemInstance(GameItems.Glowy, 8);
-            _player.Inventory.Hotbar[6].Item = new ItemInstance(GameItems.StoneStairs, 8);
+            _player.Inventory.Hotbar[0].Item = new ItemInstance(GameItems.Stone, 64);
+            _player.Inventory.Hotbar[1].Item = new ItemInstance(GameItems.Dirt, 64);
+            _player.Inventory.Hotbar[2].Item = new ItemInstance(GameItems.Crafter, 64);
+            _player.Inventory.Hotbar[3].Item = new ItemInstance(GameItems.Glowy, 64);
+            _player.Inventory.Hotbar[4].Item = new ItemInstance(GameItems.Log, 64);
+            _player.Inventory.Hotbar[5].Item = new ItemInstance(GameItems.Leaves, 64);
+            _player.Inventory.Hotbar[6].Item = new ItemInstance(GameItems.LogSmall, 64);
             
             _window = new GameWindow(_tickSource, _player, _input, _rayCastContext);
             

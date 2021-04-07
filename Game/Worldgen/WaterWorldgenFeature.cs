@@ -88,7 +88,7 @@ namespace DigBuild.Worldgen
                     var localHeight = waterHeight[x, z] - chunk.Position.Y * ChunkSize;
                     if (localHeight < 0 || localHeight >= ChunkSize)
                         continue;
-                    chunk.SetBlock(new BlockPos(x, (int) localHeight, z), _waterBlock);
+                    chunk.SetBlock(new SubChunkPos(x, (int) localHeight, z), _waterBlock);
                 }
             }
         }

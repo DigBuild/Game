@@ -21,6 +21,9 @@ namespace DigBuild.Registries
         public static Block Grass { get; private set; } = null!;
         public static Block Water { get; private set; } = null!;
         public static Block Stone { get; private set; } = null!;
+        public static Block Log { get; private set; } = null!;
+        public static Block LogSmall { get; private set; } = null!;
+        public static Block Leaves { get; private set; } = null!;
         public static Block StoneStairs { get; private set; } = null!;
         public static Block Crafter { get; private set; } = null!;
 
@@ -48,6 +51,18 @@ namespace DigBuild.Registries
             Stone = registry.Create(new ResourceName(Game.Domain, "stone"),
                 Drops(() => GameItems.Stone)
             );
+            Log = registry.Create(new ResourceName(Game.Domain, "log"),
+                Drops(() => GameItems.LogSmall)
+            );
+            LogSmall = registry.Create(new ResourceName(Game.Domain, "log_small"), builder =>
+                {
+                    var aabb = new AABB(0.25f, 0, 0.25f, 0.75f, 1, 0.75f);
+                    builder.Attach(new ColliderBehavior(new VoxelCollider(aabb)));
+                    builder.Attach(new RayColliderBehavior(new VoxelRayCollider(aabb)));
+                },
+                Drops(() => GameItems.Log)
+            );
+            Leaves = registry.Create(new ResourceName(Game.Domain, "leaves"));
             StoneStairs = registry.Create(new ResourceName(Game.Domain, "stone_stairs"), builder =>
                 {
                     // builder.Attach(new ColliderBehavior(new VoxelCollider(StoneStairAABBs)));

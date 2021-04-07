@@ -1,0 +1,16 @@
+{
+  "cuboids": [
+    {
+      "from": [ 0, 0, 0 ],
+      "to": [ 1, 1, 1 ],
+      "textures": {
+        "neg_x": "digbuild:blocks/log_side",
+        "pos_x": "digbuild:blocks/log_side",
+        "neg_y": "digbuild:blocks/log_end",
+        "pos_y": "digbuild:blocks/log_end",
+        "neg_z": "digbuild:blocks/log_side",
+        "pos_z": "digbuild:blocks/log_side"
+      }
+    }
+  ]
+}

@@ -67,9 +67,9 @@ namespace DigBuild.Worldgen
                         continue;
                     var localHeight = Math.Min(relativeHeight, ChunkSize);
                     for (int y = 0; y < localHeight - 1; y++)
-                        chunk.SetBlock(new BlockPos(x, y, z), _terrainBlock);
+                        chunk.SetBlock(new SubChunkPos(x, y, z), _terrainBlock);
                     
-                    chunk.SetBlock(new BlockPos(x, (int) (localHeight - 1), z), localHeight == relativeHeight ? _surfaceBlock : _terrainBlock);
+                    chunk.SetBlock(new SubChunkPos(x, (int) (localHeight - 1), z), localHeight == relativeHeight ? _surfaceBlock : _terrainBlock);
                 }
             }
         }
