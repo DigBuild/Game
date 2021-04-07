@@ -433,11 +433,13 @@ namespace DigBuild.Client
         
         private readonly List<IRenderLayer> _worldRenderLayers = new(){
             WorldRenderLayer.Opaque,
+            WorldRenderLayer.Cutout,
             WorldRenderLayer.Translucent
         };
         private readonly List<IRenderLayer> _uiRenderLayers = new(){
             UiRenderLayer.Ui,
             WorldRenderLayer.Opaque,
+            WorldRenderLayer.Cutout,
             WorldRenderLayer.Translucent,
             UiRenderLayer.Text,
         };
@@ -455,42 +457,38 @@ namespace DigBuild.Client
 
             _msLoader = MultiSprite.Loader(ResourceManager, _blockStitcher);
 
-            var dirtModel = new SimpleBlockModel(ResourceManager.Get<SimpleCuboidModel>(Game.Domain, "dirt")!);
-            var grassModel = new SimpleBlockModel(ResourceManager.Get<SimpleCuboidModel>(Game.Domain, "grass")!);
-            var waterModel = new SimpleBlockModel(ResourceManager.Get<SimpleCuboidModel>(Game.Domain, "water")!);
-            var stoneModel = new SimpleBlockModel(ResourceManager.Get<SimpleCuboidModel>(Game.Domain, "stone")!);
-            var stoneStairsModel = new SimpleBlockModel(ResourceManager.Get<SimpleCuboidModel>(Game.Domain, "stone_stairs")!);
-            var triangleModel = new SpinnyTriangleModel(_msLoader.Load(Game.Domain, "blocks/stone")!);
-            var glowyModel = new SimpleBlockModel(ResourceManager.Get<SimpleCuboidModel>(Game.Domain, "glowy")!);
-            _unbakedModels.Add(dirtModel);
-            _unbakedModels.Add(grassModel);
-            _unbakedModels.Add(waterModel);
-            _unbakedModels.Add(stoneModel);
-            _unbakedModels.Add(stoneStairsModel);
-            _unbakedModels.Add(glowyModel);
-            
-            foreach (var model in _unbakedModels)
-                model.LoadTextures(_msLoader);
-
-            waterModel.Layer = () => WorldRenderLayer.Translucent;
-
             var blockModels = new Dictionary<Block, IBlockModel>()
             {
-                [GameBlocks.Dirt] = dirtModel,
-                [GameBlocks.Grass] = grassModel,
-                [GameBlocks.Water] = waterModel,
-                [GameBlocks.Stone] = stoneModel,
-                [GameBlocks.StoneStairs] = stoneStairsModel,
-                [GameBlocks.Crafter] = triangleModel,
-                [GameBlocks.Glowy] = glowyModel
+                [GameBlocks.Crafter] = new SpinnyTriangleModel(_msLoader.Load(Game.Domain, "blocks/stone")!)
             };
-            ItemModels[GameItems.Dirt] = new ItemBlockModel(dirtModel);
-            ItemModels[GameItems.Grass] = new ItemBlockModel(grassModel);
-            ItemModels[GameItems.Water] = new ItemBlockModel(waterModel);
-            ItemModels[GameItems.Stone] = new ItemBlockModel(stoneModel);
-            ItemModels[GameItems.StoneStairs] = new ItemBlockModel(stoneStairsModel);
-            ItemModels[GameItems.Crafter] = new ItemBlockModel(triangleModel);
-            ItemModels[GameItems.Glowy] = new ItemBlockModel(glowyModel);
+
+            foreach (var block in GameRegistries.Blocks.Values)
+            {
+                if (blockModels.ContainsKey(block))
+                    continue;
+
+                var baseModel = ResourceManager.Get<SimpleCuboidModel>(block.Name)!;
+                Func<RenderLayer<SimpleVertex>> layer = baseModel.Layer switch
+                {
+                    "cutout" => () => WorldRenderLayer.Cutout,
+                    "translucent" => () => WorldRenderLayer.Translucent,
+                    _ => () => WorldRenderLayer.Opaque
+                };
+
+                var model = new SimpleBlockModel(baseModel) {Layer = layer};
+                _unbakedModels.Add(model);
+                model.LoadTextures(_msLoader);
+
+                blockModels[block] = model;
+            }
+
+            foreach (var item in GameRegistries.Items.Values)
+            {
+                if (!GameRegistries.Blocks.TryGet(item.Name, out var block))
+                    continue;
+                ItemModels[item] = new ItemBlockModel(blockModels[block]);
+            }
+            
             var entityModels = new Dictionary<Entity, IEntityModel>()
             {
                 [GameEntities.Item] = new ItemEntityModel(ItemModels)

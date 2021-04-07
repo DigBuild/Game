@@ -1,5 +1,6 @@
 {
   "solid": false,
+  "layer": "translucent",
   "cuboids": [
     {
       "from": [ 0, 0, 0 ],

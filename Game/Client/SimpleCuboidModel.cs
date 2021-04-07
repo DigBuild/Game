@@ -18,6 +18,8 @@ namespace DigBuild.Client
 
         public bool Solid { get; set; } = true;
         
+        public string? Layer { get; set; } = "solid";
+        
         public sealed class Cuboid
         {
             public Vector3 From { get; set; }
