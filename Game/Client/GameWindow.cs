@@ -426,7 +426,8 @@ namespace DigBuild.Client
         private readonly WorldRenderManager _worldRenderManager;
         private readonly TextureStitcher _blockStitcher = new();
         private readonly TextureStitcher _uiStitcher = new();
-        private readonly List<CuboidBlockModel> _unbakedModels = new();
+        private readonly List<SimpleBlockModel> _unbakedModels = new();
+        private readonly MultiSpriteLoader _msLoader;
         public static readonly Dictionary<Item, IItemModel> ItemModels = new();
         public static IInventorySlot PickedItemSlot { get; private set; } = null!;
         
@@ -452,35 +453,26 @@ namespace DigBuild.Client
             PickedItemSlot = _player.Inventory.PickedItem;
             _rayCastContext = rayCastContext;
 
-            var msLoader = MultiSprite.Loader(ResourceManager, _blockStitcher);
-            var dirtMS = msLoader.Load(Game.Domain, "blocks/dirt")!;
-            var grassMS = msLoader.Load(Game.Domain, "blocks/grass")!;
-            var grassSideMS = msLoader.Load(Game.Domain, "blocks/grass_side")!;
-            var waterMS = msLoader.Load(Game.Domain, "blocks/water")!;
-            var stoneMS = msLoader.Load(Game.Domain, "blocks/stone")!;
-            var glowyMS = msLoader.Load(Game.Domain, "blocks/glowy")!;
+            _msLoader = MultiSprite.Loader(ResourceManager, _blockStitcher);
 
-            var dirtModel = new CuboidBlockModel(AABB.FullBlock, dirtMS);
-            var grassModel = new CuboidBlockModel(AABB.FullBlock, new[]
-            {
-                grassSideMS, grassSideMS,
-                dirtMS, grassMS,
-                grassSideMS, grassSideMS
-            });
-            var waterModel = new CuboidBlockModel(AABB.FullBlock, waterMS);
-            var stoneModel = new CuboidBlockModel(AABB.FullBlock, stoneMS);
-            var stoneStairsModel = new CuboidBlockModel(GameBlocks.StoneStairAABBs, stoneMS);
-            var triangleModel = new SpinnyTriangleModel(stoneMS);
-            var glowyModel = new CuboidBlockModel(AABB.FullBlock, glowyMS);
+            var dirtModel = new SimpleBlockModel(ResourceManager.Get<SimpleCuboidModel>(Game.Domain, "dirt")!);
+            var grassModel = new SimpleBlockModel(ResourceManager.Get<SimpleCuboidModel>(Game.Domain, "grass")!);
+            var waterModel = new SimpleBlockModel(ResourceManager.Get<SimpleCuboidModel>(Game.Domain, "water")!);
+            var stoneModel = new SimpleBlockModel(ResourceManager.Get<SimpleCuboidModel>(Game.Domain, "stone")!);
+            var stoneStairsModel = new SimpleBlockModel(ResourceManager.Get<SimpleCuboidModel>(Game.Domain, "stone_stairs")!);
+            var triangleModel = new SpinnyTriangleModel(_msLoader.Load(Game.Domain, "blocks/stone")!);
+            var glowyModel = new SimpleBlockModel(ResourceManager.Get<SimpleCuboidModel>(Game.Domain, "glowy")!);
             _unbakedModels.Add(dirtModel);
             _unbakedModels.Add(grassModel);
             _unbakedModels.Add(waterModel);
             _unbakedModels.Add(stoneModel);
             _unbakedModels.Add(stoneStairsModel);
             _unbakedModels.Add(glowyModel);
+            
+            foreach (var model in _unbakedModels)
+                model.LoadTextures(_msLoader);
 
             waterModel.Layer = () => WorldRenderLayer.Translucent;
-            waterModel.Solid = false;
 
             var blockModels = new Dictionary<Block, IBlockModel>()
             {
@@ -611,7 +603,7 @@ namespace DigBuild.Client
                 Resources = new RenderResources(surface, context, ResourceManager, BufferPool, _blockStitcher, _uiStitcher);
                 
                 foreach (var model in _unbakedModels)
-                    model.Initialize();
+                    model.Initialize(_msLoader);
 
                 foreach (var layer in _worldRenderLayers)
                     layer.Initialize(context, ResourceManager);
@@ -651,7 +643,7 @@ namespace DigBuild.Client
                 Resources.RefreshResources(surface, context, ResourceManager, _blockStitcher, _uiStitcher);
                 
                 foreach (var model in _unbakedModels)
-                    model.Initialize();
+                    model.Initialize(_msLoader);
 
                 foreach (var layer in _worldRenderLayers)
                     layer.Initialize(context, ResourceManager);

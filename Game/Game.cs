@@ -59,6 +59,7 @@ namespace DigBuild
             _player.Inventory.Hotbar[3].Item = new ItemInstance(GameItems.Dirt, 12);
             _player.Inventory.Hotbar[4].Item = new ItemInstance(GameItems.Stone, 8);
             _player.Inventory.Hotbar[5].Item = new ItemInstance(GameItems.Glowy, 8);
+            _player.Inventory.Hotbar[6].Item = new ItemInstance(GameItems.StoneStairs, 8);
             
             _window = new GameWindow(_tickSource, _player, _input, _rayCastContext);
             

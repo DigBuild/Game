@@ -1,0 +1,17 @@
+{
+  "solid": false,
+  "cuboids": [
+    {
+      "from": [ 0, 0, 0 ],
+      "to": [ 1, 1, 1 ],
+      "textures": {
+        "neg_x": "digbuild:blocks/water",
+        "pos_x": "digbuild:blocks/water",
+        "neg_y": "digbuild:blocks/water",
+        "pos_y": "digbuild:blocks/water",
+        "neg_z": "digbuild:blocks/water",
+        "pos_z": "digbuild:blocks/water"
+      }
+    }
+  ]
+}
