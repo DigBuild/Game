@@ -18,7 +18,7 @@ float calculateNormalShade(vec3 normal) {
 void main() {
     vec4 color = texture(tex, fragUV);
     vec4 bloom = texture(tex, fragBloomUV);
-    float shade = max(calculateNormalShade(fragNormal) * (0.25 + fragBrightness * 0.75), bloom.a);
+    float shade = max(calculateNormalShade(fragNormal) * (0.5 + fragBrightness * 0.5), bloom.a);
     outColor = vec4(color.rgb * shade, color.a);
     bloomColor = vec4(bloom.rgb, 1);
 }

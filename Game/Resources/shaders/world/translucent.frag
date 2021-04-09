@@ -21,6 +21,6 @@ void main() {
         discard;
     vec4 bloom = texture(tex, fragBloomUV);
     float shade = max(calculateNormalShade(fragNormal) * (0.5 + fragBrightness * 0.5), bloom.a);
-    outColor = vec4(color.rgb * shade, 1);
+    outColor = vec4(color.rgb * shade, color.a);
     bloomColor = vec4(bloom.rgb, 1);
 }

@@ -88,7 +88,7 @@ namespace DigBuild.Render
             (ctx, resourceManager, renderStage) =>
             {
                 var vsResource = resourceManager.Get<Shader>(Game.Domain, "world/base.vert")!;
-                var fsResource = resourceManager.Get<Shader>(Game.Domain, "world/cutout.frag")!;
+                var fsResource = resourceManager.Get<Shader>(Game.Domain, "world/translucent.frag")!;
                 VertexShader vs = ctx.CreateVertexShader(vsResource.Resource)
                     .WithUniform<SimpleUniform>(out var uniform);
                 FragmentShader fs = ctx.CreateFragmentShader(fsResource.Resource)
