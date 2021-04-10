@@ -1,6 +1,8 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
+#define PI 3.14159265359
+
 const vec3 color1 = vec3(0.271, 0.522, 0.692);
 const vec3 color2 = vec3(0.798, 0.765, 0.606);
 
@@ -28,7 +30,7 @@ vec3 grid(vec3 p, float subdivisions) {
         atan(p.y / p.z),
         atan(p.x / p.z),
         atan(p.x / p.y)
-    ) / 3.1415 * subdivisions * 2;
+    ) / PI * subdivisions * 2;
 
     vec3 pa = abs(p);
     if (pa.x > pa.y && pa.x > pa.z) {

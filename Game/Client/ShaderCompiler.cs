@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -55,6 +55,8 @@ namespace DigBuild.Client
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
 
+                var srcPath = originalResource.FileSystemPath;
+
                 Process process = new()
                 {
                     StartInfo = new ProcessStartInfo()
@@ -63,7 +65,8 @@ namespace DigBuild.Client
                         FileName = "glslc",
                         Arguments = $"-fshader-stage={shaderType} - -o \"{fullPath}\"",
                         RedirectStandardInput = true,
-                        RedirectStandardOutput = true
+                        RedirectStandardOutput = true,
+                        WorkingDirectory = (srcPath != null ? Path.GetDirectoryName(srcPath) : null)!
                     }
                 };
                 process.Start();
