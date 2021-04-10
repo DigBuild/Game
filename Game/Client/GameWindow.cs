@@ -43,6 +43,12 @@ namespace DigBuild.Client
         Matrix4x4 Matrix { get; set; }
     }
 
+    public interface ISkyUniform : IUniform<SkyUniform>
+    {
+        Matrix4x4 Matrix { get; set; }
+        float AspectRatio { get; set; }
+    }
+
     public interface IPixelSize : IUniform<PixelSize>
     {
         float Size { get; set; }
@@ -97,7 +103,10 @@ namespace DigBuild.Client
         public UniformBuffer<SimpleTransform> OutlineUniformBuffer { get; private set; } = null!;
 
         public readonly VertexBuffer<Vertex2> CompVertexBuffer;
-        public RenderPipeline<Vertex2> ClearPipeline;
+
+        public RenderPipeline<Vertex2> SkyPipeline;
+        public UniformBuffer<SkyUniform> SkyUniformBuffer;
+        public readonly PooledNativeBuffer<SkyUniform> SkyUniformNativeBuffer;
         
         public Texture BlockTexture;
         public Texture UiTexture;
@@ -168,6 +177,10 @@ namespace DigBuild.Client
             });
             OutlineUniformBuffer.Write(NativeOutlineUniformBuffer);
 
+            SkyUniformNativeBuffer = bufferPool.Request<SkyUniform>();
+            SkyUniformNativeBuffer.Add(default(SkyUniform));
+            
+
             TextRenderer = new TextRenderer(UiRenderLayer.Text);
 
             OnResize(surface, context, bufferPool);
@@ -235,16 +248,18 @@ namespace DigBuild.Client
                 cursorTexture
             );
 
-            var vsClearResource = resourceManager.Get<Shader>(Game.Domain, "clear.vert")!;
-            var fsClearResource = resourceManager.Get<Shader>(Game.Domain, "clear.frag")!;
+            var vsSkyResource = resourceManager.Get<Shader>(Game.Domain, "world/special/sky.vert")!;
+            var fsSkyResource = resourceManager.Get<Shader>(Game.Domain, "world/special/sky.frag")!;
             
-            VertexShader vsClear = context.CreateVertexShader(vsClearResource.Resource);
-            FragmentShader fsClear = context.CreateFragmentShader(fsClearResource.Resource);
-            ClearPipeline = context.CreatePipeline<Vertex2>(
-                vsClear, fsClear,
+            VertexShader vsSky = context.CreateVertexShader(vsSkyResource.Resource);
+            FragmentShader fsSky = context.CreateFragmentShader(fsSkyResource.Resource)
+                .WithUniform<SkyUniform>(out var skyUniform);
+            SkyPipeline = context.CreatePipeline<Vertex2>(
+                vsSky, fsSky,
                 MainRenderStage,
                 Topology.Triangles
             );
+            SkyUniformBuffer = context.CreateUniformBuffer(skyUniform);
 
             // Outline stuff idk
             var vsOutlineResource = resourceManager.Get<Shader>(Game.Domain, "world/outline.vert")!;
@@ -670,17 +685,31 @@ namespace DigBuild.Client
                     camera.FieldOfView, surface.Width / (float) surface.Height, 0.001f, 500f
                 );
                 var renderProjMat = physicalProjMat * Matrix4x4.CreateRotationZ(MathF.PI);
-                var viewFrustum = new ViewFrustum(camera.Transform * physicalProjMat);
+                var cameraTransform = camera.Transform;
+                var viewFrustum = new ViewFrustum(cameraTransform * physicalProjMat);
                 
                 if (GameInput.ReRender)
                     _worldRenderManager.ReRender(true);
 
                 _worldRenderManager.UpdateChunks(camera, viewFrustum);
+
+                var mat = cameraTransform * renderProjMat;
+                mat.Translation = Vector3.Zero;
+                Matrix4x4.Invert(mat, out var matInv);
+
+                Resources.SkyUniformNativeBuffer[0] = new SkyUniform()
+                {
+                    Matrix = matInv,
+                    AspectRatio = surface.Width / (float) surface.Height
+                };
+                Resources.SkyUniformBuffer.Write(Resources.SkyUniformNativeBuffer);
                 
                 using (var cmd = Resources.WorldCommandBuffer.Record(context, Resources.WorldFramebuffer.Format, BufferPool))
                 {
                     cmd.SetViewportAndScissor(Resources.WorldFramebuffer);
-                    cmd.Draw(Resources.ClearPipeline, Resources.CompVertexBuffer);
+
+                    cmd.Using(Resources.SkyPipeline, Resources.SkyUniformBuffer, 0);
+                    cmd.Draw(Resources.SkyPipeline, Resources.CompVertexBuffer);
                     
                     _worldRenderManager.SubmitGeometry(context, cmd, renderProjMat, camera, viewFrustum);
                     

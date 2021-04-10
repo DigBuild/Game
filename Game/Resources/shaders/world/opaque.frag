@@ -1,6 +1,10 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
+const vec3 tintDark  = vec3(0.109, 0.121, 0.180);
+const vec3 tintLight = vec3(1.000, 1.000, 1.000);
+const float sunlight = 0.0;
+
 layout(set = 1, binding = 0) uniform sampler2D tex;
 
 layout(location = 0) in vec2 fragUV;
@@ -19,6 +23,6 @@ void main() {
     vec4 color = texture(tex, fragUV);
     vec4 bloom = texture(tex, fragBloomUV);
     float shade = max(calculateNormalShade(fragNormal) * (0.5 + fragBrightness * 0.5), bloom.a);
-    outColor = vec4(color.rgb * shade, color.a);
+    outColor = vec4(color.rgb * shade * mix(tintDark, tintLight, max(max(sunlight, bloom.a), fragBrightness)), color.a);
     bloomColor = vec4(bloom.rgb, 1);
 }
