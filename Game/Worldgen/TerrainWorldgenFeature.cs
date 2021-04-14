@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
@@ -31,7 +32,7 @@ namespace DigBuild.Worldgen
             _terrainHeightNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
             _terrainHeightNoise.SetFrequency(0.001f);
             _terrainHeightNoise.SetFractalType(FastNoiseLite.FractalType.FBm);
-            _terrainHeightNoise.SetFractalOctaves(2);
+            _terrainHeightNoise.SetFractalOctaves(4);
             _terrainHeightNoise.SetFractalLacunarity(2.4f);
             _terrainHeightNoise.SetFractalGain(0.4f);
         }
@@ -67,9 +68,9 @@ namespace DigBuild.Worldgen
                         continue;
                     var localHeight = Math.Min(relativeHeight, ChunkSize);
                     for (int y = 0; y < localHeight - 1; y++)
-                        chunk.SetBlock(new SubChunkPos(x, y, z), _terrainBlock);
+                        chunk.SetBlock(new ChunkBlockPosition(x, y, z), _terrainBlock);
                     
-                    chunk.SetBlock(new SubChunkPos(x, (int) (localHeight - 1), z), localHeight == relativeHeight ? _surfaceBlock : _terrainBlock);
+                    chunk.SetBlock(new ChunkBlockPosition(x, (int) (localHeight - 1), z), localHeight == relativeHeight ? _surfaceBlock : _terrainBlock);
                 }
             }
         }

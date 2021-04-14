@@ -4,6 +4,7 @@ using System.Numerics;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
+using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Serialization;
@@ -32,16 +33,18 @@ namespace DigBuild.Behaviors
     public sealed class PhysicalEntityBehavior : IEntityBehavior<IPhysicalEntityBehavior>
     {
         private readonly AABB _bounds;
+        private readonly ushort _chunkLoadRadius;
         private readonly float _terminalVelocity, _groundDragFactor, _airDragFactor;
         private readonly float _jumpForce, _jumpKickSpeed, _movementSpeedGround, _movementSpeedAir, _rotationSpeed;
 
         public PhysicalEntityBehavior(
-            AABB bounds,
+            AABB bounds, ushort chunkLoadRadius = 0,
             float terminalVelocity = 1.5f, float groundDragFactor = 0.2f, float airDragFactor = 0.3f, float jumpForce = 0,
             float jumpKickSpeed = 0, float movementSpeedGround = 0, float movementSpeedAir = 0, float rotationSpeed = 0
         )
         {
             _bounds = bounds;
+            _chunkLoadRadius = chunkLoadRadius;
             _terminalVelocity = terminalVelocity;
             _groundDragFactor = groundDragFactor;
             _airDragFactor = airDragFactor;
@@ -87,10 +90,12 @@ namespace DigBuild.Behaviors
             private readonly IPhysicalEntityBehavior _data;
             private readonly PhysicalEntityBehavior _behavior;
             
-            private IChunkLoadingTicket? _chunkLoadingTicket;
+            private IChunkClaim? _chunkLoadingTicket;
 
             public PhysicalEntity(
-                IWorld world, AABB bounds, IPhysicalEntityBehavior data, PhysicalEntityBehavior behavior)
+                IWorld world, AABB bounds, IPhysicalEntityBehavior data,
+                PhysicalEntityBehavior behavior
+            )
             {
                 _world = world;
                 Bounds = bounds;
@@ -243,6 +248,9 @@ namespace DigBuild.Behaviors
                 PrevVelocity = vel;
                 Velocity = new Vector3(vel.X * dragFactor, yVel, vel.Z * dragFactor);
 
+                if (_behavior._chunkLoadRadius == 0)
+                    return;
+
                 var prevChunkPos = new BlockPos(PrevPosition).ChunkPos;
                 var newChunkPos = new BlockPos(Position).ChunkPos;
                 if (prevChunkPos != newChunkPos)
@@ -253,12 +261,13 @@ namespace DigBuild.Behaviors
             {
                 var chunkPos = new BlockPos(Position).ChunkPos;
                 var chunksToLoad = new HashSet<ChunkPos>();
-                for (var x = -Game.ViewRadius; x < Game.ViewRadius; x++)
-                for (var z = -Game.ViewRadius; z < Game.ViewRadius; z++)
-                    chunksToLoad.Add(new ChunkPos(chunkPos.X + x, 0, chunkPos.Z + z));
+                for (var x = -_behavior._chunkLoadRadius; x <= _behavior._chunkLoadRadius; x++)
+                for (var y = -2; y <= 2; y++)
+                for (var z = -_behavior._chunkLoadRadius; z <= _behavior._chunkLoadRadius; z++)
+                    chunksToLoad.Add(new ChunkPos(chunkPos.X + x, chunkPos.Y + y, chunkPos.Z + z));
 
                 var prevTicket = _chunkLoadingTicket;
-                if (!_world.ChunkManager.RequestLoadingTicket(out _chunkLoadingTicket, chunksToLoad))
+                if (!_world.ChunkManager.TryLoad(chunksToLoad, false, out _chunkLoadingTicket))
                 {
                     throw new Exception("What.");
                 }

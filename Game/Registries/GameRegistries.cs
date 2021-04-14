@@ -5,6 +5,7 @@ using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Registries;
+using DigBuild.Engine.Storage;
 using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
@@ -17,8 +18,8 @@ namespace DigBuild.Registries
 {
     public static class GameRegistries
     {
-        public static Registry<IWorldStorageType> WorldStorageTypes { get; private set; } = null!;
-        public static Registry<IChunkStorageType> ChunkStorageTypes { get; private set; } = null!;
+        public static Registry<IDataHandle<IWorld>> WorldStorageTypes { get; private set; } = null!;
+        public static Registry<IDataHandle<IChunk>> ChunkStorageTypes { get; private set; } = null!;
 
         public static Registry<IJobHandle> Jobs { get; private set; } = null!;
 
@@ -47,7 +48,7 @@ namespace DigBuild.Registries
         {
             var manager = new RegistryManager();
 
-            var worldStorageTypes = manager.CreateRegistryOf<IWorldStorageType>(
+            var worldStorageTypes = manager.CreateRegistryOf<IDataHandle<IWorld>>(
                 new ResourceName(Game.Domain, "world_storage_type")
             );
             worldStorageTypes.Building += DigBuildEngine.Register;
@@ -58,7 +59,7 @@ namespace DigBuild.Registries
                 WorldStorageTypes = reg;
             };
 
-            var chunkStorageTypes = manager.CreateRegistryOf<IChunkStorageType>(
+            var chunkStorageTypes = manager.CreateRegistryOf<IDataHandle<IChunk>>(
                 new ResourceName(Game.Domain, "chunk_storage_type")
             );
             chunkStorageTypes.Building += DigBuildEngine.Register;

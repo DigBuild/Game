@@ -1,4 +1,6 @@
-﻿using DigBuild.Engine.Registries;
+﻿using DigBuild.Engine.Impl.Worlds;
+using DigBuild.Engine.Registries;
+using DigBuild.Engine.Storage;
 using DigBuild.Engine.Worlds;
 using DigBuild.Platform.Resource;
 using DigBuild.Worlds;
@@ -7,11 +9,11 @@ namespace DigBuild.Registries
 {
     public static class GameChunkStorages
     {
-        public static void Register(RegistryBuilder<IChunkStorageType> registry)
+        public static void Register(RegistryBuilder<IDataHandle<IChunk>> registry)
         {
-            IBlockLightStorage.Type = registry.Create<IReadOnlyBlockLightStorage, IBlockLightStorage>(
+            IChunkBlockLight.Type = registry.Create<IChunk, IReadOnlyChunkBlockLight, IChunkBlockLight>(
                 new ResourceName(Game.Domain, "block_light"),
-                () => new BlockLightStorage()
+                () => new ChunkChunkBlockLight()
             );
         }
     }

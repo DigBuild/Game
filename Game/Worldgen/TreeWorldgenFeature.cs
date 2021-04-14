@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
@@ -92,9 +93,9 @@ namespace DigBuild.Worldgen
                 var leavesHeight = localHeight + 1;
                     
                 if (logHeight >= 0 && logHeight < ChunkSize)
-                    chunk.SetBlock(new SubChunkPos(x, logHeight, z), _log);
+                    chunk.SetBlock(new ChunkBlockPosition(x, logHeight, z), _log);
                 if (leavesHeight >= 0 && leavesHeight < ChunkSize)
-                    chunk.SetBlock(new SubChunkPos(x, leavesHeight, z), _leaves);
+                    chunk.SetBlock(new ChunkBlockPosition(x, leavesHeight, z), _leaves);
             }
         }
     }

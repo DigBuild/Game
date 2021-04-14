@@ -2,6 +2,7 @@
 using DigBuild.Behaviors;
 using DigBuild.Blocks;
 using DigBuild.Engine.Entities;
+using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Worlds;
 using DigBuild.Items;

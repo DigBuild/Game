@@ -2,7 +2,6 @@
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Registries;
-using DigBuild.Entities;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Registries
@@ -27,6 +26,7 @@ namespace DigBuild.Registries
                 var data = builder.Add<PhysicalEntityData>();
                 builder.Attach(new PhysicalEntityBehavior(
                     Players.Player.BoundingBox,
+                    chunkLoadRadius: Game.ViewRadius,
                     jumpForce: Players.Player.JumpForce,
                     jumpKickSpeed: Players.Player.JumpKickSpeed,
                     movementSpeedGround: Players.Player.MovementSpeedGround,

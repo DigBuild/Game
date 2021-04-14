@@ -8,6 +8,7 @@ using DigBuild.Blocks.Models;
 using DigBuild.Client.GeneratedUniforms;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
+using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
@@ -742,7 +743,7 @@ namespace DigBuild.Client
                 }
 
                 _positionLabel.Text = $"Position: {new BlockPos(_player.PhysicalEntity.Position)}";
-                _lookLabel.Text = $"Look: {hit?.Position}";
+                _lookLabel.Text = $"Look: {hit?.Position} {(hit != null ? _player.Entity.World.GetBlock(hit.BlockPos) : null)}";
                 _lightLabel.Text = $"Light: {(hit == null ? "" : _player.Entity.World.GetLight(hit.BlockPos.Offset(hit.Face)))}";
 
                 if (_player.HotbarTransfer)

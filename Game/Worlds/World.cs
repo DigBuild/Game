@@ -1,6 +1,7 @@
 using System;
 using DigBuild.Blocks;
 using DigBuild.Engine.Entities;
+using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Worldgen;
@@ -17,14 +18,13 @@ namespace DigBuild.Worlds
 
         public event Action<BlockPos>? BlockChanged;
 
-        public World(WorldGenerator generator, IStableTickSource tickSource, Func<ChunkPos> generationOriginGetter)
+        public World(WorldGenerator generator, IStableTickSource tickSource) :
+            base(generator, pos => new RegionStorage(), tickSource)
         {
-            ChunkManager = new ChunkManager(generator, generationOriginGetter);
             TickScheduler = new Scheduler(tickSource);
             tickSource.Tick += () =>
             {
                 _absoluteTime++;
-                ChunkManager.Update();
             };
         }
 
@@ -32,13 +32,11 @@ namespace DigBuild.Worlds
         public override ulong AbsoluteTime => _absoluteTime;
         public override float Gravity => GravityValue;
 
-        public override ChunkManager ChunkManager { get; }
-
         public override Scheduler TickScheduler { get; }
 
-        public override IChunk? GetChunk(ChunkPos pos, bool load = true)
+        public override IChunk? GetChunk(ChunkPos pos, bool loadOrGenerate = true)
         {
-            return ChunkManager.Get(pos, load);
+            return RegionManager.Get(pos.RegionPos)?.Get(pos.RegionChunkPos, loadOrGenerate);
         }
         
         public override void OnBlockChanged(BlockPos pos)
@@ -48,7 +46,6 @@ namespace DigBuild.Worlds
                 var offset = pos.Offset(face);
                 var block = this.GetBlock(offset);
                 block?.OnNeighborChanged(this, offset, face.GetOpposite());
-                ChunkManager.OnBlockChanged(pos);
                 BlockChanged?.Invoke(pos);
             }
         }

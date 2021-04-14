@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using DigBuild.Client;
@@ -18,7 +17,7 @@ namespace DigBuild
     public class Game : IDisposable
     {
         public const string Domain = "digbuild";
-        public const int ViewRadius = 8;
+        public const int ViewRadius = 12;
         public static CraftingRecipeLookup RecipeLookup { get; private set; } = null!;
 
         private readonly TickSource _tickSource;
@@ -46,12 +45,9 @@ namespace DigBuild
                 WorldgenFeatures.Lushness,
                 WorldgenFeatures.Trees
             };
-            var generator = new WorldGenerator(
-                features, 0,
-                desc => desc.Get(WorldgenAttributes.TerrainHeight).Max()
-            );
+            var generator = new WorldGenerator(_tickSource, features, 0);
 
-            _world = new World(generator, _tickSource, () => _player == null ? default : new BlockPos(_player.PhysicalEntity.Position).ChunkPos);
+            _world = new World(generator, _tickSource);
             _rayCastContext = new WorldRayCastContext(_world);
 
             _player = new PlayerController(_world.AddPlayer(new Vector3(0, 50, 0)));
@@ -72,15 +68,15 @@ namespace DigBuild
 
             _world.BlockChanged += pos =>
             {
-                BlockLightStorage.Update(_world, pos);
+                ChunkChunkBlockLight.Update(_world, pos);
                 foreach (var direction in Directions.All)
-                    BlockLightStorage.Update(_world, pos.Offset(direction));
+                    ChunkChunkBlockLight.Update(_world, pos.Offset(direction));
             };
         }
 
         public void Dispose()
         {
-            _world.ChunkManager.Dispose();
+            _world.Dispose();
         }
 
         private void Tick()

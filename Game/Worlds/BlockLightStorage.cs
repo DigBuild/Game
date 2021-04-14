@@ -1,25 +1,28 @@
 ﻿using System;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worlds;
 using DigBuild.Registries;
 
 namespace DigBuild.Worlds
 {
-    public class BlockLightStorage : IBlockLightStorage
+    public class ChunkChunkBlockLight : IChunkBlockLight
     {
         private const uint ChunkSize = 16;
 
         private readonly byte[,,] _values = new byte[ChunkSize, ChunkSize, ChunkSize];
 
-        public byte Get(SubChunkPos pos)
+        public event Action? Changed;
+
+        public byte Get(ChunkBlockPosition pos)
         {
             return _values[pos.X, pos.Y, pos.Z];
         }
         
-        public IBlockLightStorage Copy()
+        public IChunkBlockLight Copy()
         {
-            var copy = new BlockLightStorage();
+            var copy = new ChunkChunkBlockLight();
             for (var x = 0; x < ChunkSize; x++)
             for (var y = 0; y < ChunkSize; y++)
             for (var z = 0; z < ChunkSize; z++)
@@ -29,7 +32,7 @@ namespace DigBuild.Worlds
 
         private static byte GetCurrent(IReadOnlyWorld world, BlockPos pos)
         {
-            return (world.GetChunk(pos.ChunkPos)?.Get(IBlockLightStorage.Type) as BlockLightStorage)?.Get(pos.SubChunkPos) ?? 0;
+            return (world.GetChunk(pos.ChunkPos)?.Get(IChunkBlockLight.Type) as ChunkChunkBlockLight)?.Get(pos.SubChunkPos) ?? 0;
         }
 
         private static byte Get(IReadOnlyWorld world, BlockPos pos, Direction direction)
@@ -78,12 +81,13 @@ namespace DigBuild.Worlds
                 return;
 
             var chunk = world.GetChunk(pos.ChunkPos);
-            if (chunk?.Get(IBlockLightStorage.Type) is not BlockLightStorage storage)
+            if (chunk?.Get(IChunkBlockLight.Type) is not ChunkChunkBlockLight storage)
                 return;
 
             var sub = pos.SubChunkPos;
             storage._values[sub.X, sub.Y, sub.Z] = computed;
-            ((World) world).ChunkManager.OnBlockChanged(pos);
+            // ((World) world).ChunkManager.OnBlockChanged(pos);
+            storage.Changed?.Invoke();
             
             foreach (var direction in Directions.All)
                 Update(world, pos.Offset(direction));

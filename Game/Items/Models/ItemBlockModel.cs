@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
 
 namespace DigBuild.Items.Models
