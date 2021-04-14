@@ -66,7 +66,11 @@ void main() {
 
     vec3 baseColor = vec3(0, 0, 0.005);
     vec3 color = baseColor;
-    color += starfield(sphereNormal, 20);
+    vec3 stars = vec3(0);
+    stars += starfield(sphereNormal, 20);
+    stars += starfield(sphereNormal.yzx, 12) * 0.5;
+    stars += starfield(sphereNormal.zxy, 40) * 0.4;
+    color += pow(stars, vec3(1.5));
 
     float moonLit = smoothstep(0.998, 0.9983, dot(sphereNormal, moonPosition));
     float moonCover = smoothstep(0.9983, 0.9985, dot(normalize(sphereNormal + vec3(0.04, 0, -0.01)), moonPosition));
