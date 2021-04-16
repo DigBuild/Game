@@ -2,12 +2,13 @@
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
+using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Worlds;
 using DigBuild.Registries;
 
 namespace DigBuild.Worlds
 {
-    public class ChunkChunkBlockLight : IChunkBlockLight
+    public class ChunkBlockLight : IChunkBlockLight
     {
         private const uint ChunkSize = 16;
 
@@ -22,7 +23,7 @@ namespace DigBuild.Worlds
         
         public IChunkBlockLight Copy()
         {
-            var copy = new ChunkChunkBlockLight();
+            var copy = new ChunkBlockLight();
             for (var x = 0; x < ChunkSize; x++)
             for (var y = 0; y < ChunkSize; y++)
             for (var z = 0; z < ChunkSize; z++)
@@ -32,7 +33,7 @@ namespace DigBuild.Worlds
 
         private static byte GetCurrent(IReadOnlyWorld world, BlockPos pos)
         {
-            return (world.GetChunk(pos.ChunkPos)?.Get(IChunkBlockLight.Type) as ChunkChunkBlockLight)?.Get(pos.SubChunkPos) ?? 0;
+            return (world.GetChunk(pos.ChunkPos)?.Get(IChunkBlockLight.Type) as ChunkBlockLight)?.Get(pos.SubChunkPos) ?? 0;
         }
 
         private static byte Get(IReadOnlyWorld world, BlockPos pos, Direction direction)
@@ -81,7 +82,7 @@ namespace DigBuild.Worlds
                 return;
 
             var chunk = world.GetChunk(pos.ChunkPos);
-            if (chunk?.Get(IChunkBlockLight.Type) is not ChunkChunkBlockLight storage)
+            if (chunk?.Get(IChunkBlockLight.Type) is not ChunkBlockLight storage)
                 return;
 
             var sub = pos.SubChunkPos;
@@ -92,5 +93,10 @@ namespace DigBuild.Worlds
             foreach (var direction in Directions.All)
                 Update(world, pos.Offset(direction));
         }
+
+        public static ISerdes<IChunkBlockLight> Serdes { get; } = new SimpleSerdes<IChunkBlockLight>(
+            (stream, light) => { },
+            stream => new ChunkBlockLight()
+        );
     }
 }

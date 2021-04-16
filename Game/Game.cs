@@ -68,9 +68,9 @@ namespace DigBuild
 
             _world.BlockChanged += pos =>
             {
-                ChunkChunkBlockLight.Update(_world, pos);
+                ChunkBlockLight.Update(_world, pos);
                 foreach (var direction in Directions.All)
-                    ChunkChunkBlockLight.Update(_world, pos.Offset(direction));
+                    ChunkBlockLight.Update(_world, pos.Offset(direction));
             };
         }
 

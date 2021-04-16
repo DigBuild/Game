@@ -56,6 +56,7 @@ namespace DigBuild.Registries
             worldStorageTypes.Built += reg =>
             {
                 BuiltInRegistries.WorldStorageTypes = reg;
+                DataContainer<IWorld>.Registry = reg;
                 WorldStorageTypes = reg;
             };
 
@@ -67,6 +68,7 @@ namespace DigBuild.Registries
             chunkStorageTypes.Built += reg =>
             {
                 BuiltInRegistries.ChunkStorageTypes = reg;
+                DataContainer<IChunk>.Registry = reg;
                 ChunkStorageTypes = reg;
             };
             
@@ -105,7 +107,11 @@ namespace DigBuild.Registries
             
             var blocks = manager.CreateRegistryOf<Block>(new ResourceName(Game.Domain, "blocks"));
             blocks.Building += GameBlocks.Register;
-            blocks.Built += reg => Blocks = reg;
+            blocks.Built += reg =>
+            {
+                BuiltInRegistries.Blocks = reg;
+                Blocks = reg;
+            };
             
             
             var itemEvents = manager.CreateExtendedRegistryOfTypes<IItemEvent, ItemEventInfo>(

@@ -4,7 +4,6 @@ using DigBuild.Engine.Entities;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Ticking;
-using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Worlds
@@ -18,8 +17,8 @@ namespace DigBuild.Worlds
 
         public event Action<BlockPos>? BlockChanged;
 
-        public World(WorldGenerator generator, IStableTickSource tickSource) :
-            base(generator, pos => new RegionStorage(), tickSource)
+        public World(IChunkProvider generator, IStableTickSource tickSource) :
+            base(generator, pos => new RegionStorage(pos), tickSource)
         {
             TickScheduler = new Scheduler(tickSource);
             tickSource.Tick += () =>

@@ -13,7 +13,7 @@ namespace DigBuild.Registries
         {
             IChunkBlockLight.Type = registry.Create<IChunk, IReadOnlyChunkBlockLight, IChunkBlockLight>(
                 new ResourceName(Game.Domain, "block_light"),
-                () => new ChunkChunkBlockLight()
+                () => new ChunkBlockLight(), ChunkBlockLight.Serdes
             );
         }
     }
