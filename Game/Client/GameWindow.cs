@@ -521,8 +521,9 @@ namespace DigBuild.Client
                 widthHint: 1280,
                 heightHint: 720
             );
-            _tickSource.Start(surface.Closed);
+            _tickSource.Start();
             await surface.Closed;
+            _tickSource.Stop();
         }
 
         public void OnChunkChanged(IChunk chunk)
