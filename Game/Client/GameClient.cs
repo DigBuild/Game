@@ -7,10 +7,8 @@ namespace DigBuild.Client
     public sealed class GameClient : IDisposable
     {
         public static GameClient? Instance { get; internal set; }
-
-        private ClientNetworkManager? _networkManager;
-
-        public Connection? Connection => _networkManager?.Connection;
+        
+        public GameState? State { get; private set; }
 
         public GameClient()
         {
@@ -19,15 +17,19 @@ namespace DigBuild.Client
 
         public void Dispose()
         {
-            _networkManager?.Dispose();
+            State?.Dispose();
         }
 
         public void Connect(string hostname, int port)
         {
-            if (_networkManager != null)
-                throw new Exception("Already connected.");
+            if (State != null)
+                throw new Exception("Already in game.");
 
-            _networkManager = new ClientNetworkManager(hostname, port, GameRegistries.NetworkPackets);
+            var networkManager = new ClientNetworkManager(hostname, port, GameRegistries.NetworkPackets);
+
+            State = new GameState(networkManager);
+
+            networkManager.Connection.StartHandlingPackets();
         }
     }
 }

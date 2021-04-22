@@ -96,8 +96,9 @@ namespace DigBuild
 
             if (args.Length == 1 && args[0] == "--server")
             {
-                var server = new GameServer(1234);
+                var server = new GameServer();
                 Console.WriteLine("Server started!");
+                server.Start();
                 server.Running.Wait();
                 Console.WriteLine("Server closed!");
                 server.Dispose();
@@ -108,8 +109,9 @@ namespace DigBuild
                 Console.WriteLine("Started client!");
                 client.Connect("localhost", 1234);
                 Console.WriteLine("Connected to server!");
-                
-                Thread.Sleep(new TimeSpan(0, 0, 0, 10));
+                client.State!.Ready.Wait();
+                client.State!.Run();
+                client.State!.Running.Wait();
                 client.Dispose();
             }
 

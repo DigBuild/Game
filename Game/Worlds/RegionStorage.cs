@@ -21,31 +21,34 @@ namespace DigBuild.Worlds
 
         public bool TryLoad(RegionChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
         {
-            using var lck = _locks.Lock(pos);
+            chunk = null;
+            return false;
 
-            var path = GetPath(pos);
-
-            if (!File.Exists(path))
-            {
-                chunk = null;
-                return false;
-            }
-
-            var stream = File.OpenRead(path);
-            chunk = Chunk.Serdes.Deserialize(stream);
-            stream.Close();
-
-            return true;
+            // using var lck = _locks.Lock(pos);
+            //
+            // var path = GetPath(pos);
+            //
+            // if (!File.Exists(path))
+            // {
+            //     chunk = null;
+            //     return false;
+            // }
+            //
+            // var stream = File.OpenRead(path);
+            // chunk = Chunk.Serdes.Deserialize(stream);
+            // stream.Close();
+            //
+            // return true;
         }
 
         public void Save(Chunk chunk)
         {
-            using var lck = _locks.Lock(chunk.Position.RegionChunkPos);
-
-            var stream = File.Create(GetPath(chunk.Position.RegionChunkPos));
-            Chunk.Serdes.Serialize(stream, chunk);
-            stream.Flush();
-            stream.Close();
+            // using var lck = _locks.Lock(chunk.Position.RegionChunkPos);
+            //
+            // var stream = File.Create(GetPath(chunk.Position.RegionChunkPos));
+            // Chunk.Serdes.Serialize(stream, chunk);
+            // stream.Flush();
+            // stream.Close();
         }
 
         private string GetPath(RegionChunkPos pos)

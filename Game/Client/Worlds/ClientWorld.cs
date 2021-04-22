@@ -1,44 +1,50 @@
-using System;
-using DigBuild.Blocks;
+﻿using System;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Ticking;
+using DigBuild.Worlds;
 
-namespace DigBuild.Worlds
+namespace DigBuild.Client.Worlds
 {
-    public sealed class World : WorldBase
+    public sealed class ClientWorld : WorldBase
     {
-        public const float GravityValue = 2.5f * TickSource.TickDurationSeconds;
+        private readonly NetworkChunkProvider _chunkProvider;
         
         private ulong _absoluteTime;
 
         public override ulong AbsoluteTime => _absoluteTime;
-        public override float Gravity => GravityValue;
+        public override float Gravity => World.GravityValue;
         public override Scheduler TickScheduler { get; }
 
         public event Action<EntityInstance>? EntityAdded;
         public event Action<Guid>? EntityRemoved;
         public event Action<BlockPos>? BlockChanged;
 
-        public World(IChunkProvider generator, IStableTickSource tickSource) :
-            base(tickSource, generator, pos => new RegionStorage(pos))
+        public ClientWorld(IStableTickSource tickSource) :
+            this(tickSource, new NetworkChunkProvider(tickSource))
         {
+        }
+
+        private ClientWorld(IStableTickSource tickSource, NetworkChunkProvider chunkProvider) :
+            base(tickSource, chunkProvider, _ => NullRegionStorage.Instance)
+        {
+            _chunkProvider = chunkProvider;
+
             TickScheduler = new Scheduler(tickSource);
             tickSource.Tick += () =>
             {
                 _absoluteTime++;
             };
         }
-
+        
+        public void Add(Chunk chunk)
+        {
+            _chunkProvider.Add(chunk);
+        }
+        
         public override void OnBlockChanged(BlockPos pos)
         {
-            foreach (var face in Directions.All)
-            {
-                var offset = pos.Offset(face);
-                var block = this.GetBlock(offset);
-                block?.OnNeighborChanged(this, offset, face.GetOpposite());
-            }
             BlockChanged?.Invoke(pos);
         }
 

@@ -429,7 +429,7 @@ namespace DigBuild.Client
             new FileSystemResourceProvider(
                 new Dictionary<string, string>
                 {
-                    [Game.Domain] = "../../Game/Resources"
+                    [Game.Domain] = "../../ContentMod/Resources"
                 },
                 true
             )
@@ -483,7 +483,10 @@ namespace DigBuild.Client
                 if (blockModels.ContainsKey(block))
                     continue;
 
-                var baseModel = ResourceManager.Get<SimpleCuboidModel>(block.Name)!;
+                var baseModel = ResourceManager.Get<SimpleCuboidModel>(block.Name);
+                if (baseModel == null)
+                    continue;
+
                 Func<RenderLayer<SimpleVertex>> layer = baseModel.Layer switch
                 {
                     "cutout" => () => WorldRenderLayer.Cutout,
@@ -502,7 +505,9 @@ namespace DigBuild.Client
             {
                 if (!GameRegistries.Blocks.TryGet(item.Name, out var block))
                     continue;
-                ItemModels[item] = new ItemBlockModel(blockModels[block]);
+                if (!blockModels.TryGetValue(block, out var model))
+                    continue;
+                ItemModels[item] = new ItemBlockModel(model);
             }
             
             var entityModels = new Dictionary<Entity, IEntityModel>()
@@ -521,9 +526,12 @@ namespace DigBuild.Client
                 widthHint: 1280,
                 heightHint: 720
             );
+            Task.Run(async () =>
+            {
+                await surface.Closed;
+                _tickSource.Stop();
+            });
             _tickSource.Start();
-            await surface.Closed;
-            _tickSource.Stop();
         }
 
         public void OnChunkChanged(IChunk chunk)
