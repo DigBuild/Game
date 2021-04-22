@@ -1,10 +1,10 @@
 ﻿using System.Collections.Immutable;
+using DigBuild.Content.Registries;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
-using DigBuild.Registries;
 
-namespace DigBuild.Worldgen
+namespace DigBuild.Content.Worldgen
 {
     public sealed class LushnessWorldgenFeature : IWorldgenFeature
     {

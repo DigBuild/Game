@@ -62,7 +62,7 @@ namespace DigBuild.Behaviors
         }
 
         public static ISerdes<ItemEntityData> Serdes { get; } =
-            new CompositeSerdes<ItemEntityData>(() => new ItemEntityData())
+            new CompositeSerdes<ItemEntityData>()
             {
                 {1u, d => d.Item, ItemInstance.Serdes},
                 {2u, d => d.JoinWorldTime, UnmanagedSerdes<long>.NotNull}

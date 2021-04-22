@@ -4,7 +4,7 @@ using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
 using DigBuild.Render;
 
-namespace DigBuild.Blocks.Models
+namespace DigBuild.Content.Blocks.Models
 {
     public sealed class SpinnyTriangleModel : IBlockModel
     {

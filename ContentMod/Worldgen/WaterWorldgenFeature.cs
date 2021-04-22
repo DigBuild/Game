@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Immutable;
+using DigBuild.Content.Registries;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
-using DigBuild.Registries;
 using IWorldgenAttribute = DigBuild.Engine.Worldgen.IWorldgenAttribute;
 using IWorldgenFeature = DigBuild.Engine.Worldgen.IWorldgenFeature;
 
-namespace DigBuild.Worldgen
+namespace DigBuild.Content.Worldgen
 {
     public class WaterWorldgenFeature : IWorldgenFeature
     {

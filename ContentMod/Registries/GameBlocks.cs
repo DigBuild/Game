@@ -1,6 +1,7 @@
 ﻿using System;
 using DigBuild.Behaviors;
-using DigBuild.Blocks;
+using DigBuild.Content.Behaviors;
+using DigBuild.Content.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
@@ -8,7 +9,7 @@ using DigBuild.Engine.Physics;
 using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
 
-namespace DigBuild.Registries
+namespace DigBuild.Content.Registries
 {
     public static class GameBlocks
     {
@@ -28,7 +29,7 @@ namespace DigBuild.Registries
         public static Block Crafter { get; private set; } = null!;
 
         public static Block Glowy { get; private set; } = null!;
-
+        
         internal static void Register(RegistryBuilder<Block> registry)
         {
             Dirt = registry.Create(new ResourceName(Game.Domain, "dirt"),

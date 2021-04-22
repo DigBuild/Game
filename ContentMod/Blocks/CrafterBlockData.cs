@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using DigBuild.Behaviors;
+using DigBuild.Content.Behaviors;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Storage;
 using DigBuild.Recipes;
 
-namespace DigBuild.Blocks
+namespace DigBuild.Content.Blocks
 {
     internal sealed class CrafterBlockData : IData<CrafterBlockData>, IFindCraftingRecipeBehavior, ICraftingUiBehavior
     {

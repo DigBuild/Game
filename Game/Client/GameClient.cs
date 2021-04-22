@@ -15,7 +15,6 @@ namespace DigBuild.Client
         public GameClient()
         {
             Instance = this;
-            GameRegistries.Initialize();
         }
 
         public void Dispose()

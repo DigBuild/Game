@@ -1,9 +1,9 @@
-﻿using DigBuild.Engine.Registries;
+﻿using DigBuild.Content.Worldgen;
+using DigBuild.Engine.Registries;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Platform.Resource;
-using DigBuild.Worldgen;
 
-namespace DigBuild.Registries
+namespace DigBuild.Content.Registries
 {
     public static class WorldgenAttributes
     {

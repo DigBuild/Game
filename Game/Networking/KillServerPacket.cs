@@ -7,7 +7,7 @@ namespace DigBuild.Networking
 {
     public class KillServerPacket : IPacket
     {
-        public void Handle(Connection connection)
+        public void Handle(IConnection connection)
         {
             Console.WriteLine("Oh no.");
             GameServer.Instance?.Stop();

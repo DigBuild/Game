@@ -5,7 +5,7 @@ using DigBuild.Engine.Items;
 using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
 
-namespace DigBuild.Registries
+namespace DigBuild.Content.Registries
 {
     public static class GameItems
     {

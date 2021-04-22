@@ -20,7 +20,7 @@ namespace DigBuild.Players
         
         public EntityInstance Entity { get; }
 
-        public IPhysicalEntity PhysicalEntity => Entity.Type.Get(new EntityContext(Entity), EntityCapabilities.PhysicalEntity)!;
+        public IPhysicalEntity PhysicalEntity => Entity.Get(EntityCapabilities.PhysicalEntity)!;
         public PlayerInventory Inventory { get; } = new();
 
         internal Player(EntityInstance entity)

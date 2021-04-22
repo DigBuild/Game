@@ -306,7 +306,7 @@ namespace DigBuild.Behaviors
         }
 
         public static ISerdes<PhysicalEntityData> Serdes { get; } =
-            new CompositeSerdes<PhysicalEntityData>(() => new PhysicalEntityData())
+            new CompositeSerdes<PhysicalEntityData>()
             {
                 {1u, d => d.InWorld, UnmanagedSerdes<bool>.NotNull},
                 {2u, d => d.OnGround, UnmanagedSerdes<bool>.NotNull},

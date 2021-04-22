@@ -24,17 +24,16 @@ namespace DigBuild.Server
         public GameServer(int port)
         {
             Instance = this;
-            GameRegistries.Initialize();
 
             _networkManager = new ServerNetworkManager(port, GameRegistries.NetworkPackets);
             _networkManager.ClientConnected += OnClientConnected;
             
             var features = new List<IWorldgenFeature>
             {
-                WorldgenFeatures.Terrain,
-                WorldgenFeatures.Water,
-                WorldgenFeatures.Lushness,
-                WorldgenFeatures.Trees
+                // WorldgenFeatures.Terrain,
+                // WorldgenFeatures.Water,
+                // WorldgenFeatures.Lushness,
+                // WorldgenFeatures.Trees
             };
             
             _tickSource = new TickSource();

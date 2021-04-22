@@ -3,7 +3,7 @@ using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Recipes;
 
-namespace DigBuild.Behaviors
+namespace DigBuild.Content.Behaviors
 {
     public interface IFindCraftingRecipeBehavior
     {

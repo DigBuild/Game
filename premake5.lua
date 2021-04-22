@@ -9,6 +9,7 @@ workspace "DigBuild"
     include "Engine/PlatformBindings/PlatformSourceGen"
     include "Engine/Engine"
     include "Game"
+    include "ContentMod"
 
 project "DigBuild.Platform"
     targetdir "bin/%{cfg.buildcfg}"

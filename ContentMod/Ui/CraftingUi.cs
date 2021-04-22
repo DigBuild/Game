@@ -3,8 +3,9 @@ using DigBuild.Engine.Items;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Ui;
 using DigBuild.Render;
+using DigBuild.Ui;
 
-namespace DigBuild.Ui
+namespace DigBuild.Content.Ui
 {
     public static class CraftingUi
     {

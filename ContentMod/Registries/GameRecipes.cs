@@ -1,12 +1,9 @@
-﻿using System;
-using DigBuild.Behaviors;
-using DigBuild.Engine.Blocks;
-using DigBuild.Engine.Items;
+﻿using DigBuild.Engine.Items;
 using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
 using DigBuild.Recipes;
 
-namespace DigBuild.Registries
+namespace DigBuild.Content.Registries
 {
     public static class GameRecipes
     {

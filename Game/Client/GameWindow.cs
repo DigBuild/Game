@@ -475,7 +475,7 @@ namespace DigBuild.Client
 
             var blockModels = new Dictionary<Block, IBlockModel>()
             {
-                [GameBlocks.Crafter] = new SpinnyTriangleModel(_msLoader.Load(Game.Domain, "blocks/stone")!)
+                // [GameBlocks.Crafter] = new SpinnyTriangleModel(_msLoader.Load(Game.Domain, "blocks/stone")!)
             };
 
             foreach (var block in GameRegistries.Blocks.Values)

@@ -8,7 +8,7 @@ namespace DigBuild.Networking
     {
         public int Number { get; init; }
 
-        public void Handle(Connection connection)
+        public void Handle(IConnection connection)
         {
             Console.WriteLine($"Received number: {Number}");
             if (new Random().NextDouble() > 0.6)
@@ -18,7 +18,7 @@ namespace DigBuild.Networking
             }
         }
 
-        public static ISerdes<TestPacket> Serdes { get; } = new CompositeSerdes<TestPacket>(() => new TestPacket())
+        public static ISerdes<TestPacket> Serdes { get; } = new CompositeSerdes<TestPacket>()
         {
             {1u, p => p.Number, UnmanagedSerdes<int>.NotNull}
         };

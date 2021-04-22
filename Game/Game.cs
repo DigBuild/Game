@@ -2,6 +2,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using DigBuild.Client;
+using DigBuild.Engine.Events;
+using DigBuild.Modding;
 using DigBuild.Recipes;
 using DigBuild.Registries;
 using DigBuild.Server;
@@ -84,7 +86,13 @@ namespace DigBuild
 
         public static async Task Main(string[] args)
         {
-            GameRegistries.Initialize();
+            var lifecycleEventBus = new EventBus();
+
+            ModLoader.Instance.LoadMods();
+            foreach (var mod in ModLoader.Instance.Mods)
+                mod.AttachLifecycleEvents(lifecycleEventBus);
+
+            GameRegistries.Initialize(lifecycleEventBus);
 
             if (args.Length == 1 && args[0] == "--server")
             {

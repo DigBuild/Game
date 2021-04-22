@@ -19,7 +19,7 @@ namespace DigBuild.Entities.Models
 
         private Matrix4x4 GetTransform(EntityInstance entity)
         {
-            var joinWorldTime = entity.Type.Get(new EntityContext(entity), EntityAttributes.ItemJoinWorldTime)!.Value;
+            var joinWorldTime = entity.Get(EntityAttributes.ItemJoinWorldTime)!.Value;
 
             const double rate = 0.25;
             var time = (float) ((DateTime.Now.Ticks - joinWorldTime) * rate % TimeSpan.TicksPerSecond / TimeSpan.TicksPerSecond);
@@ -28,12 +28,12 @@ namespace DigBuild.Entities.Models
                    Matrix4x4.CreateRotationY(time * MathF.PI * 2) *
                    Matrix4x4.CreateScale(0.25f) *
                    Matrix4x4.CreateTranslation(0, 0.5f, 0) *
-                   Matrix4x4.CreateTranslation(entity.Type.Get(new EntityContext(entity), EntityAttributes.Position)!.Value);
+                   Matrix4x4.CreateTranslation(entity.Get(EntityAttributes.Position)!.Value);
         }
 
         public void AddGeometry(EntityInstance entity, GeometryBufferSet buffers)
         {
-            var item = entity.Type.Get(new EntityContext(entity), EntityAttributes.Item)!;
+            var item = entity.Get(EntityAttributes.Item)!;
             if (!_itemModels.TryGetValue(item.Type, out var model))
                 return;
 
@@ -45,7 +45,7 @@ namespace DigBuild.Entities.Models
 
         public void AddDynamicGeometry(EntityInstance entity, GeometryBufferSet buffers)
         {
-            var item = entity.Type.Get(new EntityContext(entity), EntityAttributes.Item)!;
+            var item = entity.Get(EntityAttributes.Item)!;
             if (!_itemModels.TryGetValue(item.Type, out var model) || !model.HasDynamicGeometry)
                 return;
 

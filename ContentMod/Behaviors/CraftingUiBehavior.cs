@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using DigBuild.Blocks;
 using DigBuild.Client;
+using DigBuild.Content.Ui;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Items;
 using DigBuild.Ui;
 
-namespace DigBuild.Behaviors
+namespace DigBuild.Content.Behaviors
 {
     public interface ICraftingUiBehavior
     {
