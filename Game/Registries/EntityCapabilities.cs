@@ -30,7 +30,7 @@ namespace DigBuild.Registries
     {
         public static EntityInstance WithPosition(this EntityInstance entity, Vector3 position)
         {
-            var physicalEntity = entity.Type.Get(new EntityContext(entity), EntityCapabilities.PhysicalEntity);
+            var physicalEntity = entity.Get(EntityCapabilities.PhysicalEntity);
             if (physicalEntity == null)
                 throw new ArgumentException("Cannot set position on a non-physical entity.");
             physicalEntity.Position = position;
@@ -38,7 +38,7 @@ namespace DigBuild.Registries
         }
         public static EntityInstance WithItem(this EntityInstance entity, ItemInstance item)
         {
-            var itemEntity = entity.Type.Get(new EntityContext(entity), EntityCapabilities.ItemEntity);
+            var itemEntity = entity.Get(EntityCapabilities.ItemEntity);
             if (itemEntity == null)
                 throw new ArgumentException("Cannot set item on a non-item entity.");
             itemEntity.Item = item;

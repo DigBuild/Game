@@ -13,7 +13,7 @@ namespace DigBuild.Items
             registry.Register((Punch _) => Punch.Result.Fail);
         }
 
-        public sealed class Activate : ItemContext, IItemEvent<Activate.Result>
+        public sealed class Activate : ItemEventBase, IItemEvent<Activate.Result>
         {
             public readonly IPlayer Player;
             public readonly WorldRayCastContext.Hit? Hit;
@@ -30,7 +30,7 @@ namespace DigBuild.Items
             }
         }
 
-        public sealed class Punch : ItemContext, IItemEvent<Punch.Result>
+        public sealed class Punch : ItemEventBase, IItemEvent<Punch.Result>
         {
             public readonly IPlayer Player;
             public readonly WorldRayCastContext.Hit? Hit;
@@ -64,6 +64,11 @@ namespace DigBuild.Items
             return item.Post<ItemEvent.Activate, ItemEvent.Activate.Result>(new ItemEvent.Activate(instance, player, hit));
         }
 
+        public static ItemEvent.Activate.Result OnActivate(this ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit)
+        {
+            return instance.Type.OnActivate(instance, player, hit);
+        }
+
         public static void Subscribe<TReadOnlyData, TData>(
             this IItemBehaviorBuilder<TReadOnlyData, TData> builder,
             ItemEventDelegate<TData, ItemEvent.Punch, ItemEvent.Punch.Result> onPunch
@@ -76,6 +81,11 @@ namespace DigBuild.Items
         public static ItemEvent.Punch.Result OnPunch(this Item item, ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit)
         {
             return item.Post<ItemEvent.Punch, ItemEvent.Punch.Result>(new ItemEvent.Punch(instance, player, hit));
+        }
+
+        public static ItemEvent.Punch.Result OnPunch(this ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit)
+        {
+            return instance.Type.OnPunch(instance, player, hit);
         }
     }
 }
