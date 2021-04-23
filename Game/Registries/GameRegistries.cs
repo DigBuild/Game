@@ -5,7 +5,6 @@ using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Events;
 using DigBuild.Engine.Items;
-using DigBuild.Engine.Networking;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Storage;
 using DigBuild.Engine.Ticking;
@@ -46,8 +45,6 @@ namespace DigBuild.Registries
         public static Registry<IWorldgenFeature> WorldgenFeatures { get; private set; } = null!;
 
         public static Registry<ICraftingRecipe> CraftingRecipes { get; private set; } = null!;
-        
-        public static ExtendedTypeRegistry<IPacket, IPacketType> NetworkPackets { get; private set; } = null!;
 
         internal static void Initialize(EventBus bus)
         {
@@ -203,17 +200,6 @@ namespace DigBuild.Registries
             var craftingRecipes = manager.CreateRegistryOf<ICraftingRecipe>(new ResourceName(Game.Domain, "crafting_recipes"));
             craftingRecipes.Building += reg => bus.Post(new RegistryBuildingEvent<ICraftingRecipe>(reg));
             craftingRecipes.Built += reg => CraftingRecipes = reg;
-
-            
-            var networkPackets = manager.CreateExtendedRegistryOfTypes<IPacket, IPacketType>(
-                new ResourceName(Game.Domain, "network_packets"), _ => true
-            );
-            networkPackets.Building += GamePackets.Register;
-            // networkPackets.Building += reg => bus.Post(new ExtendedTypeRegistryBuildingEvent<IPacket, IPacketType>(reg));
-            networkPackets.Built += reg =>
-            {
-                NetworkPackets = reg;
-            };
 
 
             manager.BuildAll();

@@ -7,14 +7,13 @@ using DigBuild.Engine.Worldgen;
 using DigBuild.Registries;
 using DigBuild.Serialization;
 
-namespace DigBuild.Server
+namespace DigBuild
 {
-    public sealed class ServerConfig
+    public sealed class Config
     {
         [JsonIgnore]
         private string _path = null!;
-
-        public ushort Port { get; set; } = 1234;
+        
         public WorldgenT Worldgen { get; set; } = new();
         
         public sealed class WorldgenT
@@ -44,16 +43,16 @@ namespace DigBuild.Server
             File.WriteAllText(_path, fileContents);
         }
 
-        public static ServerConfig Load(string path)
+        public static Config Load(string path)
         {
-            var cfg = default(ServerConfig);
+            var cfg = default(Config);
             
             var fileContents = File.Exists(path) ? File.ReadAllText(path) : null;
             if (fileContents != null)
             {
                 try
                 {
-                    cfg = JsonSerializer.Deserialize<ServerConfig>(fileContents, new JsonSerializerOptions
+                    cfg = JsonSerializer.Deserialize<Config>(fileContents, new JsonSerializerOptions
                     {
                         AllowTrailingCommas = true,
                         ReadCommentHandling = JsonCommentHandling.Skip,
@@ -71,7 +70,7 @@ namespace DigBuild.Server
                 }
             }
 
-            cfg ??= new ServerConfig();
+            cfg ??= new Config();
             cfg._path = path;
             
             cfg.Save();

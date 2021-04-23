@@ -13,15 +13,14 @@ namespace DigBuild
         private const long SystemTicksPerGameTick = TimeSpan.TicksPerSecond / TicksPerSecond;
         
         private Interpolator _interpolator;
-        private bool _stop;
 
         public event Action? Tick;
 
         public IInterpolator CurrentTick => _interpolator;
         
-        public void Start()
+        public void Start(Task windowClosed)
         {
-            while (!_stop)
+            while (!windowClosed.IsCompleted)
             {
                 long elapsed;
                 lock (this)
@@ -35,11 +34,6 @@ namespace DigBuild
                 if (remainder > 0)
                     Thread.Sleep(new TimeSpan(remainder));
             }
-        }
-
-        public void Stop()
-        {
-            _stop = true;
         }
 
         private readonly struct Interpolator : IInterpolator

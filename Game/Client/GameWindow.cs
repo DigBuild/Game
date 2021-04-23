@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -526,12 +525,7 @@ namespace DigBuild.Client
                 widthHint: 1280,
                 heightHint: 720
             );
-            Task.Run(async () =>
-            {
-                await surface.Closed;
-                _tickSource.Stop();
-            });
-            _tickSource.Start();
+            _tickSource.Start(surface.Closed);
         }
 
         public void OnChunkChanged(IChunk chunk)
