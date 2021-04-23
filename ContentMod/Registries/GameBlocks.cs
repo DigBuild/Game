@@ -27,8 +27,11 @@ namespace DigBuild.Content.Registries
         public static Block Leaves { get; private set; } = null!;
         public static Block StoneStairs { get; private set; } = null!;
         public static Block Crafter { get; private set; } = null!;
-
+        
         public static Block Glowy { get; private set; } = null!;
+
+        
+        public static Block Multiblock { get; private set; } = null!;
         
         internal static void Register(RegistryBuilder<Block> registry)
         {
@@ -85,6 +88,12 @@ namespace DigBuild.Content.Registries
             Glowy = registry.Create(new ResourceName(Game.Domain, "glowy"),
                 Drops(() => GameItems.Glowy)
             );
+
+            Multiblock = registry.Create(new ResourceName(Game.Domain, "multiblock"), builder =>
+            {
+                var data = builder.Add<MultiblockData>();
+                builder.Attach(new MultiblockBehavior(), data);
+            });
         }
 
         private static Action<BlockBuilder> Drops(Func<Item> itemSupplier, ushort amount = 1)

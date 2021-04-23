@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using DigBuild.Behaviors;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
+using DigBuild.Engine.Math;
 using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
 
@@ -20,6 +22,8 @@ namespace DigBuild.Content.Registries
         public static Item Crafter { get; private set; } = null!;
         
         public static Item Glowy { get; private set; } = null!;
+
+        public static Item Multiblock { get; private set; } = null!;
 
         internal static void Register(RegistryBuilder<Item> registry)
         {
@@ -54,6 +58,16 @@ namespace DigBuild.Content.Registries
             Glowy = registry.Create(new ResourceName(Game.Domain, "glowy"),
                 BlockPlacement(() => GameBlocks.Glowy)
             );
+            
+            Multiblock = registry.Create(new ResourceName(Game.Domain, "multiblock"), builder =>
+            {
+                builder.Attach(new PlaceMultiblockBehavior(() => new Dictionary<Vector3I, Block>()
+                {
+                    [new Vector3I(0, 0, 0)] = GameBlocks.Multiblock,
+                    [new Vector3I(0, 0, 1)] = GameBlocks.Multiblock,
+                    [new Vector3I(0, 1, 1)] = GameBlocks.Multiblock,
+                }));
+            });
         }
 
         private static Action<ItemBuilder> BlockPlacement(Func<Block> blockSupplier)

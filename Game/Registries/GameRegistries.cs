@@ -12,9 +12,9 @@ using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
 using DigBuild.Entities;
 using DigBuild.Events;
+using DigBuild.Items;
 using DigBuild.Platform.Resource;
 using DigBuild.Recipes;
-using ItemEvent = DigBuild.Items.ItemEvent;
 
 namespace DigBuild.Registries
 {
@@ -105,6 +105,7 @@ namespace DigBuild.Registries
             };
             
             var blockCapabilities = manager.CreateRegistryOf<IBlockCapability>(new ResourceName(Game.Domain, "block_capabilities"));
+            blockCapabilities.Building += Registries.BlockCapabilities.Register;
             blockCapabilities.Building += reg => bus.Post(new RegistryBuildingEvent<IBlockCapability>(reg));
             blockCapabilities.Built += reg =>
             {

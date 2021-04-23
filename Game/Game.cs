@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using DigBuild.Client;
 using DigBuild.Engine.Events;
+using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Worldgen;
@@ -58,6 +59,9 @@ namespace DigBuild
             // _player.Inventory.Hotbar[4].Item = new ItemInstance(GameItems.Log, 64);
             // _player.Inventory.Hotbar[5].Item = new ItemInstance(GameItems.Leaves, 64);
             // _player.Inventory.Hotbar[6].Item = new ItemInstance(GameItems.LogSmall, 64);
+
+            var multiblock = GameRegistries.Items.GetOrNull(Domain, "multiblock")!;
+            _player.Inventory.Hotbar[0].Item = new ItemInstance(multiblock, 64);
             
             _window = new GameWindow(_tickSource, _player, _input, _rayCastContext);
             
