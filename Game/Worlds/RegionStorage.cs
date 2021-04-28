@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
@@ -23,19 +24,28 @@ namespace DigBuild.Worlds
         {
             using var lck = _locks.Lock(pos);
 
-            var path = GetPath(pos);
-
-            if (!File.Exists(path))
+            try
             {
+                var path = GetPath(pos);
+
+                if (!File.Exists(path))
+                {
+                    chunk = null;
+                    return false;
+                }
+
+                var stream = File.OpenRead(path);
+                chunk = Chunk.Serdes.Deserialize(stream);
+                stream.Close();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"There was an error while loading chunk at {Position + pos}. Skipping. Error: {e.Message}");
                 chunk = null;
                 return false;
             }
-
-            var stream = File.OpenRead(path);
-            chunk = Chunk.Serdes.Deserialize(stream);
-            stream.Close();
-
-            return true;
         }
 
         public void Save(Chunk chunk)
