@@ -3,6 +3,7 @@ using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Serialization;
+using DigBuild.Engine.Storage;
 using DigBuild.Engine.Worlds;
 using DigBuild.Registries;
 
@@ -12,13 +13,23 @@ namespace DigBuild.Worlds
     {
         private const uint ChunkSize = 16;
 
-        private readonly byte[,,] _values = new byte[ChunkSize, ChunkSize, ChunkSize];
+        // private readonly byte[,,] _values = new byte[ChunkSize, ChunkSize, ChunkSize];
+        private readonly IOctree<int> _values = new Octree<int>(3, 0);
 
         public event Action? Changed;
 
         public byte Get(ChunkBlockPosition pos)
         {
-            return _values[pos.X, pos.Y, pos.Z];
+            var clusterValue = _values[pos.X >> 1, pos.Y >> 1, pos.Z >> 1];
+            return (byte) ((clusterValue >> (4 * (((pos.X & 1) << 2) | ((pos.Y & 1) << 1) | ((pos.Z & 1) << 0)))) & 0xF);
+        }
+
+        public void Set(ChunkBlockPosition pos, byte value)
+        {
+            var clusterValue = _values[pos.X >> 1, pos.Y >> 1, pos.Z >> 1];
+            var position = 1 << (4 * (((pos.X & 1) << 2) | ((pos.Y & 1) << 1) | ((pos.Z & 1) << 0)));
+            var newValue = (clusterValue & ~(0xF * position)) | (value * position);
+            _values[pos.X >> 1, pos.Y >> 1, pos.Z >> 1] = newValue;
         }
         
         public IChunkBlockLight Copy()
@@ -84,9 +95,8 @@ namespace DigBuild.Worlds
             var chunk = world.GetChunk(pos.ChunkPos);
             if (chunk?.Get(IChunkBlockLight.Type) is not ChunkBlockLight storage)
                 return;
-
-            var sub = pos.SubChunkPos;
-            storage._values[sub.X, sub.Y, sub.Z] = computed;
+            
+            storage.Set(pos.SubChunkPos, computed);
             // ((World) world).ChunkManager.OnBlockChanged(pos);
             storage.Changed?.Invoke();
             
