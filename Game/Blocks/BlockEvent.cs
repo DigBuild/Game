@@ -1,9 +1,11 @@
 ﻿using DigBuild.Engine.Blocks;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Impl.Worlds;
+using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Worlds;
+using DigBuild.Players;
 using DigBuild.Worlds;
 
 namespace DigBuild.Blocks
@@ -72,8 +74,14 @@ namespace DigBuild.Blocks
 
         public sealed class Placed : BlockContext, IBlockEvent
         {
-            public Placed(IWorld world, BlockPos pos, Block block) : base(world, pos, block)
+            public ItemInstance Item { get; }
+            public IPlayer Player { get; }
+
+            public Placed(IWorld world, BlockPos pos, Block block, ItemInstance item, IPlayer player) :
+                base(world, pos, block)
             {
+                Item = item;
+                Player = player;
             }
         }
 
@@ -138,9 +146,9 @@ namespace DigBuild.Blocks
             builder.Subscribe(onPlaced);
         }
 
-        public static void OnPlaced(this Block block, IWorld world, BlockPos pos)
+        public static void OnPlaced(this Block block, IWorld world, BlockPos pos, ItemInstance item, IPlayer player)
         {
-            block.Post(new BlockEvent.Placed(world, pos, block));
+            block.Post(new BlockEvent.Placed(world, pos, block, item, player));
         }
         
         public static void Subscribe<TReadOnlyData, TData>(

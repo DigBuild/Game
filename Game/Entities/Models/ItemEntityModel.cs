@@ -31,26 +31,14 @@ namespace DigBuild.Entities.Models
                    Matrix4x4.CreateTranslation(entity.Get(EntityAttributes.Position)!.Value);
         }
 
-        public void AddGeometry(EntityInstance entity, GeometryBufferSet buffers)
+        public void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, float partialTick)
         {
-            var item = entity.Get(EntityAttributes.Item)!;
-            if (!_itemModels.TryGetValue(item.Type, out var model))
-                return;
-
-            buffers.Transform = GetTransform(entity) * buffers.Transform;
-            model.AddGeometry(ItemModelTransform.None, buffers);
-        }
-
-        public bool HasDynamicGeometry => true;
-
-        public void AddDynamicGeometry(EntityInstance entity, GeometryBufferSet buffers)
-        {
-            var item = entity.Get(EntityAttributes.Item)!;
-            if (!_itemModels.TryGetValue(item.Type, out var model) || !model.HasDynamicGeometry)
-                return;
-
-            buffers.Transform = GetTransform(entity) * buffers.Transform;
-            model.AddDynamicGeometry(ItemModelTransform.None, buffers);
+            // var item = entity.Get(EntityAttributes.Item)!;
+            // if (!_itemModels.TryGetValue(item.Type, out var model))
+            //     return;
+            //
+            // buffers.Transform = GetTransform(entity) * buffers.Transform;
+            // model.AddGeometry(ItemModelTransform.None, buffers);
         }
     }
 }

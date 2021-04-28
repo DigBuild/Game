@@ -15,8 +15,8 @@ namespace DigBuild.Items
 
         public sealed class Activate : ItemEventBase, IItemEvent<Activate.Result>
         {
-            public readonly IPlayer Player;
-            public readonly WorldRayCastContext.Hit? Hit;
+            public IPlayer Player { get; }
+            public WorldRayCastContext.Hit? Hit { get; }
 
             public Activate(ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit) : base(instance)
             {
@@ -32,8 +32,8 @@ namespace DigBuild.Items
 
         public sealed class Punch : ItemEventBase, IItemEvent<Punch.Result>
         {
-            public readonly IPlayer Player;
-            public readonly WorldRayCastContext.Hit? Hit;
+            public IPlayer Player { get; }
+            public WorldRayCastContext.Hit? Hit { get; }
 
             public Punch(ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit) : base(instance)
             {

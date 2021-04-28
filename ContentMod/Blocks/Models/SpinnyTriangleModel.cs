@@ -15,7 +15,7 @@ namespace DigBuild.Content.Blocks.Models
             _sprite = sprite;
         }
 
-        public void AddGeometry(DirectionFlags faces, GeometryBufferSet buffers, Func<Direction, byte> light)
+        public void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, Func<Direction, byte> light, DirectionFlags faces)
         {
         }
 
@@ -23,7 +23,7 @@ namespace DigBuild.Content.Blocks.Models
 
         public bool HasDynamicGeometry => true;
 
-        public void AddDynamicGeometry(GeometryBufferSet buffers, Func<Direction, byte> light)
+        public void AddDynamicGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, Func<Direction, byte> light, float partialTick)
         {
             var angle = (DateTime.Now.Ticks % TimeSpan.TicksPerSecond) / (double) TimeSpan.TicksPerSecond;
             var matrix = Matrix4x4.CreateRotationY((float) (angle * 2 * Math.PI), Vector3.One / 2);

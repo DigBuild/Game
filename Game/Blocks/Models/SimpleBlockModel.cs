@@ -56,11 +56,35 @@ namespace DigBuild.Blocks.Models
                 _vertices[(int) direction] = vertices[direction].ToArray();
         }
 
-        public void AddGeometry(DirectionFlags faces, GeometryBufferSet buffers, Func<Direction, byte> light)
+        public void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, Func<Direction, byte> light, DirectionFlags faces)
         {
+            var transform = buffers.Transform;
+            
+            var modelData = data.Get<JsonModelData>();
+            if (modelData != null)
+            {
+                switch (modelData["direction"])
+                {
+                    case "negx":
+                        buffers.Transform = Matrix4x4.CreateRotationY(MathF.PI, Vector3.One / 2) * transform;
+                        break;
+                    case "posx":
+                        buffers.Transform = Matrix4x4.CreateRotationY(0, Vector3.One / 2) * transform;
+                        break;
+                    case "negz":
+                        buffers.Transform = Matrix4x4.CreateRotationY(MathF.PI/2, Vector3.One / 2) * transform;
+                        break;
+                    case "posz":
+                        buffers.Transform = Matrix4x4.CreateRotationY(3*MathF.PI/2, Vector3.One / 2) * transform;
+                        break;
+                }
+            }
+
             var buf = buffers.Get(Layer());
             foreach (var face in Directions.In(faces))
                 buf.Accept(_vertices[(int) face].WithBrightness(light(face) / 15f));
+
+            buffers.Transform = transform;
         }
 
         public bool IsFaceSolid(Direction face) => _model.Solid;

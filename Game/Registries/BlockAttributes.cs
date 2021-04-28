@@ -13,7 +13,10 @@ namespace DigBuild.Registries
         public static BlockAttribute<IRayCollider<VoxelRayCollider.Hit>> RayCollider { get; private set; } = null!;
 
         public static BlockAttribute<LightEmission> LightEmission { get; private set; } = null!;
-        
+
+        public static BlockAttribute<Direction?> Direction { get; private set; } = null!;
+        public static BlockAttribute<Direction?> HorizontalDirection { get; private set; } = null!;
+
         internal static void Register(RegistryBuilder<IBlockAttribute> registry)
         {
             Collider = registry.Register<ICollider>(
@@ -28,6 +31,15 @@ namespace DigBuild.Registries
             LightEmission = registry.Register(
                 new ResourceName(Game.Domain, "light_emission"),
                 new LightEmission(0)
+            );
+
+            Direction = registry.Register(
+                new ResourceName(Game.Domain, "direction"),
+                (Direction?) null
+            );
+            HorizontalDirection = registry.Register(
+                new ResourceName(Game.Domain, "horizontal_direction"),
+                (Direction?) null
             );
         }
     }

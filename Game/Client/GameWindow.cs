@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -683,7 +683,8 @@ namespace DigBuild.Client
 
             lock (_tickSource)
             {
-                var camera = _player.GetCamera(_tickSource.CurrentTick.Value);
+                var partialTick = _tickSource.CurrentTick.Value;
+                var camera = _player.GetCamera(partialTick);
                 var hit = Raycast.Cast(_rayCastContext, camera.Ray);
                 var physicalProjMat = Matrix4x4.CreatePerspectiveFieldOfView(
                     camera.FieldOfView, surface.Width / (float) surface.Height, 0.001f, 500f
@@ -715,7 +716,7 @@ namespace DigBuild.Client
                     cmd.Using(Resources.SkyPipeline, Resources.SkyUniformBuffer, 0);
                     cmd.Draw(Resources.SkyPipeline, Resources.CompVertexBuffer);
                     
-                    _worldRenderManager.SubmitGeometry(context, cmd, renderProjMat, camera, viewFrustum);
+                    _worldRenderManager.SubmitGeometry(context, cmd, renderProjMat, camera, viewFrustum, partialTick);
                     
                     if (hit != null)
                     {
@@ -758,7 +759,7 @@ namespace DigBuild.Client
                 _uiGbs.Clear();
                 _uiGbs.Transform = Matrix4x4.Identity;
                 _uiGbs.TransformNormal = false;
-                _ui.Draw(context, _uiGbs);
+                _ui.Draw(context, _uiGbs, partialTick);
 
                 var uiProjection = Matrix4x4.CreateOrthographic(surface.Width, surface.Height, -100, 100) *
                                    Matrix4x4.CreateTranslation(-1, -1, 0);

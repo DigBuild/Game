@@ -33,7 +33,7 @@ namespace DigBuild.Behaviors
             if (!world.SetBlock(pos, block, true, false))
                 return ItemEvent.Activate.Result.Fail;
 
-            block.OnPlaced(world, pos);
+            block.OnPlaced(world, pos, evt.Item, evt.Player);
             evt.Item.Count--;
             return ItemEvent.Activate.Result.Success;
         }

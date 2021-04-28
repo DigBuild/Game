@@ -51,16 +51,16 @@ namespace DigBuild
             _world = new World(generator, _tickSource);
             _rayCastContext = new WorldRayCastContext(_world);
 
-            _player = new PlayerController(_world.AddPlayer(new Vector3(0, 50, 0)));
+            _player = new PlayerController(_world.AddPlayer(new Vector3(0, 30, 0)));
             // _player.Inventory.Hotbar[0].Item = new ItemInstance(GameItems.Stone, 64);
             // _player.Inventory.Hotbar[1].Item = new ItemInstance(GameItems.Dirt, 64);
             // _player.Inventory.Hotbar[2].Item = new ItemInstance(GameItems.Crafter, 64);
             // _player.Inventory.Hotbar[3].Item = new ItemInstance(GameItems.Glowy, 64);
             // _player.Inventory.Hotbar[4].Item = new ItemInstance(GameItems.Log, 64);
-            // _player.Inventory.Hotbar[5].Item = new ItemInstance(GameItems.Leaves, 64);
-            // _player.Inventory.Hotbar[6].Item = new ItemInstance(GameItems.LogSmall, 64);
+            _player.Inventory.Hotbar[5].Item = new ItemInstance(GameRegistries.Items.GetOrNull(Domain, "leaves")!, 64);
+            _player.Inventory.Hotbar[6].Item = new ItemInstance(GameRegistries.Items.GetOrNull(Domain, "log")!, 64);
 
-            var multiblock = GameRegistries.Items.GetOrNull(Domain, "multiblock")!;
+            var multiblock = GameRegistries.Items.GetOrNull(Domain, "stone_stairs")!;
             _player.Inventory.Hotbar[0].Item = new ItemInstance(multiblock, 64);
             
             _window = new GameWindow(_tickSource, _player, _input, _rayCastContext);

@@ -96,6 +96,7 @@ namespace DigBuild.Registries
             };
             
             var blockAttributes = manager.CreateRegistryOf<IBlockAttribute>(new ResourceName(Game.Domain, "block_attributes"));
+            blockAttributes.Building += DigBuildEngine.Register;
             blockAttributes.Building += Registries.BlockAttributes.Register;
             blockAttributes.Building += reg => bus.Post(new RegistryBuildingEvent<IBlockAttribute>(reg));
             blockAttributes.Built += reg =>
@@ -134,6 +135,7 @@ namespace DigBuild.Registries
             };
             
             var itemAttributes = manager.CreateRegistryOf<IItemAttribute>(new ResourceName(Game.Domain, "item_attributes"));
+            itemAttributes.Building += DigBuildEngine.Register;
             itemAttributes.Building += reg => bus.Post(new RegistryBuildingEvent<IItemAttribute>(reg));
             itemAttributes.Built += reg =>
             {
@@ -167,6 +169,7 @@ namespace DigBuild.Registries
             };
             
             var entityAttributes = manager.CreateRegistryOf<IEntityAttribute>(new ResourceName(Game.Domain, "entity_attributes"));
+            entityAttributes.Building += DigBuildEngine.Register;
             entityAttributes.Building += Registries.EntityAttributes.Register;
             entityAttributes.Building += reg => bus.Post(new RegistryBuildingEvent<IEntityAttribute>(reg));
             entityAttributes.Built += reg =>

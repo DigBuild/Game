@@ -55,7 +55,7 @@ namespace DigBuild.Behaviors
             foreach (var (offset, block) in blocks)
             {
                 var pos = origin + offset;
-                block.OnPlaced(world, pos);
+                block.OnPlaced(world, pos, evt.Item, evt.Player);
             }
             
             evt.Item.Count--;
