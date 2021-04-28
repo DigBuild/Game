@@ -696,7 +696,7 @@ namespace DigBuild.Client
                 if (GameInput.ReRender)
                     _worldRenderManager.ReRender(true);
 
-                _worldRenderManager.UpdateChunks(camera, viewFrustum);
+                _worldRenderManager.UpdateChunks(context, camera, viewFrustum);
 
                 var mat = cameraTransform * renderProjMat;
                 mat.Translation = Vector3.Zero;
@@ -760,6 +760,7 @@ namespace DigBuild.Client
                 _uiGbs.Transform = Matrix4x4.Identity;
                 _uiGbs.TransformNormal = false;
                 _ui.Draw(context, _uiGbs, partialTick);
+                _uiGbs.Upload(context);
 
                 var uiProjection = Matrix4x4.CreateOrthographic(surface.Width, surface.Height, -100, 100) *
                                    Matrix4x4.CreateTranslation(-1, -1, 0);
