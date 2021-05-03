@@ -1,0 +1,14 @@
+{
+  "variables": {
+    "textures": {
+      "side": "digbuild:blocks/log_side",
+      "end": "digbuild:blocks/log_end"
+    }
+  },
+  "components": {
+    "cube": {
+      "_type": "digbuild:include",
+      "from": "digbuild:blocks/_pillar_y"
+    }
+  }
+}

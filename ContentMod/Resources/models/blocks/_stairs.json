@@ -1,0 +1,57 @@
+{
+  "constraints": {
+    "rotation": {
+      "type": "integer",
+      "min": 0,
+      "max": 3
+    }
+  },
+  "solid": "${solid|false}",
+  "components": {
+    "base": {
+      "_type": "digbuild:cuboid",
+      "from": [ 0, 0, 0 ],
+      "to": [ 1, 0.5, 1 ],
+      "textures": {
+        "neg_x": "${textures/neg_x}",
+        "pos_x": "${textures/pos_x}",
+        "neg_y": "${textures/neg_y}",
+        "pos_y": "${textures/pos_y}",
+        "neg_z": "${textures/neg_z}",
+        "pos_z": "${textures/pos_z}"
+      },
+      "layer": "${layer|solid}"
+    },
+    "top": {
+      "_type": "digbuild:cuboid",
+      "from": [ 0, 0.5, 0 ],
+      "to": [ 0.5, 1, 1 ],
+      "textures": {
+        "neg_x": "${textures/neg_x}",
+        "pos_x": "${textures/pos_x}",
+        "neg_y": "${textures/neg_y}",
+        "pos_y": "${textures/pos_y}",
+        "neg_z": "${textures/neg_z}",
+        "pos_z": "${textures/pos_z}"
+      },
+      "layer": "${layer|solid}"
+    },
+    "top_transform": {
+      "_type": "digbuild:transform",
+      "input": "top",
+      "rotation": {
+        "axis": "y",
+        "angle": "{{ ${rotation} * 90 }}",
+        "center": [ 0.5, 0.5, 0.5 ]
+      }
+    },
+    "stairs": {
+      "_type": "digbuild:merge",
+      "inputs": [
+        "base",
+        "top_transform"
+      ]
+    }
+  },
+  "output": "stairs"
+}

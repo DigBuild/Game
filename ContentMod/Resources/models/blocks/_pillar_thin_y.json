@@ -1,0 +1,19 @@
+{
+  "solid": "${solid|false}",
+  "components": {
+    "cube": {
+      "_type": "digbuild:cuboid",
+      "from": [ 0.25, 0, 0.25 ],
+      "to": [ 0.75, 1, 0.75 ],
+      "textures": {
+        "neg_x": "${textures/side}",
+        "pos_x": "${textures/side}",
+        "neg_y": "${textures/end}",
+        "pos_y": "${textures/end}",
+        "neg_z": "${textures/side}",
+        "pos_z": "${textures/side}"
+      },
+      "layer": "${layer|solid}"
+    }
+  }
+}

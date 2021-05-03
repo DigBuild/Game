@@ -1,0 +1,12 @@
+{
+  "variables": {
+    "texture": "digbuild:blocks/leaves",
+    "layer": "cutout"
+  },
+  "components": {
+    "cube": {
+      "_type": "digbuild:include",
+      "from": "digbuild:blocks/_cube_all_sides"
+    }
+  }
+}
