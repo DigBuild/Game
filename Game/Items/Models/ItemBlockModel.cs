@@ -7,8 +7,8 @@ namespace DigBuild.Items.Models
 {
     public sealed class ItemBlockModel : IItemModel
     {
-        private static readonly Matrix4x4 Ortho = Matrix4x4.CreateRotationY(-MathF.PI / 4, Vector3.One / 2) *
-                                                  Matrix4x4.CreateRotationX(MathF.PI - MathF.Asin(1 / MathF.Sqrt(3)), Vector3.One / 2);
+        public static Matrix4x4 Ortho { get; } = Matrix4x4.CreateRotationY(-MathF.PI / 4, Vector3.One / 2) *
+                                                 Matrix4x4.CreateRotationX(MathF.PI - MathF.Asin(1 / MathF.Sqrt(3)), Vector3.One / 2);
 
         private static readonly Func<Direction, byte> FullBrightness = _ => 0xF;
 

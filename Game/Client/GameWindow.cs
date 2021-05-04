@@ -471,6 +471,15 @@ namespace DigBuild.Client
             _rayCastContext = rayCastContext;
 
             _msLoader = MultiSprite.Loader(ResourceManager, _blockStitcher);
+            
+            var baseMissingModel = ResourceManager.Get<SimpleCuboidModel>("digbuild", "missing")!;
+            var missingBlockModel = new SimpleBlockModel(baseMissingModel)
+            {
+                Layer = () => WorldRenderLayer.Opaque
+            };
+            var missingItemModel = new ItemBlockModel(missingBlockModel);
+            _unbakedModels.Add(missingBlockModel);
+            missingBlockModel.LoadTextures(_msLoader);
 
             var blockModels = new Dictionary<Block, IBlockModel>()
             {
@@ -484,7 +493,10 @@ namespace DigBuild.Client
 
                 var baseModel = ResourceManager.Get<SimpleCuboidModel>(block.Name);
                 if (baseModel == null)
+                {
+                    blockModels[block] = missingBlockModel;
                     continue;
+                }
 
                 Func<RenderLayer<SimpleVertex>> layer = baseModel.Layer switch
                 {
@@ -502,10 +514,11 @@ namespace DigBuild.Client
 
             foreach (var item in GameRegistries.Items.Values)
             {
-                if (!GameRegistries.Blocks.TryGet(item.Name, out var block))
+                if (!GameRegistries.Blocks.TryGet(item.Name, out var block) || !blockModels.TryGetValue(block, out var model))
+                {
+                    ItemModels[item] = missingItemModel;
                     continue;
-                if (!blockModels.TryGetValue(block, out var model))
-                    continue;
+                }
                 ItemModels[item] = new ItemBlockModel(model);
             }
             
@@ -553,6 +566,7 @@ namespace DigBuild.Client
         private UiLabel _positionLabel = null!;
         private UiLabel _lookLabel = null!;
         private UiLabel _lightLabel = null!;
+        private UiLabel _handLabel = null!;
         private UiInventorySlot[] _hotbarSlots = null!;
         private UiUnboundInventorySlot _pickedSlot = null!;
 
@@ -632,6 +646,7 @@ namespace DigBuild.Client
                 _ui.Add(20, 20, _positionLabel = new UiLabel(""));
                 _ui.Add(20, 50, _lookLabel = new UiLabel(""));
                 _ui.Add(20, 80, _lightLabel = new UiLabel(""));
+                _ui.Add(20, 110, _handLabel = new UiLabel(""));
                 
                 {
                     var off = 60u;
@@ -749,6 +764,7 @@ namespace DigBuild.Client
                 _positionLabel.Text = $"Position: {new BlockPos(_player.PhysicalEntity.Position)}";
                 _lookLabel.Text = $"Look: {hit?.Position} {(hit != null ? _player.Entity.World.GetBlock(hit.BlockPos) : null)}";
                 _lightLabel.Text = $"Light: {(hit == null ? "" : _player.Entity.World.GetLight(hit.BlockPos.Offset(hit.Face)))}";
+                _handLabel.Text = $"Hand: {_player.Inventory.Hand.Item}";
 
                 if (_player.HotbarTransfer)
                 {

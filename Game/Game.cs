@@ -18,7 +18,7 @@ namespace DigBuild
     public class Game : IDisposable
     {
         public const string Domain = "digbuild";
-        public const int ViewRadius = 12;
+        public const int ViewRadius = 5;
         public static CraftingRecipeLookup RecipeLookup { get; private set; } = null!;
 
         private readonly TickSource _tickSource;
@@ -54,7 +54,7 @@ namespace DigBuild
             _player = new PlayerController(_world.AddPlayer(new Vector3(0, 30, 0)));
             // _player.Inventory.Hotbar[0].Item = new ItemInstance(GameItems.Stone, 64);
             // _player.Inventory.Hotbar[1].Item = new ItemInstance(GameItems.Dirt, 64);
-            // _player.Inventory.Hotbar[2].Item = new ItemInstance(GameItems.Crafter, 64);
+            _player.Inventory.Hotbar[2].Item = new ItemInstance(GameRegistries.Items.GetOrNull(Domain, "crafter")!, 64);
             // _player.Inventory.Hotbar[3].Item = new ItemInstance(GameItems.Glowy, 64);
             // _player.Inventory.Hotbar[4].Item = new ItemInstance(GameItems.Log, 64);
             _player.Inventory.Hotbar[5].Item = new ItemInstance(GameRegistries.Items.GetOrNull(Domain, "leaves")!, 64);
