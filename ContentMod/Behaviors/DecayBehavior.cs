@@ -63,6 +63,7 @@ namespace DigBuild.Content.Behaviors
                 {
                     if (evt.World.GetBlock(evt.Pos) == evt.Block)
                     {
+                        evt.Block.OnBreaking(evt.World, evt.Pos);
                         evt.World.SetBlock(evt.Pos, null);
                     }
                 };

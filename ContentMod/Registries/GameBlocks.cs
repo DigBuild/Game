@@ -28,9 +28,6 @@ namespace DigBuild.Content.Registries
         public static Block StoneStairs { get; private set; } = null!;
         public static Block Crafter { get; private set; } = null!;
         
-        public static Block Glowy { get; private set; } = null!;
-
-        
         public static Block Multiblock { get; private set; } = null!;
         
         internal static void Register(RegistryBuilder<Block> registry)
@@ -55,14 +52,19 @@ namespace DigBuild.Content.Registries
             Stone = registry.Create(Game.Domain, "stone",
                 Drops(() => GameItems.Stone)
             );
-            Log = registry.Create(Game.Domain, "log",
-                Drops(() => GameItems.LogSmall)
+            Log = registry.Create(Game.Domain, "log", builder =>
+            {
+                builder.Attach(new VerticalSupportBehavior());
+            },
+                Drops(() => GameItems.Log)
             );
             LogSmall = registry.Create(Game.Domain, "log_small", builder =>
                 {
                     var aabb = new AABB(0.25f, 0, 0.25f, 0.75f, 1, 0.75f);
                     builder.Attach(new ColliderBehavior(new VoxelCollider(aabb)));
                     builder.Attach(new RayColliderBehavior(new VoxelRayCollider(aabb)));
+                    
+                    builder.Attach(new VerticalSupportBehavior());
                 },
                 Drops(() => GameItems.Log)
             );
@@ -74,7 +76,10 @@ namespace DigBuild.Content.Registries
                     block => block == Log || block == LogSmall,
                     block => block == Leaves
                 ));
-            });
+            },
+                Drops(() => GameItems.Sapling, 1, 0.1f),
+                Drops(() => GameItems.Twig, 1, 0.2f)
+            );
 
             StoneStairs = registry.Create(Game.Domain, "stone_stairs", builder =>
                 {
@@ -101,10 +106,7 @@ namespace DigBuild.Content.Registries
                 },
                 Drops(() => GameItems.Crafter)
             );
-
-            Glowy = registry.Create(Game.Domain, "glowy",
-                Drops(() => GameItems.Glowy)
-            );
+            
 
             Multiblock = registry.Create(Game.Domain, "multiblock", builder =>
             {
@@ -113,11 +115,11 @@ namespace DigBuild.Content.Registries
             });
         }
 
-        private static Action<BlockBuilder> Drops(Func<Item> itemSupplier, ushort amount = 1)
+        private static Action<BlockBuilder> Drops(Func<Item> itemSupplier, ushort amount = 1, float probability = 1)
         {
             return builder =>
             {
-                builder.Attach(new DropItemBehavior(() => new ItemInstance(itemSupplier(), amount)));
+                builder.Attach(new DropItemBehavior(() => new ItemInstance(itemSupplier(), amount), probability));
             };
         }
     }

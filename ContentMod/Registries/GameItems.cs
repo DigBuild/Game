@@ -21,7 +21,8 @@ namespace DigBuild.Content.Registries
         public static Item StoneStairs { get; private set; } = null!;
         public static Item Crafter { get; private set; } = null!;
         
-        public static Item Glowy { get; private set; } = null!;
+        public static Item Sapling { get; private set; } = null!;
+        public static Item Twig { get; private set; } = null!;
 
         public static Item Multiblock { get; private set; } = null!;
 
@@ -55,9 +56,8 @@ namespace DigBuild.Content.Registries
                 BlockPlacement(() => GameBlocks.Crafter)
             );
             
-            Glowy = registry.Create(new ResourceName(Game.Domain, "glowy"),
-                BlockPlacement(() => GameBlocks.Glowy)
-            );
+            Sapling = registry.Create(new ResourceName(Game.Domain, "sapling"));
+            Twig = registry.Create(new ResourceName(Game.Domain, "twig"));
             
             Multiblock = registry.Create(new ResourceName(Game.Domain, "multiblock"), builder =>
             {
