@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using DigBuild.Behaviors;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Render;
@@ -17,10 +18,8 @@ namespace DigBuild.Entities.Models
             _itemModels = itemModels;
         }
 
-        private Matrix4x4 GetTransform(EntityInstance entity)
+        private Matrix4x4 GetTransform(long joinWorldTime, Vector3 position)
         {
-            var joinWorldTime = entity.Get(EntityAttributes.ItemJoinWorldTime)!.Value;
-
             const double rate = 0.25;
             var time = (float) ((DateTime.Now.Ticks - joinWorldTime) * rate % TimeSpan.TicksPerSecond / TimeSpan.TicksPerSecond);
             
@@ -28,17 +27,19 @@ namespace DigBuild.Entities.Models
                    Matrix4x4.CreateRotationY(time * MathF.PI * 2) *
                    Matrix4x4.CreateScale(0.25f) *
                    Matrix4x4.CreateTranslation(0, 0.5f, 0) *
-                   Matrix4x4.CreateTranslation(entity.Get(EntityAttributes.Position)!.Value);
+                   Matrix4x4.CreateTranslation(position);
         }
 
         public void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, float partialTick)
         {
-            // var item = entity.Get(EntityAttributes.Item)!;
-            // if (!_itemModels.TryGetValue(item.Type, out var model))
-            //     return;
-            //
-            // buffers.Transform = GetTransform(entity) * buffers.Transform;
-            // model.AddGeometry(ItemModelTransform.None, buffers);
+            var position = data.Get<PhysicalEntityModelData>()!.Position;
+            var itemInfo = data.Get<ItemEntityModelData>()!;
+            
+            if (!_itemModels.TryGetValue(itemInfo.Item.Type, out var model))
+                return;
+            
+            buffers.Transform = GetTransform(itemInfo.JoinWorldTime, position) * buffers.Transform;
+            model.AddGeometry(buffers, data, ItemModelTransform.None, partialTick);
         }
     }
 }

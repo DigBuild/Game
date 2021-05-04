@@ -1,6 +1,7 @@
 ﻿using System;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
+using DigBuild.Engine.Render;
 using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
 using DigBuild.Registries;
@@ -28,6 +29,18 @@ namespace DigBuild.Behaviors
             entity.Add(EntityAttributes.Item, (_, data, _) => data.Item);
             entity.Add(EntityAttributes.ItemJoinWorldTime, (_, data, _) => data.JoinWorldTime);
             entity.Add(EntityCapabilities.ItemEntity, (_, data, _) => data.Capability);
+            entity.Add(ModelData.EntityAttribute, GetModelData);
+        }
+
+        private ModelData GetModelData(IReadOnlyEntityInstance instance, IItemEntityBehavior data, Func<ModelData> next)
+        {
+            var modelData = next();
+            modelData.CreateOrExtend<ItemEntityModelData>(d =>
+            {
+                d.Item = data.Item;
+                d.JoinWorldTime = data.JoinWorldTime;
+            });
+            return modelData;
         }
 
         private sealed class ItemEntity : IItemEntity
@@ -72,5 +85,11 @@ namespace DigBuild.Behaviors
     public interface IItemEntity
     {
         public ItemInstance Item { get; set; }
+    }
+
+    public sealed class ItemEntityModelData
+    {
+        public ItemInstance Item { get; set; }
+        public long JoinWorldTime { get; set; }
     }
 }

@@ -7,6 +7,7 @@ using DigBuild.Engine.Entities;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
+using DigBuild.Engine.Render;
 using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
 using DigBuild.Engine.Ticking;
@@ -59,10 +60,18 @@ namespace DigBuild.Behaviors
         {
             entity.Add(EntityAttributes.Position, (_, data, _) => data.Position);
             entity.Add(EntityCapabilities.PhysicalEntity, (_, data, _) => data.Capability);
+            entity.Add(ModelData.EntityAttribute, GetModelData);
             entity.Subscribe(OnJoinedWorld);
             entity.Subscribe(OnLeavingWorld);
         }
-        
+
+        private ModelData GetModelData(IReadOnlyEntityInstance instance, IPhysicalEntityBehavior data, Func<ModelData> next)
+        {
+            var modelData = next();
+            modelData.CreateOrExtend<PhysicalEntityModelData>(d => d.Position = data.Position);
+            return modelData;
+        }
+
         private void OnJoinedWorld(BuiltInEntityEvent.JoinedWorld evt, IPhysicalEntityBehavior data, Action next)
         {
             data.Capability = new PhysicalEntity(evt.Entity.World, _bounds, data, this);
@@ -340,5 +349,10 @@ namespace DigBuild.Behaviors
         public void ApplyMotion(float forwardMotion, float sidewaysMotion);
         public void ApplyJumpMotion(float forwardMotion);
         public void Move();
+    }
+
+    public sealed class PhysicalEntityModelData
+    {
+        public Vector3 Position { get; set; }
     }
 }
