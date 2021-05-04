@@ -1,4 +1,5 @@
 ﻿using DigBuild.Content.Worldgen;
+using DigBuild.Content.Worldgen.Structure;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Platform.Resource;
@@ -17,7 +18,7 @@ namespace DigBuild.Content.Registries
             Terrain = builder.Add(new ResourceName(Game.Domain, "terrain"), new TerrainWorldgenFeature(GameBlocks.Dirt, GameBlocks.Grass));
             Water = builder.Add(new ResourceName(Game.Domain, "water"), new WaterWorldgenFeature(GameBlocks.Water));
             Lushness = builder.Add(new ResourceName(Game.Domain, "lushness"), new LushnessWorldgenFeature());
-            Trees = builder.Add(new ResourceName(Game.Domain, "trees"), new TreeWorldgenFeature(GameBlocks.LogSmall, GameBlocks.Leaves));
+            Trees = builder.Add(new ResourceName(Game.Domain, "trees"), new TreeWorldgenFeature(new TreeStructure()));
         }
     }
 }

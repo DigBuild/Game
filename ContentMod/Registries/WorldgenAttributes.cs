@@ -14,7 +14,7 @@ namespace DigBuild.Content.Registries
         
 
         public static WorldgenAttribute<ImmutableMap2D<byte>> Lushness { get; private set; } = null!;
-        public static WorldgenAttribute<ImmutableMap2D<bool>> HasTree { get; private set; } = null!;
+        public static WorldgenAttribute<ImmutableMap2D<ushort>> Tree { get; private set; } = null!;
 
         internal static void Register(RegistryBuilder<IWorldgenAttribute> builder)
         {
@@ -24,7 +24,7 @@ namespace DigBuild.Content.Registries
             WaterHeight = builder.Create<ImmutableMap2D<ushort>>(new ResourceName(Game.Domain, "water_height"));
             
             Lushness = builder.Create<ImmutableMap2D<byte>>(new ResourceName(Game.Domain, "lushness"));
-            HasTree = builder.Create<ImmutableMap2D<bool>>(new ResourceName(Game.Domain, "has_tree"));
+            Tree = builder.Create<ImmutableMap2D<ushort>>(new ResourceName(Game.Domain, "tree"));
         }
     }
 }

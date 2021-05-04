@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using DigBuild.Content.Registries;
-using DigBuild.Engine.Blocks;
-using DigBuild.Engine.Impl.Worlds;
+using DigBuild.Content.Worldgen.Structure;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
@@ -14,8 +14,9 @@ namespace DigBuild.Content.Worldgen
         private const uint ChunkSize = 16;
 
         private readonly FastNoiseLite _treeDistributionNoise = new();
-
-        private readonly Block _log, _leaves;
+        
+        private readonly IWorldgenStructure _structure;
+        private readonly Vector3I _min, _max;
 
         public IImmutableSet<IWorldgenAttribute> InputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
             WorldgenAttributes.TerrainType,
@@ -24,13 +25,14 @@ namespace DigBuild.Content.Worldgen
         );
 
         public IImmutableSet<IWorldgenAttribute> OutputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
-            WorldgenAttributes.HasTree
+            WorldgenAttributes.Tree
         );
 
-        public TreeWorldgenFeature(Block log, Block leaves)
+        public TreeWorldgenFeature(IWorldgenStructure structure)
         {
-            _log = log;
-            _leaves = leaves;
+            _structure = structure;
+            _min = structure.Min;
+            _max = structure.Max;
 
             _treeDistributionNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
             _treeDistributionNoise.SetFrequency(0.005f);
@@ -42,19 +44,43 @@ namespace DigBuild.Content.Worldgen
 
         public void DescribeSlice(WorldSliceDescriptionContext context)
         {
-            var trees = new ImmutableMap2DBuilder<bool>(ChunkSize);
-            var terrainTypeIn = context.Get(WorldgenAttributes.TerrainType);
-            var lushnessIn = context.Get(WorldgenAttributes.Lushness);
+            var terrainTypeData = new Dictionary<WorldSliceOffset, ImmutableMap2D<TerrainType>>();
+            var lushnessData = new Dictionary<WorldSliceOffset, ImmutableMap2D<byte>>();
+            var terrainHeightData = new Dictionary<WorldSliceOffset, ImmutableMap2D<ushort>>();
+
+            TerrainType GetTerrainType(int x, int z)
+            {
+                var off = new WorldSliceOffset(x >> 4, z >> 4);
+                if (!terrainTypeData!.TryGetValue(off, out var data))
+                    terrainTypeData[off] = data = context.Get(WorldgenAttributes.TerrainType, off);
+                return data[x & 15, z & 15];
+            }
+            byte GetLushness(int x, int z)
+            {
+                var off = new WorldSliceOffset(x >> 4, z >> 4);
+                if (!lushnessData!.TryGetValue(off, out var data))
+                    lushnessData[off] = data = context.Get(WorldgenAttributes.Lushness, off);
+                return data[x & 15, z & 15];
+            }
+            ushort GetTerrainHeight(int x, int z)
+            {
+                var off = new WorldSliceOffset(x >> 4, z >> 4);
+                if (!terrainHeightData!.TryGetValue(off, out var data))
+                    terrainHeightData[off] = data = context.Get(WorldgenAttributes.TerrainHeight, off);
+                return data[x & 15, z & 15];
+            }
+
+            var trees = new ImmutableMap2DBuilder<ushort>((uint) (ChunkSize + Math.Max(_max.X - _min.X, _max.Z - _min.Z)));
 
             _treeDistributionNoise.SetSeed((int) context.Seed);
-            for (var x = 0; x < ChunkSize; x++)
-            for (var z = 0; z < ChunkSize; z++)
+            for (var x = _min.X; x < ChunkSize + _max.X; x++)
+            for (var z = _min.Z; z < ChunkSize + _max.Z; z++)
             {
-                if (terrainTypeIn[x, z] != TerrainType.Ground)
+                if (GetTerrainType(x, z) != TerrainType.Ground)
                     continue;
-                if (lushnessIn[x, z] < 0xAF)
+                if (GetLushness(x, z) < 0xAF)
                     continue;
-
+                
                 var (nx, nz) = (context.Position.X * ChunkSize + x, context.Position.Z * ChunkSize + z);
                 
                 var noise = _treeDistributionNoise.GetNoise(nx, nz);
@@ -68,34 +94,27 @@ namespace DigBuild.Content.Worldgen
                         _treeDistributionNoise.GetNoise(nx, nz + 1)
                     )
                 );
-                trees[x, z] = noise > neighborNoise;
+                var generate = noise > neighborNoise;
+                trees[x - _min.X, z - _min.X] = generate ? GetTerrainHeight(x, z) : ushort.MaxValue;
             }
 
-            context.Submit(WorldgenAttributes.HasTree, trees.Build());
+            context.Submit(WorldgenAttributes.Tree, trees.Build());
         }
 
         public void PopulateChunk(WorldSliceDescriptor descriptor, IChunk chunk)
         {
-            var trees = descriptor.Get(WorldgenAttributes.HasTree);
-            var height = descriptor.Get(WorldgenAttributes.TerrainHeight);
+            var trees = descriptor.Get(WorldgenAttributes.Tree);
             
-            for (var x = 0; x < ChunkSize; x++)
-            for (var z = 0; z < ChunkSize; z++)
+            for (var x = _min.X; x < ChunkSize + _max.X; x++)
+            for (var z = _min.Z; z < ChunkSize + _max.Z; z++)
             {
-                if (!trees[x, z])
+                var treeY = trees[x - _min.X, z - _min.Z];
+                if (treeY == ushort.MaxValue)
                     continue;
 
-                var localHeight = (int) (height[x, z] - chunk.Position.Y * ChunkSize);
-                if (localHeight < -1 || localHeight >= ChunkSize)
-                    continue;
+                var localHeight = (int) (treeY - chunk.Position.Y * ChunkSize);
 
-                var logHeight = localHeight;
-                var leavesHeight = localHeight + 1;
-                    
-                if (logHeight >= 0 && logHeight < ChunkSize)
-                    chunk.SetBlock(new ChunkBlockPosition(x, logHeight, z), _log);
-                if (leavesHeight >= 0 && leavesHeight < ChunkSize)
-                    chunk.SetBlock(new ChunkBlockPosition(x, leavesHeight, z), _leaves);
+                _structure.Place((x, localHeight, z), chunk);
             }
         }
     }

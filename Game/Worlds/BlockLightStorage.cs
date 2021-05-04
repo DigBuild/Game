@@ -18,13 +18,13 @@ namespace DigBuild.Worlds
 
         public event Action? Changed;
 
-        public byte Get(ChunkBlockPosition pos)
+        public byte Get(ChunkBlockPos pos)
         {
             var clusterValue = _values[pos.X >> 1, pos.Y >> 1, pos.Z >> 1];
             return (byte) ((clusterValue >> (4 * (((pos.X & 1) << 2) | ((pos.Y & 1) << 1) | ((pos.Z & 1) << 0)))) & 0xF);
         }
 
-        public void Set(ChunkBlockPosition pos, byte value)
+        public void Set(ChunkBlockPos pos, byte value)
         {
             var clusterValue = _values[pos.X >> 1, pos.Y >> 1, pos.Z >> 1];
             var position = 1 << (4 * (((pos.X & 1) << 2) | ((pos.Y & 1) << 1) | ((pos.Z & 1) << 0)));
