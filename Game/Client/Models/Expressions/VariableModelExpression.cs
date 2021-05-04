@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq.Expressions;
 
-namespace DigBuild.Client.Model
+namespace DigBuild.Client.Models.Expressions
 {
     public sealed class VariableModelExpression : IModelExpression
     {

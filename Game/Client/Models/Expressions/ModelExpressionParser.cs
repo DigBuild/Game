@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace DigBuild.Client.Model
+namespace DigBuild.Client.Models.Expressions
 {
     public static class ModelExpressionParser
     {

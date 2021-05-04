@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace DigBuild.Client.Model
+namespace DigBuild.Client.Models.Expressions
 {
     public sealed class ConcatModelExpression : IModelExpression
     {
