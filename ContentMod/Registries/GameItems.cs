@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Behaviors;
+using DigBuild.Content.Worldgen.Structure;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
@@ -56,7 +57,10 @@ namespace DigBuild.Content.Registries
                 BlockPlacement(() => GameBlocks.Crafter)
             );
             
-            Sapling = registry.Create(new ResourceName(Game.Domain, "sapling"));
+            Sapling = registry.Create(new ResourceName(Game.Domain, "sapling"), builder =>
+            {
+                builder.Attach(new PlaceMultiblockBehavior(() => TreeStructure.Blocks));
+            });
             Twig = registry.Create(new ResourceName(Game.Domain, "twig"));
             
             Multiblock = registry.Create(new ResourceName(Game.Domain, "multiblock"), builder =>
