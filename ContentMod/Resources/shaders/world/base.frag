@@ -29,3 +29,7 @@ void compute(float sunlight) {
     vec4 bloom = texture(tex, fragBloomUV);
     compute(color, bloom, fragNormal, fragBrightness, sunlight, outColor, bloomColor);
 }
+
+void compute() {
+    compute(1);
+}
