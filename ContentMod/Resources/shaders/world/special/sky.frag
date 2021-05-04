@@ -3,15 +3,18 @@
 
 #define PI 3.14159265359
 
-const vec3 color1 = vec3(0.271, 0.522, 0.692);
-const vec3 color2 = vec3(0.798, 0.765, 0.606);
+const vec3 starColor1 = vec3(0.271, 0.522, 0.692);
+const vec3 starColor2 = vec3(0.798, 0.765, 0.606);
+
+const vec3 skyColorNight = vec3(0.000, 0.000, 0.005);
+const vec3 skyColorDay   = vec3(0.150, 0.600, 0.900);
 
 const float oneOverSqrt2 = 0.70710678118;
 const vec3 moonPosition = vec3(0, oneOverSqrt2, oneOverSqrt2);
 
 layout(binding = 0) uniform UBO {
 	mat4 matrix;
-    float aspectRatio;
+    float timeOfDay;
 };
 
 layout(location = 0) in vec2 fragPos;
@@ -58,24 +61,28 @@ vec3 starfield(vec3 sphereNormal, float subdivisions) {
     float brightness = fract(rand * 9428.851) * step(0.4, size);
     float hue = fract(rand * 2035.143);
     
-    return star(gridOff - 0.5 + off, size * 0.05) * brightness * mix(color1, color2, hue);
+    return star(gridOff - 0.5 + off, size * 0.05) * brightness * mix(starColor1, starColor2, hue);
 }
 
 void main() {
     vec3 sphereNormal = normalize((matrix * vec4(fragPos, 1, 0)).xyz);
 
-    vec3 baseColor = vec3(0, 0, 0.005);
-    vec3 color = baseColor;
-    vec3 stars = vec3(0);
-    stars += starfield(sphereNormal, 20);
-    stars += starfield(sphereNormal.yzx, 12) * 0.5;
-    stars += starfield(sphereNormal.zxy, 40) * 0.4;
-    color += pow(stars, vec3(1.5));
+    float timeFactor = sin(timeOfDay * 2 * PI);
+    vec3 skyColor = mix(skyColorNight, skyColorDay, timeFactor * 0.5 + 0.5);
+
+    vec3 color = skyColor;
+    if (timeFactor < 0) {
+        vec3 stars = vec3(0);
+        stars += starfield(sphereNormal, 20);
+        stars += starfield(sphereNormal.yzx, 12) * 0.5;
+        stars += starfield(sphereNormal.zxy, 40) * 0.4;
+        color += pow(stars, vec3(1.5)) * -timeFactor;
+    }
 
     float moonLit = smoothstep(0.998, 0.9983, dot(sphereNormal, moonPosition));
     float moonCover = smoothstep(0.9983, 0.9985, dot(normalize(sphereNormal + vec3(0.04, 0, -0.01)), moonPosition));
 
-    color = mix(color, baseColor * 0.5, moonLit);
+    color = mix(color, skyColor - 0.01, moonLit);
     color += max(0, moonLit - moonCover) * vec3(1, 0.7, 0.6);
     
     outColor = vec4(color, 1); //vec4(0.15, 0.6, 0.9, 1.0);

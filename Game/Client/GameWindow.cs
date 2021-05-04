@@ -46,7 +46,7 @@ namespace DigBuild.Client
     public interface ISkyUniform : IUniform<SkyUniform>
     {
         Matrix4x4 Matrix { get; set; }
-        float AspectRatio { get; set; }
+        float TimeOfDay { get; set; }
     }
 
     public interface IPixelSize : IUniform<PixelSize>
@@ -705,7 +705,7 @@ namespace DigBuild.Client
                 Resources.SkyUniformNativeBuffer[0] = new SkyUniform()
                 {
                     Matrix = matInv,
-                    AspectRatio = surface.Width / (float) surface.Height
+                    TimeOfDay = _worldRenderManager.TimeOfDay
                 };
                 Resources.SkyUniformBuffer.Write(Resources.SkyUniformNativeBuffer);
                 
