@@ -15,7 +15,7 @@ namespace DigBuild.Client.Models.Nodes
         public RenderLayer<SimpleVertex> Layer { get; set; }
         public CuboidTextures Textures { get; set; }
 
-        public IEnumerable<IModelGeometry> GetGeometries()
+        public IEnumerable<IModelGeometry> GetGeometries(JsonModelData data)
         {
             yield return this;
         }

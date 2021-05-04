@@ -8,36 +8,25 @@ using DigBuild.Serialization;
 
 namespace DigBuild.Client.Models.Nodes
 {
-    public sealed class CuboidModelNode : IModelNode, IModelGeometry
+    public sealed class TransformModelNode : IModelNode, IModelGeometry
     {
-        public Vector3 From { get; set; }
-        public Vector3 To { get; set; }
-        public RenderLayer<SimpleVertex> Layer { get; set; }
-        public CuboidTextures Textures { get; set; }
+        public Vector3 Translation { get; set; } = Vector3.Zero;
+        public Vector3 Scale { get; set; } = Vector3.One;
+        // public RotationTansform Rotation { get; set; }
 
-        public IEnumerable<IModelGeometry> GetGeometries()
+        public IEnumerable<IModelGeometry> GetGeometries(JsonModelData data)
         {
             yield return this;
         }
 
         public void Pipe(IGeometryConsumer consumer)
         {
-            var vertexConsumer = consumer.Get(Layer);
+            // var vertexConsumer = consumer.Get(Layer);
         }
         
         public static IModelNode Parse(JsonElement json, IModelNodeParseContext context)
         {
-            return json.Get<CuboidModelNode>();
-        }
-
-        public sealed class CuboidTextures
-        {
-            public ResourceName? NegX { get; set; }
-            public ResourceName? PosX { get; set; }
-            public ResourceName? NegY { get; set; }
-            public ResourceName? PosY { get; set; }
-            public ResourceName? NegZ { get; set; }
-            public ResourceName? PosZ { get; set; }
+            return json.Get<TransformModelNode>();
         }
     }
 }
