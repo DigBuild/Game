@@ -27,12 +27,16 @@ namespace DigBuild.Render
 
         public static MultiSprite? Load(ResourceManager manager, TextureStitcher stitcher, ResourceName name)
         {
-            if (!manager.TryGet<BitmapTexture>(new ResourceName(name.Domain, $"textures/{name.Path}.png"), out var colorTexture))
+            var actualPath = name;
+            if (!actualPath.Path.EndsWith(".png"))
+                actualPath = new ResourceName(name.Domain, $"textures/{name.Path}.png");
+
+            if (!manager.TryGet<BitmapTexture>(actualPath, out var colorTexture))
                 return null;
-            
-            var bloomName = new ResourceName(name.Domain, $"textures/{name.Path}.glow.png");
-            if (!manager.TryGet<BitmapTexture>(bloomName, out var bloomTexture))
-                bloomTexture = manager.Get<BitmapTexture>(Game.Domain, "textures/blocks/noglow.png")!;
+
+            var bloomPath = actualPath.GetSibling($"{name.Path}.glow.png");
+            if (!manager.TryGet<BitmapTexture>(bloomPath, out var bloomTexture))
+                bloomTexture = manager.Get<BitmapTexture>(Game.Domain, "textures/noglow.png")!;
                 
             return new MultiSprite(stitcher.Add(colorTexture), stitcher.Add(bloomTexture));
         }

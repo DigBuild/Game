@@ -1,46 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
-using DigBuild.Client;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
+using DigBuild.Platform.Resource;
 using DigBuild.Render;
 
-namespace DigBuild.Blocks.Models
+namespace DigBuild.Client.Models
 {
-    public sealed class SimpleBlockModel : IBlockModel
+    public sealed class RawCuboidModel : IRawModel<IBlockModel>, IRawModel<IItemModel>
     {
-        private readonly SimpleVertex[][] _vertices = new SimpleVertex[6][];
-        private readonly SimpleCuboidModel _model;
+        private readonly RawCuboidModelDefinition _modelDefinition;
+        private readonly Dictionary<ResourceName, MultiSprite?> _sprites = new();
 
-        public Func<RenderLayer<SimpleVertex>> Layer { get; set; } = () => WorldRenderLayer.Opaque;
-
-        public SimpleBlockModel(SimpleCuboidModel model)
+        public RawCuboidModel(RawCuboidModelDefinition modelDefinition)
         {
-            _model = model;
+            _modelDefinition = modelDefinition;
         }
-
-        public void LoadTextures(MultiSpriteLoader spriteLoader)
+        
+        public void LoadTextures(MultiSpriteLoader loader)
         {
-            foreach (var cuboid in _model.Cuboids)
+            foreach (var cuboid in _modelDefinition.Cuboids)
             {
                 foreach (var direction in Directions.All)
                 {
                     var tex = cuboid.Textures.Get(direction);
-                    if (tex.HasValue)
-                        spriteLoader.Load(tex.Value);
+                    if (tex.HasValue && !_sprites.ContainsKey(tex.Value))
+                        _sprites[tex.Value] = loader.Load(tex.Value);
                 }
             }
         }
 
-        public void Initialize(MultiSpriteLoader spriteLoader)
+        private CuboidModel Build()
         {
-            
             var vertices = new Dictionary<Direction, List<SimpleVertex>>();
             foreach (var direction in Directions.All)
                 vertices[direction] = new List<SimpleVertex>();
 
-            foreach (var cuboid in _model.Cuboids)
+            foreach (var cuboid in _modelDefinition.Cuboids)
             {
                 var aabb = new AABB(cuboid.From, cuboid.To);
 
@@ -48,46 +44,22 @@ namespace DigBuild.Blocks.Models
                 {
                     var tex = cuboid.Textures.Get(direction);
                     if (tex.HasValue)
-                        vertices[direction].AddRange(GenerateFaceVertices(aabb, direction, spriteLoader.Load(tex.Value)!));
+                        vertices[direction].AddRange(GenerateFaceVertices(aabb, direction, _sprites[tex.Value]!));
                 }
             }
 
-            foreach (var direction in Directions.All)
-                _vertices[(int) direction] = vertices[direction].ToArray();
-        }
-
-        public void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, Func<Direction, byte> light, DirectionFlags faces)
-        {
-            var transform = buffers.Transform;
-            
-            var modelData = data.Get<JsonModelData>();
-            if (modelData != null)
+            var layer = _modelDefinition.Layer switch
             {
-                switch (modelData["direction"])
-                {
-                    case "negx":
-                        buffers.Transform = Matrix4x4.CreateRotationY(MathF.PI, Vector3.One / 2) * transform;
-                        break;
-                    case "posx":
-                        buffers.Transform = Matrix4x4.CreateRotationY(0, Vector3.One / 2) * transform;
-                        break;
-                    case "negz":
-                        buffers.Transform = Matrix4x4.CreateRotationY(MathF.PI/2, Vector3.One / 2) * transform;
-                        break;
-                    case "posz":
-                        buffers.Transform = Matrix4x4.CreateRotationY(3*MathF.PI/2, Vector3.One / 2) * transform;
-                        break;
-                }
-            }
+                "cutout" => WorldRenderLayer.Cutout,
+                "translucent" => WorldRenderLayer.Translucent,
+                _ => WorldRenderLayer.Opaque
+            };
 
-            var buf = buffers.Get(Layer());
-            foreach (var face in Directions.In(faces))
-                buf.Accept(_vertices[(int) face].WithBrightness(light(face) / 15f));
-
-            buffers.Transform = transform;
+            return new CuboidModel(vertices, _modelDefinition.Solid, layer);
         }
 
-        public bool IsFaceSolid(Direction face) => _model.Solid;
+        IBlockModel IRawModel<IBlockModel>.Build() => Build();
+        IItemModel IRawModel<IItemModel>.Build() => Build();
 
         public static IEnumerable<SimpleVertex> GenerateFaceVertices(AABB bounds, Direction face, MultiSprite sprite)
         {

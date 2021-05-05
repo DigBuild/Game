@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
-using DigBuild.Blocks.Models;
 using DigBuild.Client.GeneratedUniforms;
+using DigBuild.Client.Models;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Impl.Worlds;
@@ -16,7 +16,6 @@ using DigBuild.Engine.Textures;
 using DigBuild.Engine.Ui;
 using DigBuild.Engine.Worlds;
 using DigBuild.Entities.Models;
-using DigBuild.Items.Models;
 using DigBuild.Platform.Input;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Resource;
@@ -441,9 +440,16 @@ namespace DigBuild.Client
         private readonly WorldRenderManager _worldRenderManager;
         private readonly TextureStitcher _blockStitcher = new();
         private readonly TextureStitcher _uiStitcher = new();
-        private readonly List<SimpleBlockModel> _unbakedModels = new();
+
+
         private readonly MultiSpriteLoader _msLoader;
+        
+        private readonly Dictionary<Block, IRawModel<IBlockModel>> _rawBlockModels = new();
+        private readonly Dictionary<Block, IBlockModel> _blockModels = new();
+        
+        private readonly Dictionary<Item, IRawModel<IItemModel>> _rawItemModels = new();
         public static readonly Dictionary<Item, IItemModel> ItemModels = new();
+
         public static IInventorySlot PickedItemSlot { get; private set; } = null!;
         
         private readonly List<IRenderLayer> _worldRenderLayers = new(){
@@ -472,62 +478,71 @@ namespace DigBuild.Client
 
             _msLoader = MultiSprite.Loader(ResourceManager, _blockStitcher);
             
-            var baseMissingModel = ResourceManager.Get<SimpleCuboidModel>("digbuild", "missing")!;
-            var missingBlockModel = new SimpleBlockModel(baseMissingModel)
-            {
-                Layer = () => WorldRenderLayer.Opaque
-            };
-            var missingItemModel = new ItemBlockModel(missingBlockModel);
-            _unbakedModels.Add(missingBlockModel);
-            missingBlockModel.LoadTextures(_msLoader);
-
-            var blockModels = new Dictionary<Block, IBlockModel>()
-            {
-                // [GameBlocks.Crafter] = new SpinnyTriangleModel(_msLoader.Load(Game.Domain, "blocks/stone")!)
-            };
-
+            var rawMissingModelDefinition = ResourceManager.Get<RawCuboidModelDefinition>("digbuild", "missing")!;
+            var rawMissingModel = new RawCuboidModel(rawMissingModelDefinition);
+            
             foreach (var block in GameRegistries.Blocks.Values)
             {
-                if (blockModels.ContainsKey(block))
+                if (_blockModels.ContainsKey(block))
                     continue;
 
-                var baseModel = ResourceManager.Get<SimpleCuboidModel>(block.Name);
-                if (baseModel == null)
+                var rawModelDefinition = ResourceManager.Get<RawCuboidModelDefinition>(block.Name);
+                if (rawModelDefinition != null)
                 {
-                    blockModels[block] = missingBlockModel;
+                    _rawBlockModels[block] = new RawCuboidModel(rawModelDefinition);
                     continue;
                 }
 
-                Func<RenderLayer<SimpleVertex>> layer = baseModel.Layer switch
+                var rawObjModel = ResourceManager.Get<RawObjModel>(block.Name.Domain, $"blocks/{block.Name.Path}");
+                if (rawObjModel != null)
                 {
-                    "cutout" => () => WorldRenderLayer.Cutout,
-                    "translucent" => () => WorldRenderLayer.Translucent,
-                    _ => () => WorldRenderLayer.Opaque
-                };
+                    _rawBlockModels[block] = rawObjModel;
+                    continue;
+                }
 
-                var model = new SimpleBlockModel(baseModel) {Layer = layer};
-                _unbakedModels.Add(model);
-                model.LoadTextures(_msLoader);
-
-                blockModels[block] = model;
+                _rawBlockModels[block] = rawMissingModel;
             }
 
             foreach (var item in GameRegistries.Items.Values)
             {
-                if (!GameRegistries.Blocks.TryGet(item.Name, out var block) || !blockModels.TryGetValue(block, out var model))
+                if (GameRegistries.Blocks.TryGet(item.Name, out var block))
                 {
-                    ItemModels[item] = missingItemModel;
+                    if (_blockModels.TryGetValue(block, out var model))
+                    {
+                        ItemModels[item] = new ItemBlockModel(model);
+                        continue;
+                    }
+                    if (_rawBlockModels.TryGetValue(block, out var rawModel) && rawModel is IRawModel<IItemModel> rawItemModel)
+                    {
+                        _rawItemModels[item] = rawItemModel;
+                        continue;
+                    }
+
+                    _rawItemModels[item] = rawMissingModel;
                     continue;
                 }
-                ItemModels[item] = new ItemBlockModel(model);
+
+                var rawObjModel = ResourceManager.Get<RawObjModel>(item.Name.Domain, $"items/{item.Name.Path}");
+                if (rawObjModel != null)
+                {
+                    _rawItemModels[item] = rawObjModel;
+                    continue;
+                }
+                
+                _rawItemModels[item] = rawMissingModel;
             }
             
             var entityModels = new Dictionary<Entity, IEntityModel>()
             {
                 [GameEntities.Item] = new ItemEntityModel(ItemModels)
             };
+            
+            foreach (var rawModel in _rawBlockModels.Values)
+                rawModel.LoadTextures(_msLoader);
+            foreach (var rawModel in _rawItemModels.Values)
+                rawModel.LoadTextures(_msLoader);
 
-            _worldRenderManager = new WorldRenderManager(player.Entity.World, blockModels, entityModels, _worldRenderLayers, BufferPool);
+            _worldRenderManager = new WorldRenderManager(player.Entity.World, _blockModels, entityModels, _worldRenderLayers, BufferPool);
         }
 
         public async Task OpenWaitClosed()
@@ -633,8 +648,10 @@ namespace DigBuild.Client
 
                 Resources = new RenderResources(surface, context, ResourceManager, BufferPool, _blockStitcher, _uiStitcher);
                 
-                foreach (var model in _unbakedModels)
-                    model.Initialize(_msLoader);
+                foreach (var (block, rawModel) in _rawBlockModels)
+                    _blockModels[block] = rawModel.Build();
+                foreach (var (item, rawModel) in _rawItemModels)
+                    ItemModels[item] = rawModel.Build();
 
                 foreach (var layer in _worldRenderLayers)
                     layer.Initialize(context, ResourceManager);
@@ -674,8 +691,10 @@ namespace DigBuild.Client
             {
                 Resources.RefreshResources(surface, context, ResourceManager, _blockStitcher, _uiStitcher);
                 
-                foreach (var model in _unbakedModels)
-                    model.Initialize(_msLoader);
+                foreach (var (block, rawModel) in _rawBlockModels)
+                    _blockModels[block] = rawModel.Build();
+                foreach (var (item, rawModel) in _rawItemModels)
+                    ItemModels[item] = rawModel.Build();
 
                 foreach (var layer in _worldRenderLayers)
                     layer.Initialize(context, ResourceManager);

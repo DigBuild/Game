@@ -7,9 +7,9 @@ using DigBuild.Engine.Math;
 using DigBuild.Platform.Resource;
 using DigBuild.Serialization;
 
-namespace DigBuild.Client
+namespace DigBuild.Client.Models
 {
-    public sealed class SimpleCuboidModel : ICustomResource
+    public sealed class RawCuboidModelDefinition : ICustomResource
     {
         [JsonIgnore]
         public ResourceName Name { get; private set; }
@@ -62,7 +62,7 @@ namespace DigBuild.Client
             }
         }
 
-        public static SimpleCuboidModel? Load(ResourceManager manager, ResourceName name)
+        public static RawCuboidModelDefinition? Load(ResourceManager manager, ResourceName name)
         {
             var actualResourceName = new ResourceName(name.Domain, $"models/{name.Path}.json");
             if (!manager.TryGetResource(actualResourceName, out var res))
@@ -71,7 +71,7 @@ namespace DigBuild.Client
             var bytes = res.ReadAllBytes();
             var span = new ReadOnlySpan<byte>(bytes);
 
-            var model = JsonSerializer.Deserialize<SimpleCuboidModel>(span, new JsonSerializerOptions
+            var model = JsonSerializer.Deserialize<RawCuboidModelDefinition>(span, new JsonSerializerOptions
             {
                 AllowTrailingCommas = true,
                 ReadCommentHandling = JsonCommentHandling.Skip,

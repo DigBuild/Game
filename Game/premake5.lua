@@ -20,6 +20,9 @@ project "DigBuild"
 	analyzer {
 		"DigBuild.Platform.SourceGen"
 	}
+    nuget {
+        "CjClutter.ObjLoader:1.0.0"
+    }
 
     filter "configurations:Debug"
         defines { "DB_DEBUG" }
