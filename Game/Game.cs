@@ -55,7 +55,7 @@ namespace DigBuild
             _player = new PlayerController(_world.AddPlayer(new Vector3(0, 30, 0)));
             // _player.Inventory.Hotbar[0].Item = new ItemInstance(GameItems.Stone, 64);
             // _player.Inventory.Hotbar[1].Item = new ItemInstance(GameItems.Dirt, 64);
-            _player.Inventory.Hotbar[2].Item = new ItemInstance(GameRegistries.Items.GetOrNull(Domain, "crafter")!, 64);
+            _player.Inventory.Hotbar[2].Item = new ItemInstance(GameRegistries.Items.GetOrNull(Domain, "campfire")!, 64);
             _player.Inventory.Hotbar[3].Item = new ItemInstance(GameRegistries.Items.GetOrNull(Domain, "sapling")!, 64);
             // _player.Inventory.Hotbar[3].Item = new ItemInstance(GameItems.Glowy, 64);
             // _player.Inventory.Hotbar[4].Item = new ItemInstance(GameItems.Log, 64);

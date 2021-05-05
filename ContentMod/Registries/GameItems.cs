@@ -22,6 +22,8 @@ namespace DigBuild.Content.Registries
         public static Item StoneStairs { get; private set; } = null!;
         public static Item Crafter { get; private set; } = null!;
         
+        public static Item Campfire { get; private set; } = null!;
+        
         public static Item Sapling { get; private set; } = null!;
         public static Item Twig { get; private set; } = null!;
 
@@ -55,6 +57,10 @@ namespace DigBuild.Content.Registries
             );
             Crafter = registry.Create(new ResourceName(Game.Domain, "crafter"),
                 BlockPlacement(() => GameBlocks.Crafter)
+            );
+
+            Campfire = registry.Create(new ResourceName(Game.Domain, "campfire"),
+                BlockPlacement(() => GameBlocks.Campfire)
             );
             
             Sapling = registry.Create(new ResourceName(Game.Domain, "sapling"), builder =>

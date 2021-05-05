@@ -1,0 +1,6 @@
+# Made in Blockbench 3.8.4
+newmtl m_0
+map_Kd log_end_small.png 
+newmtl m_1
+map_Kd log_side.png 
+newmtl none

@@ -27,6 +27,7 @@ namespace DigBuild.Content.Registries
         public static Block Leaves { get; private set; } = null!;
         public static Block StoneStairs { get; private set; } = null!;
         public static Block Crafter { get; private set; } = null!;
+        public static Block Campfire { get; private set; } = null!;
         
         public static Block Multiblock { get; private set; } = null!;
         
@@ -105,6 +106,16 @@ namespace DigBuild.Content.Registries
                     builder.Attach(new LightEmittingBehavior(0xF));
                 },
                 Drops(() => GameItems.Crafter)
+            );
+
+            Campfire = registry.Create(Game.Domain, "campfire", builder =>
+                {
+                    builder.Attach(new ColliderBehavior(ICollider.None));
+                    builder.Attach(new RayColliderBehavior(new VoxelRayCollider(new AABB(0.125f, 0, 0.125f, 0.875f, 0.5f, 0.875f))));
+
+                    builder.Attach(new LightEmittingBehavior(0x2));
+                },
+                Drops(() => GameItems.Campfire)
             );
             
 
