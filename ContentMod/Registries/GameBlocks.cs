@@ -113,7 +113,9 @@ namespace DigBuild.Content.Registries
                     builder.Attach(new ColliderBehavior(ICollider.None));
                     builder.Attach(new RayColliderBehavior(new VoxelRayCollider(new AABB(0.125f, 0, 0.125f, 0.875f, 0.5f, 0.875f))));
 
-                    builder.Attach(new LightEmittingBehavior(0x2));
+                    builder.Attach(new LightEmittingBehavior(0x8));
+
+                    builder.Attach(new CampfireBehavior());
                 },
                 Drops(() => GameItems.Campfire)
             );

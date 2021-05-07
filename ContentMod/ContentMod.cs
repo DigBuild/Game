@@ -1,4 +1,4 @@
-using DigBuild.Content.Registries;
+﻿using DigBuild.Content.Registries;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Events;
@@ -20,6 +20,7 @@ namespace DigBuild.Content
             bus.Subscribe<RegistryBuildingEvent<ICraftingRecipe>>(evt => GameRecipes.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<IWorldgenAttribute>>(evt => WorldgenAttributes.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<IWorldgenFeature>>(evt => WorldgenFeatures.Register(evt.Registry));
+            bus.Subscribe<ParticleSystemInitializationEvent>(ParticleSystems.Register);
         }
     }
 }

@@ -31,5 +31,5 @@ void compute(float sunlight) {
 }
 
 void compute() {
-    compute(1);
+    compute(0);
 }
