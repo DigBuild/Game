@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -421,18 +422,6 @@ namespace DigBuild.Client
     
     public class GameWindow : IUiElementContext
     {
-        private static readonly NativeBufferPool BufferPool = new();
-        private static readonly ResourceManager ResourceManager = new(
-            new ShaderCompiler("shader_out"),
-            new FileSystemResourceProvider(
-                new Dictionary<string, string>
-                {
-                    [Game.Domain] = "../../ContentMod/Resources"
-                },
-                true
-            )
-        );
-
         private readonly TickSource _tickSource;
         private readonly PlayerController _player;
         private readonly GameInput _input;
@@ -440,6 +429,7 @@ namespace DigBuild.Client
         private readonly WorldRenderManager _worldRenderManager;
         private readonly TextureStitcher _blockStitcher = new();
         private readonly TextureStitcher _uiStitcher = new();
+        private readonly ImmutableList<IParticleRenderer> _particleRenderers;
 
 
         private readonly MultiSpriteLoader _msLoader;
@@ -465,20 +455,21 @@ namespace DigBuild.Client
             UiRenderLayer.Text,
         };
 
-        private readonly GeometryBufferSet _uiGbs = new(BufferPool);
-        private readonly UniformBufferSet _uiUbs = new(BufferPool);
+        private readonly GeometryBufferSet _uiGbs = new(Game.BufferPool);
+        private readonly UniformBufferSet _uiUbs = new(Game.BufferPool);
 
-        public GameWindow(TickSource tickSource, PlayerController player, GameInput input, WorldRayCastContext rayCastContext)
+        public GameWindow(TickSource tickSource, PlayerController player, GameInput input, WorldRayCastContext rayCastContext, ImmutableList<IParticleRenderer> particleRenderers)
         {
             _tickSource = tickSource;
             _player = player;
             _input = input;
             PickedItemSlot = _player.Inventory.PickedItem;
             _rayCastContext = rayCastContext;
+            _particleRenderers = particleRenderers;
 
-            _msLoader = MultiSprite.Loader(ResourceManager, _blockStitcher);
+            _msLoader = MultiSprite.Loader(Game.ResourceManager, _blockStitcher);
             
-            var rawMissingModelDefinition = ResourceManager.Get<RawCuboidModelDefinition>("digbuild", "missing")!;
+            var rawMissingModelDefinition = Game.ResourceManager.Get<RawCuboidModelDefinition>("digbuild", "missing")!;
             var rawMissingModel = new RawCuboidModel(rawMissingModelDefinition);
             
             foreach (var block in GameRegistries.Blocks.Values)
@@ -486,14 +477,14 @@ namespace DigBuild.Client
                 if (_blockModels.ContainsKey(block))
                     continue;
 
-                var rawModelDefinition = ResourceManager.Get<RawCuboidModelDefinition>(block.Name);
+                var rawModelDefinition = Game.ResourceManager.Get<RawCuboidModelDefinition>(block.Name);
                 if (rawModelDefinition != null)
                 {
                     _rawBlockModels[block] = new RawCuboidModel(rawModelDefinition);
                     continue;
                 }
 
-                var rawObjModel = ResourceManager.Get<RawObjModel>(block.Name.Domain, $"blocks/{block.Name.Path}");
+                var rawObjModel = Game.ResourceManager.Get<RawObjModel>(block.Name.Domain, $"blocks/{block.Name.Path}");
                 if (rawObjModel != null)
                 {
                     _rawBlockModels[block] = rawObjModel;
@@ -522,7 +513,7 @@ namespace DigBuild.Client
                     continue;
                 }
 
-                var rawObjModel = ResourceManager.Get<RawObjModel>(item.Name.Domain, $"items/{item.Name.Path}");
+                var rawObjModel = Game.ResourceManager.Get<RawObjModel>(item.Name.Domain, $"items/{item.Name.Path}");
                 if (rawObjModel != null)
                 {
                     _rawItemModels[item] = rawObjModel;
@@ -542,7 +533,7 @@ namespace DigBuild.Client
             foreach (var rawModel in _rawItemModels.Values)
                 rawModel.LoadTextures(_msLoader);
 
-            _worldRenderManager = new WorldRenderManager(player.Entity.World, _blockModels, entityModels, _worldRenderLayers, BufferPool);
+            _worldRenderManager = new WorldRenderManager(player.Entity.World, _blockModels, entityModels, _worldRenderLayers, _particleRenderers, Game.BufferPool);
         }
 
         public async Task OpenWaitClosed()
@@ -641,12 +632,12 @@ namespace DigBuild.Client
 
             if (Resources == null)
             {
-                _whiteSprite = _uiStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/ui/white.png")!);
+                _whiteSprite = _uiStitcher.Add(Game.ResourceManager.GetResource(Game.Domain, "textures/ui/white.png")!);
                 // var inactiveButton = _uiStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/ui/button_inactive.png")!);
                 // var hoveredButton = _uiStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/ui/button_hovered.png")!);
                 // var clickedButton = _uiStitcher.Add(ResourceManager.GetResource(Game.Domain, "textures/ui/button_clicked.png")!);
 
-                Resources = new RenderResources(surface, context, ResourceManager, BufferPool, _blockStitcher, _uiStitcher);
+                Resources = new RenderResources(surface, context, Game.ResourceManager, Game.BufferPool, _blockStitcher, _uiStitcher);
                 
                 foreach (var (block, rawModel) in _rawBlockModels)
                     _blockModels[block] = rawModel.Build();
@@ -654,9 +645,9 @@ namespace DigBuild.Client
                     ItemModels[item] = rawModel.Build();
 
                 foreach (var layer in _worldRenderLayers)
-                    layer.Initialize(context, ResourceManager);
+                    layer.Initialize(context, Game.ResourceManager);
                 foreach (var layer in _uiRenderLayers.Where(l => !_worldRenderLayers.Contains(l)))
-                    layer.Initialize(context, ResourceManager);
+                    layer.Initialize(context, Game.ResourceManager);
 
                 IUiElement.GlobalTextRenderer = Resources.TextRenderer;
 
@@ -684,12 +675,15 @@ namespace DigBuild.Client
                 _ui.Add(0, 0, _pickedSlot = new UiUnboundInventorySlot(_player.Inventory.PickedItem, ItemModels));
 
                 FunnyUi = MenuUi.Create(_whiteSprite);
+
+                foreach (var particleRenderer in _particleRenderers)
+                    particleRenderer.Initialize(context, Resources.MainRenderStage);
             }
 
-            var modifiedResources = ResourceManager.GetAndClearModifiedResources();
+            var modifiedResources = Game.ResourceManager.GetAndClearModifiedResources();
             if (modifiedResources.Count > 0)
             {
-                Resources.RefreshResources(surface, context, ResourceManager, _blockStitcher, _uiStitcher);
+                Resources.RefreshResources(surface, context, Game.ResourceManager, _blockStitcher, _uiStitcher);
                 
                 foreach (var (block, rawModel) in _rawBlockModels)
                     _blockModels[block] = rawModel.Build();
@@ -697,14 +691,14 @@ namespace DigBuild.Client
                     ItemModels[item] = rawModel.Build();
 
                 foreach (var layer in _worldRenderLayers)
-                    layer.Initialize(context, ResourceManager);
+                    layer.Initialize(context, Game.ResourceManager);
                 foreach (var layer in _uiRenderLayers.Where(l => !_worldRenderLayers.Contains(l)))
-                    layer.Initialize(context, ResourceManager);
+                    layer.Initialize(context, Game.ResourceManager);
             }
 
             if (surface.Resized)
             {
-                Resources.OnResize(surface, context, BufferPool);
+                Resources.OnResize(surface, context, Game.BufferPool);
                 
                 var off = 60u;
                 foreach (var slot in _hotbarSlots)
@@ -743,7 +737,7 @@ namespace DigBuild.Client
                 };
                 Resources.SkyUniformBuffer.Write(Resources.SkyUniformNativeBuffer);
                 
-                using (var cmd = Resources.WorldCommandBuffer.Record(context, Resources.WorldFramebuffer.Format, BufferPool))
+                using (var cmd = Resources.WorldCommandBuffer.Record(context, Resources.WorldFramebuffer.Format, Game.BufferPool))
                 {
                     cmd.SetViewportAndScissor(Resources.WorldFramebuffer);
 
@@ -800,7 +794,7 @@ namespace DigBuild.Client
                 var uiProjection = Matrix4x4.CreateOrthographic(surface.Width, surface.Height, -100, 100) *
                                    Matrix4x4.CreateTranslation(-1, -1, 0);
 
-                using (var cmd = Resources.UiCommandBuffer.Record(context, Resources.UiFramebuffer.Format, BufferPool))
+                using (var cmd = Resources.UiCommandBuffer.Record(context, Resources.UiFramebuffer.Format, Game.BufferPool))
                 {
                     cmd.SetViewportAndScissor(Resources.UiFramebuffer);
                     _uiUbs.Clear();

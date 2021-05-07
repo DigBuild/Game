@@ -1,4 +1,4 @@
-﻿using DigBuild.Content.Registries;
+using DigBuild.Content.Registries;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Events;
@@ -12,7 +12,7 @@ namespace DigBuild.Content
 {
     public sealed class ContentMod : IMod
     {
-        public void AttachLifecycleEvents(EventBus bus)
+        public void AttachEvents(EventBus bus)
         {
             bus.Subscribe<RegistryBuildingEvent<Block>>(evt => GameBlocks.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<Entity>>(evt => GameEntities.Register(evt.Registry));

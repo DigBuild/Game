@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using DigBuild.Engine.Render;
@@ -76,10 +77,13 @@ namespace DigBuild.Client.Models
             {
                 var extendedName = new ResourceName(name.Domain, $"models/{name.Path}.obj");
                 var loader = ObjLoaderFactory.Create(new MaterialStreamProvider(resourceManager, extendedName));
-                var result = loader.Load(resourceManager.GetResource(extendedName)!.OpenStream());
+                var resource = resourceManager.GetResource(extendedName);
+                if (resource == null)
+                    return null;
+                var result = loader.Load(resource.OpenStream());
                 return new RawObjModel(name, result);
             }
-            catch
+            catch (Exception)
             {
                 return null;
             }

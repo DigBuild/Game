@@ -1,14 +1,19 @@
 using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Numerics;
 using System.Threading.Tasks;
 using DigBuild.Client;
 using DigBuild.Engine.Events;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
+using DigBuild.Engine.Particles;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Worldgen;
+using DigBuild.Events;
 using DigBuild.Modding;
+using DigBuild.Platform.Resource;
+using DigBuild.Platform.Util;
 using DigBuild.Players;
 using DigBuild.Recipes;
 using DigBuild.Registries;
@@ -20,6 +25,21 @@ namespace DigBuild
     {
         public const string Domain = "digbuild";
         public const int ViewRadius = 5;
+        
+        public static ResourceManager ResourceManager { get; } = new(
+            new ShaderCompiler("shader_out"),
+            new FileSystemResourceProvider(
+                new Dictionary<string, string>
+                {
+                    [Game.Domain] = "../../ContentMod/Resources"
+                },
+                true
+            )
+        );
+        
+        public static NativeBufferPool BufferPool { get; } = new();
+        public static EventBus EventBus { get; } = new(); 
+
         public static CraftingRecipeLookup RecipeLookup { get; private set; } = null!;
 
         private readonly TickSource _tickSource;
@@ -33,15 +53,27 @@ namespace DigBuild
 
         public Game()
         {
-            var lifecycleEventBus = new EventBus(); 
             ModLoader.Instance.LoadMods(); 
             foreach (var mod in ModLoader.Instance.Mods) 
-                mod.AttachLifecycleEvents(lifecycleEventBus); 
+                mod.AttachEvents(EventBus); 
  
-            GameRegistries.Initialize(lifecycleEventBus); 
+            GameRegistries.Initialize(EventBus);
 
+            var particleSystemInitializationEvent = new ParticleSystemInitializationEvent(BufferPool, ResourceManager);
+            EventBus.Post(particleSystemInitializationEvent);
+            
             _tickSource = new TickSource();
             _tickSource.Tick += Tick;
+            
+            var particleSystems = particleSystemInitializationEvent.Systems.ToImmutableList();
+            var particleUpdateContext = new ParticleUpdateContext();
+            _tickSource.Tick += () =>
+            {
+                foreach (var particleSystem in particleSystems)
+                {
+                    particleSystem.Update(particleUpdateContext);
+                }
+            };
             
             RecipeLookup = new CraftingRecipeLookup(GameRegistries.CraftingRecipes.Values);
             
@@ -53,19 +85,11 @@ namespace DigBuild
             _rayCastContext = new WorldRayCastContext(_world);
 
             _player = new PlayerController(_world.AddPlayer(new Vector3(0, 30, 0)));
-            // _player.Inventory.Hotbar[0].Item = new ItemInstance(GameItems.Stone, 64);
-            // _player.Inventory.Hotbar[1].Item = new ItemInstance(GameItems.Dirt, 64);
-            _player.Inventory.Hotbar[2].Item = new ItemInstance(GameRegistries.Items.GetOrNull(Domain, "campfire")!, 64);
-            _player.Inventory.Hotbar[3].Item = new ItemInstance(GameRegistries.Items.GetOrNull(Domain, "sapling")!, 64);
-            // _player.Inventory.Hotbar[3].Item = new ItemInstance(GameItems.Glowy, 64);
-            // _player.Inventory.Hotbar[4].Item = new ItemInstance(GameItems.Log, 64);
-            _player.Inventory.Hotbar[5].Item = new ItemInstance(GameRegistries.Items.GetOrNull(Domain, "leaves")!, 64);
-            _player.Inventory.Hotbar[6].Item = new ItemInstance(GameRegistries.Items.GetOrNull(Domain, "log")!, 64);
 
-            var multiblock = GameRegistries.Items.GetOrNull(Domain, "stone_stairs")!;
-            _player.Inventory.Hotbar[0].Item = new ItemInstance(multiblock, 64);
-            
-            _window = new GameWindow(_tickSource, _player, _input, _rayCastContext);
+            _player.Inventory.Hotbar[0].Item = new ItemInstance(GameRegistries.Items.GetOrNull(Domain, "campfire")!, 1);
+
+            var particleRenderers = particleSystemInitializationEvent.Renderers.ToImmutableList();
+            _window = new GameWindow(_tickSource, _player, _input, _rayCastContext, particleRenderers);
             
             _world.ChunkManager.ChunkChanged += chunk => _window.OnChunkChanged(chunk);
             _world.ChunkManager.ChunkUnloaded += chunk => _window.OnChunkUnloaded(chunk);
