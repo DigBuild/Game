@@ -67,7 +67,7 @@ vec3 starfield(vec3 sphereNormal, float subdivisions) {
 void main() {
     vec3 sphereNormal = normalize((matrix * vec4(fragPos, 1, 0)).xyz);
 
-    float timeFactor = -1;//sin(timeOfDay * 2 * PI);
+    float timeFactor = sin(timeOfDay * 2 * PI);
     vec3 skyColor = mix(skyColorNight, skyColorDay, timeFactor * 0.5 + 0.5);
 
     vec3 color = skyColor;

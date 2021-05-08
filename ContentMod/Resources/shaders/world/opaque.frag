@@ -4,6 +4,6 @@
 #include "base.frag"
 
 void main() {
-    compute();
+    compute(1);
     outColor.a = 1;
 }
