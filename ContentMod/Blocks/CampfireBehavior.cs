@@ -3,8 +3,10 @@ using System.Numerics;
 using DigBuild.Blocks;
 using DigBuild.Content.Registries;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Ticking;
+using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Content.Blocks
 {
@@ -17,11 +19,14 @@ namespace DigBuild.Content.Blocks
 
         private void OnPlaced(BlockEvent.Placed evt, object data, Action next)
         {
-            evt.World.TickScheduler.After(1).Tick += () => SpawnParticles(evt.World.TickScheduler, evt.Pos);
+            evt.World.TickScheduler.After(1).Tick += () => SpawnParticles(evt.World.TickScheduler, evt.World, evt.Pos, evt.Block);
         }
 
-        private static void SpawnParticles(Scheduler scheduler, BlockPos pos)
+        private void SpawnParticles(Scheduler scheduler, IReadOnlyWorld world, BlockPos pos, Block block)
         {
+            if (world.GetBlock(pos) != block)
+                return;
+
             var rnd = new Random();
             var origin = (Vector3) pos + new Vector3(0.5f, 0.125f, 0.5f);
 
@@ -40,7 +45,7 @@ namespace DigBuild.Content.Blocks
                 particle.Age = (byte) (spread * spread * 12);
             }
 
-            scheduler.After(1).Tick += () => SpawnParticles(scheduler, pos);
+            scheduler.After(1).Tick += () => SpawnParticles(scheduler, world, pos, block);
         }
     }
 }
