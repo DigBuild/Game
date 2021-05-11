@@ -34,7 +34,7 @@ namespace DigBuild.Render
             if (!manager.TryGet<BitmapTexture>(actualPath, out var colorTexture))
                 return null;
 
-            var bloomPath = actualPath.GetSibling($"{name.Path}.glow.png");
+            var bloomPath = new ResourceName(name.Domain, $"textures/{name.Path}.glow.png");
             if (!manager.TryGet<BitmapTexture>(bloomPath, out var bloomTexture))
                 bloomTexture = manager.Get<BitmapTexture>(Game.Domain, "textures/noglow.png")!;
                 
