@@ -14,7 +14,7 @@ namespace DigBuild.Content.Registries
             Fire = evt.Create<FireParticle, GpuFireParticle>(
                 new ResourceName(Game.Domain, "particles/fire.vert"),
                 new ResourceName(Game.Domain, "particles/fire.frag"),
-                new ResourceName(Game.Domain, "textures/particles/generic.png")
+                new ResourceName(Game.Domain, "textures/particles/square_faded.png")
             );
         }
     }

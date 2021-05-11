@@ -18,17 +18,14 @@ layout(location = 0) out vec4 outColor;
 layout(location = 1) out vec4 bloomColor;
 
 void main() {
-    vec3 tint =
-        mix(
-            mix(
-                tintVeryYoung,
-                tintYoung,
-                min(fragAge / threshold, 1)
-            ),
-            tintOld,
-            (fragAge - threshold) / invThreshold
-        );
+    vec3 tint = tintVeryYoung;
+    tint = mix(tint, tintYoung, min(fragAge / threshold, 1));
+    tint = mix(tint, tintOld, (fragAge - threshold) / invThreshold);
 
-    outColor = texture(tex, fragUV) * vec4(tint, 1.0) * 0.2 * min((veryOldThreshold - fragAge) / veryOldThreshold, 1);
-    bloomColor = outColor;//vec4(0);
+    float fade = sin(fragAge * 20) * 0.4 + 0.6;
+    float fadeOut = min((veryOldThreshold - fragAge) / veryOldThreshold, 1);
+
+    vec4 color = texture(tex, fragUV) * vec4(tint, 1.0) * fade * fadeOut;
+
+    outColor = bloomColor = color * 0.2;
 }

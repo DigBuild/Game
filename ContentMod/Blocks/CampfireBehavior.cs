@@ -30,7 +30,7 @@ namespace DigBuild.Content.Blocks
             var rnd = new Random();
             var origin = (Vector3) pos + new Vector3(0.5f, 0.125f, 0.5f);
 
-            var particles = ParticleSystems.Fire.Create(30);
+            var particles = ParticleSystems.Fire.Create(25);
             foreach (ref var particle in particles)
             {
                 var angle = (float) rnd.NextDouble() * MathF.PI * 2;
