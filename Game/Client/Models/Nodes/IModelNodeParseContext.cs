@@ -8,6 +8,6 @@ namespace DigBuild.Client.Models.Nodes
     {
         JsonSerializerOptions SerializerOptions { get; }
 
-        RenderLayer<SimpleVertex>? GetLayer(string name);
+        RenderLayer<WorldVertex>? GetLayer(string name);
     }
 }

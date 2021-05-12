@@ -31,45 +31,45 @@ namespace DigBuild.Content.Registries
 
         internal static void Register(RegistryBuilder<Item> registry)
         {
-            Dirt = registry.Create(new ResourceName(Game.Domain, "dirt"),
+            Dirt = registry.Create(new ResourceName(DigBuildGame.Domain, "dirt"),
                 BlockPlacement(() => GameBlocks.Dirt)
             );
-            Grass = registry.Create(new ResourceName(Game.Domain, "grass"),
+            Grass = registry.Create(new ResourceName(DigBuildGame.Domain, "grass"),
                 BlockPlacement(() => GameBlocks.Grass)
             );
-            Water = registry.Create(new ResourceName(Game.Domain, "water"),
+            Water = registry.Create(new ResourceName(DigBuildGame.Domain, "water"),
                 BlockPlacement(() => GameBlocks.Water)
             );
-            Stone = registry.Create(new ResourceName(Game.Domain, "stone"),
+            Stone = registry.Create(new ResourceName(DigBuildGame.Domain, "stone"),
                 BlockPlacement(() => GameBlocks.Stone)
             );
-            Log = registry.Create(new ResourceName(Game.Domain, "log"),
+            Log = registry.Create(new ResourceName(DigBuildGame.Domain, "log"),
                 BlockPlacement(() => GameBlocks.Log)
             );
-            LogSmall = registry.Create(new ResourceName(Game.Domain, "log_small"),
+            LogSmall = registry.Create(new ResourceName(DigBuildGame.Domain, "log_small"),
                 BlockPlacement(() => GameBlocks.LogSmall)
             );
-            Leaves = registry.Create(new ResourceName(Game.Domain, "leaves"),
+            Leaves = registry.Create(new ResourceName(DigBuildGame.Domain, "leaves"),
                 BlockPlacement(() => GameBlocks.Leaves)
             );
-            StoneStairs = registry.Create(new ResourceName(Game.Domain, "stone_stairs"),
+            StoneStairs = registry.Create(new ResourceName(DigBuildGame.Domain, "stone_stairs"),
                 BlockPlacement(() => GameBlocks.StoneStairs)
             );
-            Crafter = registry.Create(new ResourceName(Game.Domain, "crafter"),
+            Crafter = registry.Create(new ResourceName(DigBuildGame.Domain, "crafter"),
                 BlockPlacement(() => GameBlocks.Crafter)
             );
 
-            Campfire = registry.Create(new ResourceName(Game.Domain, "campfire"),
+            Campfire = registry.Create(new ResourceName(DigBuildGame.Domain, "campfire"),
                 BlockPlacement(() => GameBlocks.Campfire)
             );
             
-            Sapling = registry.Create(new ResourceName(Game.Domain, "sapling"), builder =>
+            Sapling = registry.Create(new ResourceName(DigBuildGame.Domain, "sapling"), builder =>
             {
                 builder.Attach(new PlaceMultiblockBehavior(() => TreeStructure.Blocks));
             });
-            Twig = registry.Create(new ResourceName(Game.Domain, "twig"));
+            Twig = registry.Create(new ResourceName(DigBuildGame.Domain, "twig"));
             
-            Multiblock = registry.Create(new ResourceName(Game.Domain, "multiblock"), builder =>
+            Multiblock = registry.Create(new ResourceName(DigBuildGame.Domain, "multiblock"), builder =>
             {
                 builder.Attach(new PlaceMultiblockBehavior(() => new Dictionary<Vector3I, Block>()
                 {

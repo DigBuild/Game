@@ -18,13 +18,13 @@ namespace DigBuild.Content.Registries
 
         internal static void Register(RegistryBuilder<IWorldgenAttribute> builder)
         {
-            TerrainHeight = builder.Create<ImmutableMap2D<ushort>>(new ResourceName(Game.Domain, "terrain_height"));
-            TerrainType = builder.Create<ImmutableMap2D<TerrainType>>(new ResourceName(Game.Domain, "terrain_type"));
+            TerrainHeight = builder.Create<ImmutableMap2D<ushort>>(new ResourceName(DigBuildGame.Domain, "terrain_height"));
+            TerrainType = builder.Create<ImmutableMap2D<TerrainType>>(new ResourceName(DigBuildGame.Domain, "terrain_type"));
 
-            WaterHeight = builder.Create<ImmutableMap2D<ushort>>(new ResourceName(Game.Domain, "water_height"));
+            WaterHeight = builder.Create<ImmutableMap2D<ushort>>(new ResourceName(DigBuildGame.Domain, "water_height"));
             
-            Lushness = builder.Create<ImmutableMap2D<byte>>(new ResourceName(Game.Domain, "lushness"));
-            Tree = builder.Create<ImmutableMap2D<ushort>>(new ResourceName(Game.Domain, "tree"));
+            Lushness = builder.Create<ImmutableMap2D<byte>>(new ResourceName(DigBuildGame.Domain, "lushness"));
+            Tree = builder.Create<ImmutableMap2D<ushort>>(new ResourceName(DigBuildGame.Domain, "tree"));
         }
     }
 }

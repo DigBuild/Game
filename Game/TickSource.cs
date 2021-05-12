@@ -1,39 +1,63 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using DigBuild.Engine.Ticking;
 
 namespace DigBuild
 {
-    public class TickSource : IStableTickSource
+    public sealed class TickSource : IStableTickSource
     {
         public const uint TicksPerSecond = 20;
         public const float TickDurationSeconds = 1f / TicksPerSecond;
         public const float TickDurationMilliseconds = 1000f / TicksPerSecond;
         private const long SystemTicksPerGameTick = TimeSpan.TicksPerSecond / TicksPerSecond;
-        
+
+        private Thread? _thread;
         private Interpolator _interpolator;
+        private bool _shouldStop;
 
         public event Action? Tick;
-
         public IInterpolator CurrentTick => _interpolator;
-        
-        public void Start(Task windowClosed)
+        public bool Running => _thread != null;
+
+        public void Start()
         {
-            while (!windowClosed.IsCompleted)
+            if (Running)
+                throw new InvalidOperationException("Tick source is already running.");
+
+            _shouldStop = false;
+            _thread = new Thread(() =>
             {
-                long elapsed;
-                lock (this)
+                while (!_shouldStop)
                 {
-                    var start = DateTime.Now.Ticks;
-                    _interpolator = new Interpolator(start);
-                    Tick?.Invoke();
-                    elapsed = DateTime.Now.Ticks - start;
+                    long elapsed;
+                    lock (this)
+                    {
+                        var start = DateTime.Now.Ticks;
+                        _interpolator = new Interpolator(start);
+                        Tick?.Invoke();
+                        elapsed = DateTime.Now.Ticks - start;
+                    }
+                    var remainder = SystemTicksPerGameTick - elapsed;
+                    if (remainder > 0)
+                        Thread.Sleep(new TimeSpan(remainder));
                 }
-                var remainder = SystemTicksPerGameTick - elapsed;
-                if (remainder > 0)
-                    Thread.Sleep(new TimeSpan(remainder));
-            }
+
+                _thread = null;
+            }) { Name = "Ticking Thread" };
+            _thread.Start();
+        }
+
+        public void Stop()
+        {
+            if (!Running)
+                throw new InvalidOperationException("Tick source is not running.");
+
+            _shouldStop = true;
+        }
+
+        public void Await()
+        {
+            _thread?.Join();
         }
 
         private readonly struct Interpolator : IInterpolator

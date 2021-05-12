@@ -20,25 +20,25 @@ namespace DigBuild.Registries
         internal static void Register(RegistryBuilder<IBlockAttribute> registry)
         {
             Collider = registry.Register<ICollider>(
-                new ResourceName(Game.Domain, "collider"),
+                new ResourceName(DigBuildGame.Domain, "collider"),
                 new VoxelCollider(AABB.FullBlock)
             );
             RayCollider = registry.Register<IRayCollider<VoxelRayCollider.Hit>>(
-                new ResourceName(Game.Domain, "ray_collider"),
+                new ResourceName(DigBuildGame.Domain, "ray_collider"),
                 new VoxelRayCollider(AABB.FullBlock)
             );
             
             LightEmission = registry.Register(
-                new ResourceName(Game.Domain, "light_emission"),
+                new ResourceName(DigBuildGame.Domain, "light_emission"),
                 new LightEmission(0)
             );
 
             Direction = registry.Register(
-                new ResourceName(Game.Domain, "direction"),
+                new ResourceName(DigBuildGame.Domain, "direction"),
                 (Direction?) null
             );
             HorizontalDirection = registry.Register(
-                new ResourceName(Game.Domain, "horizontal_direction"),
+                new ResourceName(DigBuildGame.Domain, "horizontal_direction"),
                 (Direction?) null
             );
         }

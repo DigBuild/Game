@@ -2,6 +2,7 @@
 using DigBuild.Engine.Particles;
 using DigBuild.Events;
 using DigBuild.Platform.Resource;
+using DigBuild.Registries;
 
 namespace DigBuild.Content.Registries
 {
@@ -9,12 +10,13 @@ namespace DigBuild.Content.Registries
     {
         public static ParticleSystem<FireParticle, GpuFireParticle> Fire { get; private set; } = null!;
         
-        internal static void Register(ParticleSystemInitializationEvent evt)
+        internal static void Register(RegistryBuildingEvent<IParticleSystemData> evt)
         {
-            Fire = evt.Create<FireParticle, GpuFireParticle>(
-                new ResourceName(Game.Domain, "particles/fire.vert"),
-                new ResourceName(Game.Domain, "particles/fire.frag"),
-                new ResourceName(Game.Domain, "textures/particles/square_faded.png")
+            Fire = evt.Registry.Create<FireParticle, GpuFireParticle>(
+                DigBuildGame.Domain, "fire",
+                new ResourceName(DigBuildGame.Domain, "particles/fire.vert"),
+                new ResourceName(DigBuildGame.Domain, "particles/fire.frag"),
+                new ResourceName(DigBuildGame.Domain, "textures/particles/square_faded.png")
             );
         }
     }

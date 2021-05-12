@@ -7,9 +7,9 @@ namespace DigBuild.Client.Models
 {
     public sealed class SimpleModel : IBlockModel, IItemModel
     {
-        private readonly SimpleVertex[] _vertices;
+        private readonly WorldVertex[] _vertices;
 
-        public SimpleModel(SimpleVertex[] vertices)
+        public SimpleModel(WorldVertex[] vertices)
         {
             _vertices = vertices;
         }

@@ -6,7 +6,7 @@ namespace DigBuild.Client
 {
     public class GameInput
     {
-        private Controller? _controller;
+        private Platform.Input.Controller? _controller;
         private bool _keyW, _keyA, _keyS, _keyD, _keySpace;
         private uint _cursorX, _cursorY, _prevCursorX, _prevCursorY;
         private bool _btnL, _btnR;
@@ -66,12 +66,12 @@ namespace DigBuild.Client
             Platform.Platform.InputContext.Update();
             _controller ??= Platform.Platform.InputContext.Controllers.FirstOrDefault();
             
-            var cursorDeltaX = (int) (_cursorX - _prevCursorX);
-            var cursorDeltaY = (int) (_cursorY - _prevCursorY);
+            var cursorDeltaX = MathF.Atan2((int) (_cursorX - _prevCursorX), 30);
+            var cursorDeltaY = MathF.Atan2((int) (_cursorY - _prevCursorY), 30);
 
             var hasController = _controller is { Connected: true };
-            YawDelta = Bias(hasController ? _controller!.Joysticks[2] : 0) + cursorDeltaX / 80f;
-            PitchDelta = -Bias(hasController ? _controller!.Joysticks[3] : 0) - cursorDeltaY / 80f;
+            YawDelta = Bias(hasController ? _controller!.Joysticks[2] : 0) + cursorDeltaX;
+            PitchDelta = -Bias(hasController ? _controller!.Joysticks[3] : 0) - cursorDeltaY;
             ForwardDelta = _keyS ? -1 : _keyW ? 1 : -Bias(hasController ? _controller!.Joysticks[1] : 0);
             SidewaysDelta = _keyA ? -1 : _keyD ? 1 : Bias(hasController ? _controller!.Joysticks[0] : 0);
             Jump = _keySpace || (hasController && _controller!.Buttons[5]);

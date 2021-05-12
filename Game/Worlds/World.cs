@@ -10,6 +10,7 @@ namespace DigBuild.Worlds
     public sealed class World : WorldBase
     {
         public const float GravityValue = 2.5f * TickSource.TickDurationSeconds;
+        public const ulong DayDuration = 1000; // Ticks
         
         private ulong _absoluteTime;
 
@@ -21,8 +22,8 @@ namespace DigBuild.Worlds
         public event Action<Guid>? EntityRemoved;
         public event Action<BlockPos>? BlockChanged;
 
-        public World(IChunkProvider generator, IStableTickSource tickSource) :
-            base(tickSource, generator, pos => new RegionStorage(pos))
+        public World(IStableTickSource tickSource, IChunkProvider generator, Func<RegionPos, IRegionStorage> storageProvider) :
+            base(tickSource, generator, storageProvider)
         {
             TickScheduler = new Scheduler(tickSource);
             tickSource.Tick += () =>

@@ -34,13 +34,13 @@ namespace DigBuild.Content.Behaviors
 
         private BlockEvent.Activate.Result OnActivate(BlockEvent.Activate evt, ICraftingUiBehavior data, Func<BlockEvent.Activate.Result> next)
         {
-            GameWindow.FunnyUi = CraftingUi.Create(new CraftingInventory(data), GameWindow.PickedItemSlot, GameWindow.ItemModels);
+            // GameWindow.FunnyUi = CraftingUi.Create(new CraftingInventory(data), GameWindow.PickedItemSlot, GameWindow.ItemModels);
             return BlockEvent.Activate.Result.Success;
         }
 
         private ItemEvent.Activate.Result OnActivate(ItemEvent.Activate evt, ICraftingUiBehavior data, Func<ItemEvent.Activate.Result> next)
         {
-            GameWindow.FunnyUi = CraftingUi.Create(new CraftingInventory(data), GameWindow.PickedItemSlot, GameWindow.ItemModels);
+            // GameWindow.FunnyUi = CraftingUi.Create(new CraftingInventory(data), GameWindow.PickedItemSlot, GameWindow.ItemModels);
             return ItemEvent.Activate.Result.Success;
         }
 

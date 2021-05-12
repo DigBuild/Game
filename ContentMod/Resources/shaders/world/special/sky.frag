@@ -12,12 +12,11 @@ const vec3 skyColorDay   = vec3(0.150, 0.600, 0.900);
 const float oneOverSqrt2 = 0.70710678118;
 const vec3 moonPosition = vec3(0, oneOverSqrt2, oneOverSqrt2);
 
-layout(binding = 0) uniform UBO {
-	mat4 matrix;
-    float timeOfDay;
+layout(set = 1, binding = 0) uniform UBO {
+    float timeFactor;
 };
 
-layout(location = 0) in vec2 fragPos;
+layout(location = 0) in vec3 fragNormal;
 
 layout(location = 0) out vec4 outColor;
 layout(location = 1) out vec4 bloomColor;
@@ -65,10 +64,9 @@ vec3 starfield(vec3 sphereNormal, float subdivisions) {
 }
 
 void main() {
-    vec3 sphereNormal = normalize((matrix * vec4(fragPos, 1, 0)).xyz);
+    vec3 sphereNormal = normalize(fragNormal);
 
-    float timeFactor = sin(timeOfDay * 2 * PI);
-    vec3 skyColor = mix(skyColorNight, skyColorDay, timeFactor * 0.5 + 0.5);
+    vec3 skyColor = mix(skyColorNight, skyColorDay, timeFactor);
 
     vec3 color = skyColor;
     if (timeFactor < 0) {

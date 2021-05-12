@@ -17,7 +17,7 @@ namespace DigBuild.Registries
         internal static void Register(RegistryBuilder<IEntityAttribute> registry)
         {
             Position = registry.Register(
-                new ResourceName(Game.Domain, "position"),
+                new ResourceName(DigBuildGame.Domain, "position"),
                 (Vector3?) null
             );
             // Collider = registry.Register(
@@ -25,11 +25,11 @@ namespace DigBuild.Registries
             //     (ICollider?) null
             // );
             Item = registry.Register(
-                new ResourceName(Game.Domain, "item"),
+                new ResourceName(DigBuildGame.Domain, "item"),
                 (ItemInstance?) null
             );
             ItemJoinWorldTime = registry.Register(
-                new ResourceName(Game.Domain, "item_join_world_time"),
+                new ResourceName(DigBuildGame.Domain, "item_join_world_time"),
                 (long?) null
             );
         }

@@ -5,6 +5,7 @@ using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
+using DigBuild.Players;
 
 namespace DigBuild.Registries
 {
@@ -12,16 +13,23 @@ namespace DigBuild.Registries
     {
         public static EntityCapability<IPhysicalEntity?> PhysicalEntity { get; private set; } = null!;
         public static EntityCapability<IItemEntity?> ItemEntity { get; private set; } = null!;
+
+        public static EntityCapability<IPlayerEntity?> PlayerEntity { get; private set; } = null!;
         
         internal static void Register(RegistryBuilder<IEntityCapability> registry)
         {
             PhysicalEntity = registry.Register(
-                new ResourceName(Game.Domain, "physical_entity"),
+                new ResourceName(DigBuildGame.Domain, "physical_entity"),
                 (IPhysicalEntity?) null
             );
             ItemEntity = registry.Register(
-                new ResourceName(Game.Domain, "item_entity"),
+                new ResourceName(DigBuildGame.Domain, "item_entity"),
                 (IItemEntity?) null
+            );
+
+            PlayerEntity = registry.Register(
+                new ResourceName(DigBuildGame.Domain, "player_entity"),
+                (IPlayerEntity?) null
             );
         }
     }

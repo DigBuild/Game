@@ -36,7 +36,7 @@ namespace DigBuild.Render
 
             var bloomPath = new ResourceName(name.Domain, $"textures/{name.Path}.glow.png");
             if (!manager.TryGet<BitmapTexture>(bloomPath, out var bloomTexture))
-                bloomTexture = manager.Get<BitmapTexture>(Game.Domain, "textures/noglow.png")!;
+                bloomTexture = manager.Get<BitmapTexture>(DigBuildGame.Domain, "textures/noglow.png")!;
                 
             return new MultiSprite(stitcher.Add(colorTexture), stitcher.Add(bloomTexture));
         }

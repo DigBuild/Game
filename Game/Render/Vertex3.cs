@@ -3,16 +3,16 @@ using DigBuild.Engine.Render;
 
 namespace DigBuild.Render
 {
-    public readonly struct SimplerVertex
+    public readonly struct Vertex3
     {
         public readonly Vector3 Pos;
 
-        public SimplerVertex(Vector3 pos)
+        public Vertex3(Vector3 pos)
         {
             Pos = pos;
         }
 
-        public SimplerVertex(float x, float y, float z)
+        public Vertex3(float x, float y, float z)
         {
             Pos = new Vector3(x, y, z);
         }
@@ -22,9 +22,9 @@ namespace DigBuild.Render
             return $"Vertex({Pos})";
         }
 
-        public static VertexTransformer<SimplerVertex> CreateTransformer(IVertexConsumer<SimplerVertex> next, Matrix4x4 transform)
+        public static VertexTransformer<Vertex3> CreateTransformer(IVertexConsumer<Vertex3> next, Matrix4x4 transform)
         {
-            return new(next, v => new SimplerVertex(
+            return new(next, v => new Vertex3(
                 Vector3.Transform(v.Pos, transform)
             ));
         }

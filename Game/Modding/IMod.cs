@@ -4,6 +4,6 @@ namespace DigBuild.Modding
 {
     public interface IMod
     {
-        void AttachEvents(EventBus bus);
+        void Setup(EventBus bus);
     }
 }

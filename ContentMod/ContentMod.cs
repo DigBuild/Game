@@ -7,12 +7,14 @@ using DigBuild.Engine.Worldgen;
 using DigBuild.Events;
 using DigBuild.Modding;
 using DigBuild.Recipes;
+using DigBuild.Registries;
+using GameEntities = DigBuild.Content.Registries.GameEntities;
 
 namespace DigBuild.Content
 {
     public sealed class ContentMod : IMod
     {
-        public void AttachEvents(EventBus bus)
+        public void Setup(EventBus bus)
         {
             bus.Subscribe<RegistryBuildingEvent<Block>>(evt => GameBlocks.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<Entity>>(evt => GameEntities.Register(evt.Registry));
@@ -20,7 +22,7 @@ namespace DigBuild.Content
             bus.Subscribe<RegistryBuildingEvent<ICraftingRecipe>>(evt => GameRecipes.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<IWorldgenAttribute>>(evt => WorldgenAttributes.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<IWorldgenFeature>>(evt => WorldgenFeatures.Register(evt.Registry));
-            bus.Subscribe<ParticleSystemInitializationEvent>(ParticleSystems.Register);
+            bus.Subscribe<RegistryBuildingEvent<IParticleSystemData>>(ParticleSystems.Register);
         }
     }
 }

@@ -3,6 +3,7 @@ using DigBuild.Engine.Entities;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
+using DigBuild.Players;
 
 namespace DigBuild.Registries
 {
@@ -13,7 +14,7 @@ namespace DigBuild.Registries
 
         internal static void Register(RegistryBuilder<Entity> registry)
         {
-            Item = registry.Create(new ResourceName(Game.Domain, "item"), builder =>
+            Item = registry.Create(new ResourceName(DigBuildGame.Domain, "item"), builder =>
             {
                 var itemData = builder.Add<ItemEntityData>();
                 builder.Attach(new ItemEntityBehavior(), itemData);
@@ -21,18 +22,21 @@ namespace DigBuild.Registries
                 var physicalData = builder.Add<PhysicalEntityData>();
                 builder.Attach(new PhysicalEntityBehavior(new AABB(-0.2f, 0, -0.2f, 0.2f, 0.4f, 0.2f)), physicalData);
             });
-            Player = registry.Create(new ResourceName(Game.Domain, "player"), builder =>
+            Player = registry.Create(new ResourceName(DigBuildGame.Domain, "player"), builder =>
             {
-                var data = builder.Add<PhysicalEntityData>();
+                var physicalEntityData = builder.Add<PhysicalEntityData>();
                 builder.Attach(new PhysicalEntityBehavior(
                     Players.Player.BoundingBox,
-                    chunkLoadRadius: Game.ViewRadius,
+                    chunkLoadRadius: DigBuildGame.ViewRadius,
                     jumpForce: Players.Player.JumpForce,
                     jumpKickSpeed: Players.Player.JumpKickSpeed,
                     movementSpeedGround: Players.Player.MovementSpeedGround,
                     movementSpeedAir: Players.Player.MovementSpeedAir,
                     rotationSpeed: Players.Player.RotationSpeed
-                ), data);
+                ), physicalEntityData);
+
+                var playerData = builder.Add<PlayerBehaviorData>();
+                builder.Attach(new PlayerBehavior(), playerData);
             });
         }
     }

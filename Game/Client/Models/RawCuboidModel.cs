@@ -32,9 +32,9 @@ namespace DigBuild.Client.Models
 
         private CuboidModel Build()
         {
-            var vertices = new Dictionary<Direction, List<SimpleVertex>>();
+            var vertices = new Dictionary<Direction, List<WorldVertex>>();
             foreach (var direction in Directions.All)
-                vertices[direction] = new List<SimpleVertex>();
+                vertices[direction] = new List<WorldVertex>();
 
             foreach (var cuboid in _modelDefinition.Cuboids)
             {
@@ -61,7 +61,7 @@ namespace DigBuild.Client.Models
         IBlockModel IRawModel<IBlockModel>.Build() => Build();
         IItemModel IRawModel<IItemModel>.Build() => Build();
 
-        public static IEnumerable<SimpleVertex> GenerateFaceVertices(AABB bounds, Direction face, MultiSprite sprite)
+        public static IEnumerable<WorldVertex> GenerateFaceVertices(AABB bounds, Direction face, MultiSprite sprite)
         {
             var nx = new Vector3(bounds.Min.X, 0, 0);
             var ny = new Vector3(0, bounds.Min.Y, 0);
@@ -73,58 +73,58 @@ namespace DigBuild.Client.Models
             switch (face)
             {
                 case Direction.NegX:
-                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitX, sprite, bounds.Max.Z, bounds.Max.Y, 1);
-                    yield return new SimpleVertex(nx + py + pz, -Vector3.UnitX, sprite, bounds.Min.Z, bounds.Min.Y, 1);
-                    yield return new SimpleVertex(nx + py + nz, -Vector3.UnitX, sprite, bounds.Max.Z, bounds.Min.Y, 1);
+                    yield return new WorldVertex(nx + ny + nz, -Vector3.UnitX, sprite, bounds.Max.Z, bounds.Max.Y, 1);
+                    yield return new WorldVertex(nx + py + pz, -Vector3.UnitX, sprite, bounds.Min.Z, bounds.Min.Y, 1);
+                    yield return new WorldVertex(nx + py + nz, -Vector3.UnitX, sprite, bounds.Max.Z, bounds.Min.Y, 1);
 
-                    yield return new SimpleVertex(nx + ny + pz, -Vector3.UnitX, sprite, bounds.Min.Z, bounds.Max.Y, 1);
-                    yield return new SimpleVertex(nx + py + pz, -Vector3.UnitX, sprite, bounds.Min.Z, bounds.Min.Y, 1);
-                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitX, sprite, bounds.Max.Z, bounds.Max.Y, 1);
+                    yield return new WorldVertex(nx + ny + pz, -Vector3.UnitX, sprite, bounds.Min.Z, bounds.Max.Y, 1);
+                    yield return new WorldVertex(nx + py + pz, -Vector3.UnitX, sprite, bounds.Min.Z, bounds.Min.Y, 1);
+                    yield return new WorldVertex(nx + ny + nz, -Vector3.UnitX, sprite, bounds.Max.Z, bounds.Max.Y, 1);
                     break;
                 case Direction.PosX:
-                    yield return new SimpleVertex(px + ny + nz, Vector3.UnitX, sprite, bounds.Min.Z, bounds.Max.Y, 1);
-                    yield return new SimpleVertex(px + py + nz, Vector3.UnitX, sprite, bounds.Min.Z, bounds.Min.Y, 1);
-                    yield return new SimpleVertex(px + py + pz, Vector3.UnitX, sprite, bounds.Max.Z, bounds.Min.Y, 1);
+                    yield return new WorldVertex(px + ny + nz, Vector3.UnitX, sprite, bounds.Min.Z, bounds.Max.Y, 1);
+                    yield return new WorldVertex(px + py + nz, Vector3.UnitX, sprite, bounds.Min.Z, bounds.Min.Y, 1);
+                    yield return new WorldVertex(px + py + pz, Vector3.UnitX, sprite, bounds.Max.Z, bounds.Min.Y, 1);
 
-                    yield return new SimpleVertex(px + py + pz, Vector3.UnitX, sprite, bounds.Max.Z, bounds.Min.Y, 1);
-                    yield return new SimpleVertex(px + ny + pz, Vector3.UnitX, sprite, bounds.Max.Z, bounds.Max.Y, 1);
-                    yield return new SimpleVertex(px + ny + nz, Vector3.UnitX, sprite, bounds.Min.Z, bounds.Max.Y, 1);
+                    yield return new WorldVertex(px + py + pz, Vector3.UnitX, sprite, bounds.Max.Z, bounds.Min.Y, 1);
+                    yield return new WorldVertex(px + ny + pz, Vector3.UnitX, sprite, bounds.Max.Z, bounds.Max.Y, 1);
+                    yield return new WorldVertex(px + ny + nz, Vector3.UnitX, sprite, bounds.Min.Z, bounds.Max.Y, 1);
                     break;
                 case Direction.NegY:
-                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitY, sprite, bounds.Min.X, bounds.Max.Z, 1);
-                    yield return new SimpleVertex(px + ny + nz, -Vector3.UnitY, sprite, bounds.Max.X, bounds.Max.Z, 1);
-                    yield return new SimpleVertex(px + ny + pz, -Vector3.UnitY, sprite, bounds.Max.X, bounds.Min.Z, 1);
+                    yield return new WorldVertex(nx + ny + nz, -Vector3.UnitY, sprite, bounds.Min.X, bounds.Max.Z, 1);
+                    yield return new WorldVertex(px + ny + nz, -Vector3.UnitY, sprite, bounds.Max.X, bounds.Max.Z, 1);
+                    yield return new WorldVertex(px + ny + pz, -Vector3.UnitY, sprite, bounds.Max.X, bounds.Min.Z, 1);
 
-                    yield return new SimpleVertex(px + ny + pz, -Vector3.UnitY, sprite, bounds.Max.X, bounds.Min.Z, 1);
-                    yield return new SimpleVertex(nx + ny + pz, -Vector3.UnitY, sprite, bounds.Min.X, bounds.Min.Z, 1);
-                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitY, sprite, bounds.Min.X, bounds.Max.Z, 1);
+                    yield return new WorldVertex(px + ny + pz, -Vector3.UnitY, sprite, bounds.Max.X, bounds.Min.Z, 1);
+                    yield return new WorldVertex(nx + ny + pz, -Vector3.UnitY, sprite, bounds.Min.X, bounds.Min.Z, 1);
+                    yield return new WorldVertex(nx + ny + nz, -Vector3.UnitY, sprite, bounds.Min.X, bounds.Max.Z, 1);
                     break;
                 case Direction.PosY:
-                    yield return new SimpleVertex(nx + py + nz, Vector3.UnitY, sprite, bounds.Min.X, bounds.Max.Z, 1);
-                    yield return new SimpleVertex(px + py + pz, Vector3.UnitY, sprite, bounds.Max.X, bounds.Min.Z, 1);
-                    yield return new SimpleVertex(px + py + nz, Vector3.UnitY, sprite, bounds.Max.X, bounds.Max.Z, 1);
+                    yield return new WorldVertex(nx + py + nz, Vector3.UnitY, sprite, bounds.Min.X, bounds.Max.Z, 1);
+                    yield return new WorldVertex(px + py + pz, Vector3.UnitY, sprite, bounds.Max.X, bounds.Min.Z, 1);
+                    yield return new WorldVertex(px + py + nz, Vector3.UnitY, sprite, bounds.Max.X, bounds.Max.Z, 1);
 
-                    yield return new SimpleVertex(nx + py + pz, Vector3.UnitY, sprite, bounds.Min.X, bounds.Min.Z, 1);
-                    yield return new SimpleVertex(px + py + pz, Vector3.UnitY, sprite, bounds.Max.X, bounds.Min.Z, 1);
-                    yield return new SimpleVertex(nx + py + nz, Vector3.UnitY, sprite, bounds.Min.X, bounds.Max.Z, 1);
+                    yield return new WorldVertex(nx + py + pz, Vector3.UnitY, sprite, bounds.Min.X, bounds.Min.Z, 1);
+                    yield return new WorldVertex(px + py + pz, Vector3.UnitY, sprite, bounds.Max.X, bounds.Min.Z, 1);
+                    yield return new WorldVertex(nx + py + nz, Vector3.UnitY, sprite, bounds.Min.X, bounds.Max.Z, 1);
                     break;
                 case Direction.NegZ:
-                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitZ, sprite, bounds.Min.X, bounds.Max.Y, 1);
-                    yield return new SimpleVertex(px + py + nz, -Vector3.UnitZ, sprite, bounds.Max.X, bounds.Min.Y, 1);
-                    yield return new SimpleVertex(px + ny + nz, -Vector3.UnitZ, sprite, bounds.Max.X, bounds.Max.Y, 1);
+                    yield return new WorldVertex(nx + ny + nz, -Vector3.UnitZ, sprite, bounds.Min.X, bounds.Max.Y, 1);
+                    yield return new WorldVertex(px + py + nz, -Vector3.UnitZ, sprite, bounds.Max.X, bounds.Min.Y, 1);
+                    yield return new WorldVertex(px + ny + nz, -Vector3.UnitZ, sprite, bounds.Max.X, bounds.Max.Y, 1);
                     
-                    yield return new SimpleVertex(nx + py + nz, -Vector3.UnitZ, sprite, bounds.Min.X, bounds.Min.Y, 1);
-                    yield return new SimpleVertex(px + py + nz, -Vector3.UnitZ, sprite, bounds.Max.X, bounds.Min.Y, 1);
-                    yield return new SimpleVertex(nx + ny + nz, -Vector3.UnitZ, sprite, bounds.Min.X, bounds.Max.Y, 1);
+                    yield return new WorldVertex(nx + py + nz, -Vector3.UnitZ, sprite, bounds.Min.X, bounds.Min.Y, 1);
+                    yield return new WorldVertex(px + py + nz, -Vector3.UnitZ, sprite, bounds.Max.X, bounds.Min.Y, 1);
+                    yield return new WorldVertex(nx + ny + nz, -Vector3.UnitZ, sprite, bounds.Min.X, bounds.Max.Y, 1);
                     break;
                 case Direction.PosZ:
-                    yield return new SimpleVertex(px + py + pz, Vector3.UnitZ, sprite, bounds.Min.X, bounds.Min.Y, 1);
-                    yield return new SimpleVertex(nx + ny + pz, Vector3.UnitZ, sprite, bounds.Max.X, bounds.Max.Y, 1);
-                    yield return new SimpleVertex(px + ny + pz, Vector3.UnitZ, sprite, bounds.Min.X, bounds.Max.Y, 1);
+                    yield return new WorldVertex(px + py + pz, Vector3.UnitZ, sprite, bounds.Min.X, bounds.Min.Y, 1);
+                    yield return new WorldVertex(nx + ny + pz, Vector3.UnitZ, sprite, bounds.Max.X, bounds.Max.Y, 1);
+                    yield return new WorldVertex(px + ny + pz, Vector3.UnitZ, sprite, bounds.Min.X, bounds.Max.Y, 1);
 
-                    yield return new SimpleVertex(nx + py + pz, Vector3.UnitZ, sprite, bounds.Max.X, bounds.Min.Y, 1);
-                    yield return new SimpleVertex(nx + ny + pz, Vector3.UnitZ, sprite, bounds.Max.X, bounds.Max.Y, 1);
-                    yield return new SimpleVertex(px + py + pz, Vector3.UnitZ, sprite, bounds.Min.X, bounds.Min.Y, 1);
+                    yield return new WorldVertex(nx + py + pz, Vector3.UnitZ, sprite, bounds.Max.X, bounds.Min.Y, 1);
+                    yield return new WorldVertex(nx + ny + pz, Vector3.UnitZ, sprite, bounds.Max.X, bounds.Max.Y, 1);
+                    yield return new WorldVertex(px + py + pz, Vector3.UnitZ, sprite, bounds.Min.X, bounds.Min.Y, 1);
                     break;
             }
         }

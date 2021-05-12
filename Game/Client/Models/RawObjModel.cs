@@ -41,7 +41,7 @@ namespace DigBuild.Client.Models
 
         private SimpleModel Build()
         {
-            var vertices = new List<SimpleVertex>();
+            var vertices = new List<WorldVertex>();
             foreach (var objGroup in RawObj.Groups)
             {
                 var sprite = _sprites[objGroup.Material];
@@ -53,7 +53,7 @@ namespace DigBuild.Client.Models
                     {
                         var faceVert = face[i];
                         var uvs = RawObj.Textures[faceVert.TextureIndex - 1];
-                        vertices.Add(new SimpleVertex(
+                        vertices.Add(new WorldVertex(
                             ToVector3(RawObj.Vertices[faceVert.VertexIndex - 1]) + VertexOffset,
                             ToVector3(RawObj.Normals[faceVert.NormalIndex - 1]),
                             sprite, 1 - uvs.X, 1 - uvs.Y,

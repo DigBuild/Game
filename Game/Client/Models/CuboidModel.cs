@@ -8,11 +8,11 @@ namespace DigBuild.Client.Models
 {
     public sealed class CuboidModel : IBlockModel, IItemModel
     {
-        private readonly SimpleVertex[][] _vertices = new SimpleVertex[6][];
+        private readonly WorldVertex[][] _vertices = new WorldVertex[6][];
         private readonly bool _solid;
-        private readonly RenderLayer<SimpleVertex> _layer;
+        private readonly RenderLayer<WorldVertex> _layer;
 
-        public CuboidModel(IReadOnlyDictionary<Direction, List<SimpleVertex>> vertices, bool solid, RenderLayer<SimpleVertex> layer)
+        public CuboidModel(IReadOnlyDictionary<Direction, List<WorldVertex>> vertices, bool solid, RenderLayer<WorldVertex> layer)
         {
             foreach (var direction in Directions.All)
                 _vertices[(int) direction] = vertices[direction].ToArray();

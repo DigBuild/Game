@@ -12,7 +12,7 @@ namespace DigBuild.Client.Models.Nodes
     {
         public Vector3 From { get; set; }
         public Vector3 To { get; set; }
-        public RenderLayer<SimpleVertex> Layer { get; set; }
+        public RenderLayer<WorldVertex> Layer { get; set; }
         public CuboidTextures Textures { get; set; }
 
         public IEnumerable<IModelGeometry> GetGeometries(JsonModelData data)

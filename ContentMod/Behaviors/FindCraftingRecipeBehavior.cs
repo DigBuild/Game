@@ -40,9 +40,9 @@ namespace DigBuild.Content.Behaviors
 
         private void OnInputChanged(IFindCraftingRecipeBehavior data, ICraftingInput craftingInput)
         {
-            var lookupResult = Game.RecipeLookup.Find(craftingInput);
-            data.ActiveRecipe = lookupResult?.Recipe;
-            data.ActiveRecipeOutput = lookupResult?.Output;
+            // var lookupResult = Game.RecipeLookup.Find(craftingInput);
+            // data.ActiveRecipe = lookupResult?.Recipe;
+            // data.ActiveRecipeOutput = lookupResult?.Output;
         }
 
         private sealed class CraftingInput : ICraftingInput

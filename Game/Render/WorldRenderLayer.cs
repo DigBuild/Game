@@ -1,4 +1,5 @@
 ﻿using DigBuild.Client;
+using DigBuild.Controller;
 using DigBuild.Engine.Render;
 using DigBuild.Platform.Render;
 using DigBuild.Render.GeneratedUniforms;
@@ -7,18 +8,18 @@ namespace DigBuild.Render
 {
     public static class WorldRenderLayer
     {
-        public static readonly RenderLayer<SimpleVertex> Opaque = RenderLayer<SimpleVertex>.Create(
-            SimpleVertex.CreateTransformer,
-            ctx => GameWindow.Resources!.MainRenderStage,
+        public static readonly RenderLayer<WorldVertex> Opaque = RenderLayer<WorldVertex>.Create(
+            WorldVertex.CreateTransformer,
+            ctx => GameplayController.RenderStage,
             (ctx, resourceManager, renderStage) =>
             {
-                var vsResource = resourceManager.Get<Shader>(Game.Domain, "world/base.vert")!;
-                var fsResource = resourceManager.Get<Shader>(Game.Domain, "world/opaque.frag")!;
+                var vsResource = resourceManager.Get<Shader>(DigBuildGame.Domain, "world/base.vert")!;
+                var fsResource = resourceManager.Get<Shader>(DigBuildGame.Domain, "world/opaque.frag")!;
                 VertexShader vs = ctx.CreateVertexShader(vsResource.Resource)
                     .WithUniform<SimpleUniform>(out var uniform);
                 FragmentShader fs = ctx.CreateFragmentShader(fsResource.Resource)
                     .WithSampler(out var textureHandle);
-                RenderPipeline<SimpleVertex> pipeline = ctx.CreatePipeline<SimpleVertex>(
+                RenderPipeline<WorldVertex> pipeline = ctx.CreatePipeline<WorldVertex>(
                         vs, fs,
                         renderStage, Topology.Triangles
                     )
@@ -31,10 +32,10 @@ namespace DigBuild.Render
                 TextureBinding blockTextureBinding = ctx.CreateTextureBinding(
                     textureHandle,
                     sampler,
-                    GameWindow.Resources!.BlockTexture
+                    GameplayController.TextureSheet
                 );
                 
-                return new SimpleLayerData<SimpleVertex, SimpleUniform>(
+                return new SimpleLayerData<WorldVertex, SimpleUniform>(
                     pipeline, blockTextureBinding, uniform,
                     mat => new SimpleUniform(){Matrix = mat}
                 );
@@ -44,24 +45,24 @@ namespace DigBuild.Render
             (data, cmd) => cmd.Using(data.Pipeline, data.TextureBinding));
 
         
-        public static readonly RenderLayer<SimpleVertex> Cutout = RenderLayer<SimpleVertex>.Create(
-            SimpleVertex.CreateTransformer,
-            ctx => GameWindow.Resources!.MainRenderStage,
+        public static readonly RenderLayer<WorldVertex> Cutout = RenderLayer<WorldVertex>.Create(
+            WorldVertex.CreateTransformer,
+            ctx => GameplayController.RenderStage,
             (ctx, resourceManager, renderStage) =>
             {
-                var vsResource = resourceManager.Get<Shader>(Game.Domain, "world/base.vert")!;
-                var fsResource = resourceManager.Get<Shader>(Game.Domain, "world/cutout.frag")!;
+                var vsResource = resourceManager.Get<Shader>(DigBuildGame.Domain, "world/base.vert")!;
+                var fsResource = resourceManager.Get<Shader>(DigBuildGame.Domain, "world/cutout.frag")!;
                 VertexShader vs = ctx.CreateVertexShader(vsResource.Resource)
                     .WithUniform<SimpleUniform>(out var uniform);
                 FragmentShader fs = ctx.CreateFragmentShader(fsResource.Resource)
                     .WithSampler(out var textureHandle);
-                RenderPipeline<SimpleVertex> pipeline = ctx.CreatePipeline<SimpleVertex>(
+                RenderPipeline<WorldVertex> pipeline = ctx.CreatePipeline<WorldVertex>(
                         vs, fs,
                         renderStage, Topology.Triangles
                     )
                     .WithDepthTest(CompareOperation.LessOrEqual, true)
-                    .WithStandardBlending(GameWindow.Resources!.WorldFramebuffer.Format.Attachments[0])
-                    .WithStandardBlending(GameWindow.Resources!.WorldFramebuffer.Format.Attachments[1]);
+                    .WithStandardBlending(renderStage.Format.Attachments[0])
+                    .WithStandardBlending(renderStage.Format.Attachments[1]);
 
                 // Create spritesheet stuff
                 TextureSampler sampler = ctx.CreateTextureSampler(
@@ -70,10 +71,10 @@ namespace DigBuild.Render
                 TextureBinding blockTextureBinding = ctx.CreateTextureBinding(
                     textureHandle,
                     sampler,
-                    GameWindow.Resources!.BlockTexture
+                    GameplayController.TextureSheet
                 );
                 
-                return new SimpleLayerData<SimpleVertex, SimpleUniform>(
+                return new SimpleLayerData<WorldVertex, SimpleUniform>(
                     pipeline, blockTextureBinding, uniform,
                     mat => new SimpleUniform(){Matrix = mat}
                 );
@@ -82,24 +83,24 @@ namespace DigBuild.Render
             (data, pool) => data.CreateUniforms(pool),
             (data, cmd) => cmd.Using(data.Pipeline, data.TextureBinding));
         
-        public static readonly RenderLayer<SimpleVertex> Translucent = RenderLayer<SimpleVertex>.Create(
-            SimpleVertex.CreateTransformer,
-            ctx => GameWindow.Resources!.MainRenderStage,
+        public static readonly RenderLayer<WorldVertex> Translucent = RenderLayer<WorldVertex>.Create(
+            WorldVertex.CreateTransformer,
+            ctx => GameplayController.RenderStage,
             (ctx, resourceManager, renderStage) =>
             {
-                var vsResource = resourceManager.Get<Shader>(Game.Domain, "world/base.vert")!;
-                var fsResource = resourceManager.Get<Shader>(Game.Domain, "world/translucent.frag")!;
+                var vsResource = resourceManager.Get<Shader>(DigBuildGame.Domain, "world/base.vert")!;
+                var fsResource = resourceManager.Get<Shader>(DigBuildGame.Domain, "world/translucent.frag")!;
                 VertexShader vs = ctx.CreateVertexShader(vsResource.Resource)
                     .WithUniform<SimpleUniform>(out var uniform);
                 FragmentShader fs = ctx.CreateFragmentShader(fsResource.Resource)
                     .WithSampler(out var textureHandle);
-                RenderPipeline<SimpleVertex> pipeline = ctx.CreatePipeline<SimpleVertex>(
+                RenderPipeline<WorldVertex> pipeline = ctx.CreatePipeline<WorldVertex>(
                         vs, fs,
                         renderStage, Topology.Triangles
                     )
                     .WithDepthTest(CompareOperation.LessOrEqual, true)
-                    .WithStandardBlending(GameWindow.Resources!.WorldFramebuffer.Format.Attachments[0])
-                    .WithStandardBlending(GameWindow.Resources!.WorldFramebuffer.Format.Attachments[1]);
+                    .WithStandardBlending(renderStage.Format.Attachments[0])
+                    .WithStandardBlending(renderStage.Format.Attachments[1]);
 
                 // Create spritesheet stuff
                 TextureSampler sampler = ctx.CreateTextureSampler(
@@ -108,10 +109,10 @@ namespace DigBuild.Render
                 TextureBinding blockTextureBinding = ctx.CreateTextureBinding(
                     textureHandle,
                     sampler,
-                    GameWindow.Resources!.BlockTexture
+                    GameplayController.TextureSheet
                 );
                 
-                return new SimpleLayerData<SimpleVertex, SimpleUniform>(
+                return new SimpleLayerData<WorldVertex, SimpleUniform>(
                     pipeline, blockTextureBinding, uniform,
                     mat => new SimpleUniform(){Matrix = mat}
                 );

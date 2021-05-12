@@ -33,16 +33,16 @@ namespace DigBuild.Content.Registries
         
         internal static void Register(RegistryBuilder<Block> registry)
         {
-            Dirt = registry.Create(Game.Domain, "dirt",
+            Dirt = registry.Create(DigBuildGame.Domain, "dirt",
                 Drops(() => GameItems.Dirt)
             );
-            Grass = registry.Create(Game.Domain, "grass", builder =>
+            Grass = registry.Create(DigBuildGame.Domain, "grass", builder =>
                 {
                     builder.Attach(new ReplaceOnFaceCoveredBehavior(Direction.PosY, () => Dirt));
                 },
                 Drops(() => GameItems.Dirt)
             );
-            Water = registry.Create(Game.Domain, "water", builder =>
+            Water = registry.Create(DigBuildGame.Domain, "water", builder =>
                 {
                     builder.Attach(new ColliderBehavior(ICollider.None));
                     builder.Attach(new RayColliderBehavior(IRayCollider<VoxelRayCollider.Hit>.None));
@@ -50,16 +50,16 @@ namespace DigBuild.Content.Registries
                 },
                 Drops(() => GameItems.Water)
             );
-            Stone = registry.Create(Game.Domain, "stone",
+            Stone = registry.Create(DigBuildGame.Domain, "stone",
                 Drops(() => GameItems.Stone)
             );
-            Log = registry.Create(Game.Domain, "log", builder =>
+            Log = registry.Create(DigBuildGame.Domain, "log", builder =>
             {
                 builder.Attach(new VerticalSupportBehavior());
             },
                 Drops(() => GameItems.Log)
             );
-            LogSmall = registry.Create(Game.Domain, "log_small", builder =>
+            LogSmall = registry.Create(DigBuildGame.Domain, "log_small", builder =>
                 {
                     var aabb = new AABB(0.25f, 0, 0.25f, 0.75f, 1, 0.75f);
                     builder.Attach(new ColliderBehavior(new VoxelCollider(aabb)));
@@ -70,7 +70,7 @@ namespace DigBuild.Content.Registries
                 Drops(() => GameItems.Log)
             );
 
-            Leaves = registry.Create(Game.Domain, "leaves", builder =>
+            Leaves = registry.Create(DigBuildGame.Domain, "leaves", builder =>
             {
                 builder.Attach(new DecayBehavior(
                     3,
@@ -82,7 +82,7 @@ namespace DigBuild.Content.Registries
                 Drops(() => GameItems.Twig, 1, 0.2f)
             );
 
-            StoneStairs = registry.Create(Game.Domain, "stone_stairs", builder =>
+            StoneStairs = registry.Create(DigBuildGame.Domain, "stone_stairs", builder =>
                 {
                     builder.Attach(new ColliderBehavior(new MultiVoxelCollider(StoneStairAABBs)));
                     builder.Attach(new RayColliderBehavior(new VoxelRayCollider(StoneStairAABBs)));
@@ -97,7 +97,7 @@ namespace DigBuild.Content.Registries
                 Drops(() => GameItems.StoneStairs)
             );
 
-            Crafter = registry.Create(Game.Domain, "crafter", builder =>
+            Crafter = registry.Create(DigBuildGame.Domain, "crafter", builder =>
                 {
                     var data = builder.Add<CrafterBlockData>();
                     builder.Attach(new FindCraftingRecipeBehavior(), data);
@@ -108,7 +108,7 @@ namespace DigBuild.Content.Registries
                 Drops(() => GameItems.Crafter)
             );
 
-            Campfire = registry.Create(Game.Domain, "campfire", builder =>
+            Campfire = registry.Create(DigBuildGame.Domain, "campfire", builder =>
                 {
                     builder.Attach(new ColliderBehavior(ICollider.None));
                     builder.Attach(new RayColliderBehavior(new VoxelRayCollider(new AABB(0.125f, 0, 0.125f, 0.875f, 0.5f, 0.875f))));
@@ -121,7 +121,7 @@ namespace DigBuild.Content.Registries
             );
             
 
-            Multiblock = registry.Create(Game.Domain, "multiblock", builder =>
+            Multiblock = registry.Create(DigBuildGame.Domain, "multiblock", builder =>
             {
                 var data = builder.Add<MultiblockData>();
                 builder.Attach(new MultiblockBehavior(), data);

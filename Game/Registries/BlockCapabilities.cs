@@ -12,7 +12,7 @@ namespace DigBuild.Registries
         internal static void Register(RegistryBuilder<IBlockCapability> registry)
         {
             InternalMultiblock = registry.Register(
-                new ResourceName(Game.Domain, "internal/multiblock"),
+                new ResourceName(DigBuildGame.Domain, "internal/multiblock"),
                 (IInternalMultiblock?) null
             );
         }
