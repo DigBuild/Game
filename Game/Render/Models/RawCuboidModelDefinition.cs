@@ -7,7 +7,7 @@ using DigBuild.Engine.Math;
 using DigBuild.Platform.Resource;
 using DigBuild.Serialization;
 
-namespace DigBuild.Client.Models
+namespace DigBuild.Render.Models
 {
     public sealed class RawCuboidModelDefinition : ICustomResource
     {

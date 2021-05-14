@@ -1,5 +1,5 @@
 ﻿using DigBuild.Blocks;
-using DigBuild.Client;
+using DigBuild.Controller;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Items;
 using DigBuild.Items;

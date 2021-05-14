@@ -4,12 +4,11 @@ using System.IO;
 using System.Numerics;
 using DigBuild.Engine.Render;
 using DigBuild.Platform.Resource;
-using DigBuild.Render;
 using ObjLoader.Loader.Data;
 using ObjLoader.Loader.Data.VertexData;
 using ObjLoader.Loader.Loaders;
 
-namespace DigBuild.Client.Models
+namespace DigBuild.Render.Models
 {
     public sealed class RawObjModel : ICustomResource, IRawModel<IBlockModel>, IRawModel<IItemModel>
     {

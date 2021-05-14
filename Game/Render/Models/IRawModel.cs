@@ -1,6 +1,4 @@
-﻿using DigBuild.Render;
-
-namespace DigBuild.Client.Models
+﻿namespace DigBuild.Render.Models
 {
     public interface IRawModel<out T>
     {

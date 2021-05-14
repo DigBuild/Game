@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using DigBuild.Client;
 using DigBuild.Controller;
 using DigBuild.Engine.Events;
 using DigBuild.Entities.Models;

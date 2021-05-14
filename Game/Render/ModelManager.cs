@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using DigBuild.Client.Models;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Render;
 using DigBuild.Platform.Resource;
 using DigBuild.Registries;
+using DigBuild.Render.Models;
 
 namespace DigBuild.Render
 {

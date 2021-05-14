@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
-using DigBuild.Render;
 
-namespace DigBuild.Client.Models
+namespace DigBuild.Render.Models
 {
     public sealed class CuboidModel : IBlockModel, IItemModel
     {

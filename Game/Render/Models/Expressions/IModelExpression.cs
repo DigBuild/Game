@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace DigBuild.Client.Models.Expressions
+namespace DigBuild.Render.Models.Expressions
 {
     public interface IModelExpression
     {

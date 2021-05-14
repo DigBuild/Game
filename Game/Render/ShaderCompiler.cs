@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using DigBuild.Platform.Resource;
 
-namespace DigBuild.Client
+namespace DigBuild.Render
 {
     public sealed class ShaderCompiler : IResourceProvider
     {

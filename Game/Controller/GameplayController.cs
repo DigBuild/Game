@@ -2,7 +2,6 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
-using DigBuild.Client;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Particles;

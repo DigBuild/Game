@@ -3,10 +3,9 @@ using System.Numerics;
 using System.Text.Json;
 using DigBuild.Engine.Render;
 using DigBuild.Platform.Resource;
-using DigBuild.Render;
 using DigBuild.Serialization;
 
-namespace DigBuild.Client.Models.Nodes
+namespace DigBuild.Render.Models.Nodes
 {
     public sealed class CuboidModelNode : IModelNode, IModelGeometry
     {

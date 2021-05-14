@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace DigBuild.Client.Models.Expressions
+namespace DigBuild.Render.Models.Expressions
 {
     public sealed class ModelExpressionSubstitutionContext
     {

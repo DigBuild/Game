@@ -2,7 +2,7 @@
 using System.Linq;
 using DigBuild.Platform.Input;
 
-namespace DigBuild.Client
+namespace DigBuild.Controller
 {
     public class GameInput
     {
@@ -66,8 +66,8 @@ namespace DigBuild.Client
             Platform.Platform.InputContext.Update();
             _controller ??= Platform.Platform.InputContext.Controllers.FirstOrDefault();
             
-            var cursorDeltaX = MathF.Atan2((int) (_cursorX - _prevCursorX), 30);
-            var cursorDeltaY = MathF.Atan2((int) (_cursorY - _prevCursorY), 30);
+            var cursorDeltaX = (int) (_cursorX - _prevCursorX) * 0.0125f;
+            var cursorDeltaY = (int) (_cursorY - _prevCursorY) * 0.0125f;
 
             var hasController = _controller is { Connected: true };
             YawDelta = Bias(hasController ? _controller!.Joysticks[2] : 0) + cursorDeltaX;

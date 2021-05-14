@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
 
-namespace DigBuild.Client.Models.Expressions
+namespace DigBuild.Render.Models.Expressions
 {
     public sealed class LiteralModelExpression : IModelExpression
     {

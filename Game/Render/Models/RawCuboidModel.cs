@@ -3,9 +3,8 @@ using System.Numerics;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
 using DigBuild.Platform.Resource;
-using DigBuild.Render;
 
-namespace DigBuild.Client.Models
+namespace DigBuild.Render.Models
 {
     public sealed class RawCuboidModel : IRawModel<IBlockModel>, IRawModel<IItemModel>
     {

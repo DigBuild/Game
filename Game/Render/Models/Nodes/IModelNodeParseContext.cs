@@ -1,8 +1,7 @@
 ﻿using System.Text.Json;
 using DigBuild.Engine.Render;
-using DigBuild.Render;
 
-namespace DigBuild.Client.Models.Nodes
+namespace DigBuild.Render.Models.Nodes
 {
     public interface IModelNodeParseContext
     {

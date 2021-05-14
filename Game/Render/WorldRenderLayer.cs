@@ -1,5 +1,4 @@
-﻿using DigBuild.Client;
-using DigBuild.Controller;
+﻿using DigBuild.Controller;
 using DigBuild.Engine.Render;
 using DigBuild.Platform.Render;
 using DigBuild.Render.GeneratedUniforms;

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace DigBuild.Client
+namespace DigBuild.Render
 {
     public sealed class JsonModelData
     {

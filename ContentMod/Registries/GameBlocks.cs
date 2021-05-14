@@ -1,6 +1,5 @@
 ﻿using System;
 using DigBuild.Behaviors;
-using DigBuild.Client;
 using DigBuild.Content.Behaviors;
 using DigBuild.Content.Blocks;
 using DigBuild.Engine.Blocks;
@@ -8,6 +7,7 @@ using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Registries;
+using DigBuild.Render;
 
 namespace DigBuild.Content.Registries
 {

@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace DigBuild.Client.Models.Expressions
+namespace DigBuild.Render.Models.Expressions
 {
     public sealed class ModelExpressionCompilationContext
     {

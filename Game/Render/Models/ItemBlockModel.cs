@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Numerics;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
 
-namespace DigBuild.Client.Models
+namespace DigBuild.Render.Models
 {
     public sealed class ItemBlockModel : IItemModel
     {

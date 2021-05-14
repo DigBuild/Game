@@ -1,4 +1,4 @@
-﻿namespace DigBuild.Client.Models
+﻿namespace DigBuild.Render.Models
 {
     public sealed class JsonModelData
     {
