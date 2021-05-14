@@ -19,6 +19,8 @@ namespace DigBuild.Render
         private RenderPipeline<Vertex2> _pipeline = null!;
         private UniformBuffer<SimpleSkyVertexUniform> _vertUniformBuffer = null!;
         private UniformBuffer<SimpleSkyFragmentUniform> _fragUniformBuffer = null!;
+        private UniformBinding<SimpleSkyVertexUniform> _vertUniformBinding = null!;
+        private UniformBinding<SimpleSkyFragmentUniform> _fragUniformBinding = null!;
         private VertexBuffer<Vertex2> _vertexBuffer = null!;
 
         public SimpleSkyRenderer(IReadOnlyWorld world)
@@ -45,8 +47,10 @@ namespace DigBuild.Render
                 .WithUniform<SimpleSkyFragmentUniform>(out var fragUniform);
             _pipeline = context.CreatePipeline<Vertex2>(vs, fs, renderStage, Topology.Triangles);
             
-            _vertUniformBuffer = context.CreateUniformBuffer(vertUniform);
-            _fragUniformBuffer = context.CreateUniformBuffer(fragUniform);
+            _vertUniformBuffer = context.CreateUniformBuffer<SimpleSkyVertexUniform>();
+            _vertUniformBinding = context.CreateUniformBinding(vertUniform, _vertUniformBuffer);
+            _fragUniformBuffer = context.CreateUniformBuffer<SimpleSkyFragmentUniform>();
+            _fragUniformBinding = context.CreateUniformBinding(fragUniform, _fragUniformBuffer);
             _vertexBuffer = context.CreateVertexBuffer(
                 // Tri 1
                 new Vertex2(0, 0),
@@ -76,8 +80,8 @@ namespace DigBuild.Render
 
         public void Record(RenderContext context, CommandBufferRecorder cmd)
         {
-            cmd.Using(_pipeline, _vertUniformBuffer, 0);
-            cmd.Using(_pipeline, _fragUniformBuffer, 0);
+            cmd.Using(_pipeline, _vertUniformBinding, 0);
+            cmd.Using(_pipeline, _fragUniformBinding, 0);
             cmd.Draw(_pipeline, _vertexBuffer);
         }
     }

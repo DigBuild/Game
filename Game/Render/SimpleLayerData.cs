@@ -36,6 +36,7 @@ namespace DigBuild.Render
         {
             private readonly UniformHandle<TUniform> _uniformHandle;
             private UniformBuffer<TUniform>? _uniformBuffer;
+            private UniformBinding<TUniform>? _uniformBinding;
             private readonly Func<Matrix4x4, TUniform> _uniformFactory;
 
             private readonly RenderPipeline<TVertex> _pipeline;
@@ -59,11 +60,12 @@ namespace DigBuild.Render
 
             public void PushAndUseTransform(RenderContext context, CommandBufferRecorder cmd, Matrix4x4 transform)
             {
-                _uniformBuffer ??= context.CreateUniformBuffer(_uniformHandle);
+                _uniformBuffer ??= context.CreateUniformBuffer<TUniform>();
+                _uniformBinding ??= context.CreateUniformBinding(_uniformHandle, _uniformBuffer);
 
                 var index = _nativeBuffer.Count;
                 _nativeBuffer.Add(_uniformFactory(transform));
-                cmd.Using(_pipeline, _uniformBuffer, index);
+                cmd.Using(_pipeline, _uniformBinding, index);
             }
 
             public void Finalize(RenderContext context, CommandBufferRecorder cmd)
