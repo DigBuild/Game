@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using DigBuild.Engine.Render;
+using DigBuild.Render.Worlds;
 
 namespace DigBuild.Render.Models.Nodes
 {
@@ -7,6 +8,6 @@ namespace DigBuild.Render.Models.Nodes
     {
         JsonSerializerOptions SerializerOptions { get; }
 
-        RenderLayer<WorldVertex>? GetLayer(string name);
+        IRenderLayer<WorldVertex>? GetLayer(string name);
     }
 }

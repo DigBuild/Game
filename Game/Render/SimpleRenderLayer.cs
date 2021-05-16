@@ -1,9 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Numerics;
 using DigBuild.Engine.Render;
-using DigBuild.Engine.Render.New;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Resource;
+using DigBuild.Engine.BuiltIn.GeneratedUniforms;
 using DigBuild.Render.GeneratedUniforms;
 
 namespace DigBuild.Render
@@ -16,6 +17,7 @@ namespace DigBuild.Render
         private readonly VertexTransformerProviderDelegate _transformerProvider;
         private readonly ResourceName _vertexShader;
         private readonly ResourceName _fragmentShader;
+        private readonly RenderTexture _texture;
         private readonly bool _depthTest;
         private readonly BlendOptions? _blend;
 
@@ -25,6 +27,7 @@ namespace DigBuild.Render
             VertexTransformerProviderDelegate transformerProvider,
             ResourceName vertexShader,
             ResourceName fragmentShader,
+            RenderTexture texture,
             bool depthTest = true,
             BlendOptions? blend = null
         )
@@ -32,6 +35,7 @@ namespace DigBuild.Render
             _transformerProvider = transformerProvider;
             _vertexShader = vertexShader;
             _fragmentShader = fragmentShader;
+            _texture = texture;
             _depthTest = depthTest;
             _blend = blend;
         }
@@ -41,6 +45,11 @@ namespace DigBuild.Render
             return _transformerProvider(consumer, transform, transformNormal);
         }
 
+        public IVertexConsumer<TVertex> CreateLightingTransformer(IVertexConsumer<TVertex> consumer, Func<Vector3, Vector3, float> lightValueProvider)
+        {
+            return consumer; // TODO: Implement lighting calculations
+        }
+
         public void InitResources(RenderContext context, ResourceManager resourceManager, RenderStage renderStage)
         {
             _resources = new RenderResources(context, resourceManager, renderStage, _vertexShader, _fragmentShader, _depthTest, _blend);
@@ -48,14 +57,16 @@ namespace DigBuild.Render
 
         public void SetupCommand(CommandBufferRecorder cmd, IReadOnlyUniformBufferSet uniforms, IReadOnlyTextureSet textures)
         {
-            _resources.UniformBinding.Update(uniforms.Get(RenderUniforms.SimpleTransform));
-            _resources.TextureBinding.Update(textures.DefaultSampler, textures.Get(RenderTextures.Main));
+            _resources.UniformBinding.Update(uniforms.Get(RenderUniforms.ModelViewTransform));
+            _resources.WorldTimeUniformBinding.Update(uniforms.Get(RenderUniforms.WorldTime));
+            _resources.TextureBinding.Update(textures.DefaultSampler, textures.Get(_texture));
             cmd.Using(_resources.Pipeline, _resources.TextureBinding);
         }
 
         public void Draw(CommandBufferRecorder cmd, IReadOnlyUniformBufferSet uniforms, VertexBuffer<TVertex> vertexBuffer)
         {
-            cmd.Using(_resources.Pipeline, _resources.UniformBinding, uniforms.GetIndex(RenderUniforms.SimpleTransform));
+            cmd.Using(_resources.Pipeline, _resources.UniformBinding, uniforms.GetIndex(RenderUniforms.ModelViewTransform));
+            cmd.Using(_resources.Pipeline, _resources.WorldTimeUniformBinding, uniforms.GetIndex(RenderUniforms.WorldTime));
             cmd.Draw(_resources.Pipeline, vertexBuffer);
         }
 
@@ -63,6 +74,7 @@ namespace DigBuild.Render
         {
             public readonly RenderPipeline<TVertex> Pipeline;
             public readonly UniformBinding<SimpleTransform> UniformBinding;
+            public readonly UniformBinding<WorldTimeUniform> WorldTimeUniformBinding;
             public readonly TextureBinding TextureBinding;
             
             public RenderResources(
@@ -79,17 +91,17 @@ namespace DigBuild.Render
                 var fsResource = resourceManager.Get<Shader>(fragmentShader)!;
 
                 VertexShader vs = context.CreateVertexShader(vsResource.Resource)
-                    .WithUniform<SimpleTransform>(out var uniform);
+                    .WithUniform<SimpleTransform>(out var vertexUniform);
                 FragmentShader fs = context.CreateFragmentShader(fsResource.Resource)
-                    .WithSampler(out var sampler);
+                    .WithUniform<WorldTimeUniform>(out var worldTime)
+                    .WithSampler(out var textureSampler);
                 
-                UniformBinding = context.CreateUniformBinding(uniform);
-                TextureBinding = context.CreateTextureBinding(sampler);
+                UniformBinding = context.CreateUniformBinding(vertexUniform);
+                WorldTimeUniformBinding = context.CreateUniformBinding(worldTime);
+                TextureBinding = context.CreateTextureBinding(textureSampler);
 
                 var pipelineBuilder = context.CreatePipeline<TVertex>(
-                    vs,
-                    fs,
-                    renderStage, Topology.Triangles
+                    vs, fs, renderStage, Topology.Triangles
                 );
                 if (depthTest)
                     pipelineBuilder = pipelineBuilder.WithDepthTest(CompareOperation.LessOrEqual, true);

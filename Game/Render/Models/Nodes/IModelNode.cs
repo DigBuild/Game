@@ -15,6 +15,6 @@ namespace DigBuild.Render.Models.Nodes
 
     public interface IGeometryConsumer
     {
-        IVertexConsumer<TVertex> Get<TVertex>(RenderLayer<TVertex> layer) where TVertex : unmanaged;
+        IVertexConsumer<TVertex> Get<TVertex>(IRenderLayer<TVertex> layer) where TVertex : unmanaged;
     }
 }

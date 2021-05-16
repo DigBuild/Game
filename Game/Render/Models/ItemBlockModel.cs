@@ -1,13 +1,11 @@
-﻿using System;
-using DigBuild.Engine.Math;
+﻿using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
+using DigBuild.Engine.Render.Models;
 
 namespace DigBuild.Render.Models
 {
     public sealed class ItemBlockModel : IItemModel
     {
-        private static readonly Func<Direction, byte> FullBrightness = _ => 0xF;
-
         private readonly IBlockModel _parent;
 
         public ItemBlockModel(IBlockModel parent)
@@ -15,14 +13,14 @@ namespace DigBuild.Render.Models
             _parent = parent;
         }
 
-        public void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, ItemModelTransform transform, float partialTick)
+        public void AddGeometry(IGeometryBuffer buffer, IReadOnlyModelData data, ItemModelTransform transform, float partialTick)
         {
-            buffers.Transform = transform.GetMatrix() * buffers.Transform;
+            buffer.Transform = transform.GetMatrix() * buffer.Transform;
 
             var modelData = new ModelData();
-            _parent.AddGeometry(buffers, modelData, FullBrightness, DirectionFlags.All);
+            _parent.AddGeometry(buffer, modelData, DirectionFlags.All);
             if (_parent.HasDynamicGeometry)
-                _parent.AddDynamicGeometry(buffers, modelData, FullBrightness, partialTick);
+                _parent.AddDynamicGeometry(buffer, modelData, DirectionFlags.All, partialTick);
         }
     }
 }

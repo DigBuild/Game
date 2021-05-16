@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Text.Json;
 using DigBuild.Engine.Render;
 using DigBuild.Platform.Resource;
+using DigBuild.Render.Worlds;
 using DigBuild.Serialization;
 
 namespace DigBuild.Render.Models.Nodes
@@ -11,7 +12,7 @@ namespace DigBuild.Render.Models.Nodes
     {
         public Vector3 From { get; set; }
         public Vector3 To { get; set; }
-        public RenderLayer<WorldVertex> Layer { get; set; }
+        public IRenderLayer<WorldVertex> Layer { get; set; }
         public CuboidTextures Textures { get; set; }
 
         public IEnumerable<IModelGeometry> GetGeometries(JsonModelData data)

@@ -2,7 +2,9 @@
 using System.Numerics;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
+using DigBuild.Engine.Render.Models;
 using DigBuild.Render;
+using DigBuild.Render.Worlds;
 
 namespace DigBuild.Content.Blocks.Models
 {
@@ -15,15 +17,13 @@ namespace DigBuild.Content.Blocks.Models
             _sprite = sprite;
         }
 
-        public void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, Func<Direction, byte> light, DirectionFlags faces)
+        public void AddGeometry(IGeometryBuffer buffer, IReadOnlyModelData data, DirectionFlags visibleFaces)
         {
         }
-
-        public bool IsFaceSolid(Direction face) => false;
-
+        
         public bool HasDynamicGeometry => true;
 
-        public void AddDynamicGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, Func<Direction, byte> light, float partialTick)
+        public void AddDynamicGeometry(IGeometryBuffer buffers, IReadOnlyModelData data, DirectionFlags visibleFaces, float partialTick)
         {
             var angle = (DateTime.Now.Ticks % TimeSpan.TicksPerSecond) / (double) TimeSpan.TicksPerSecond;
             var matrix = Matrix4x4.CreateRotationY((float) (angle * 2 * Math.PI), Vector3.One / 2);
@@ -34,7 +34,7 @@ namespace DigBuild.Content.Blocks.Models
             var v2 = new WorldVertex(Vector3.Transform(new Vector3(0.5f, 0, 0), matrix), normal, _sprite, 0, 0, 1);
             var v3 = new WorldVertex(Vector3.Transform(new Vector3(0.5f, 0, 1), matrix), normal, _sprite, 1, 0, 1);
 
-            var buf = buffers.Get(WorldRenderLayer.Opaque);
+            var buf = buffers.Get(WorldRenderLayers.Opaque);
             buf.Accept(v1, v2, v3);
             buf.Accept(v1, v3, v2);
         }

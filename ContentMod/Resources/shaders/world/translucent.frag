@@ -4,5 +4,5 @@
 #include "base.frag"
 
 void main() {
-    compute(1);
+    compute();
 }

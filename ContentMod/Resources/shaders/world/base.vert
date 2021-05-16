@@ -3,9 +3,6 @@
 layout(binding = 0) uniform UBO {
 	mat4 matrix;
 };
-// layout(set = 1, binding = 1) uniform UBO2 {
-// 	mat4 matrix2;
-// };
 
 layout(location = 0) in vec3 pos;
 layout(location = 1) in vec3 normal;

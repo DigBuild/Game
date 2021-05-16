@@ -1,6 +1,7 @@
 ﻿using System;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Render;
+using DigBuild.Engine.Render.Models;
 using DigBuild.Engine.Storage;
 
 namespace DigBuild.Behaviors

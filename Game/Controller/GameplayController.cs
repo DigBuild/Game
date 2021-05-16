@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
@@ -7,6 +8,7 @@ using DigBuild.Engine.Items;
 using DigBuild.Engine.Particles;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Render;
+using DigBuild.Engine.Render.Worlds;
 using DigBuild.Engine.Textures;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
@@ -18,6 +20,7 @@ using DigBuild.Platform.Util;
 using DigBuild.Players;
 using DigBuild.Registries;
 using DigBuild.Render;
+using DigBuild.Render.Worlds;
 using DigBuild.Ui;
 using DigBuild.Worlds;
 using PlayerController = DigBuild.Players.PlayerController;
@@ -26,21 +29,24 @@ namespace DigBuild.Controller
 {
     public sealed class GameplayController : IGameController
     {
-        public static Texture TextureSheet { get; private set; } = null!;
-        public static RenderStage RenderStage { get; private set; } = null!;
-
         private static readonly List<IRenderLayer> WorldRenderLayers = new(){
-            WorldRenderLayer.Opaque,
-            WorldRenderLayer.Cutout,
-            WorldRenderLayer.Translucent
+            Render.Worlds.WorldRenderLayers.Opaque,
+            Render.Worlds.WorldRenderLayers.Cutout,
+            Render.Worlds.WorldRenderLayers.Translucent
         };
         private static readonly List<IRenderLayer> UiRenderLayers = new(){
-            UiRenderLayer.Ui,
-            WorldRenderLayer.Opaque,
-            WorldRenderLayer.Cutout,
-            WorldRenderLayer.Translucent,
-            UiRenderLayer.Text,
+            // UiRenderLayer.Ui,
+            // Render.WorldRenderLayers.Opaque,
+            // Render.WorldRenderLayers.Cutout,
+            // Render.WorldRenderLayers.Translucent,
+            // UiRenderLayer.Text,
         };
+
+        private static readonly ImmutableList<IRenderUniform> UniformTypes = ImmutableList.Create<IRenderUniform>(
+            // RenderUniforms.ProjectionTransform,
+            RenderUniforms.ModelViewTransform,
+            RenderUniforms.WorldTime
+        );
         
         private readonly DigBuildGame _game;
         private readonly World _world;
@@ -55,6 +61,8 @@ namespace DigBuild.Controller
         private RenderResources _renderResources = null!;
         private SurfaceResources _surfaceResources = null!;
 
+        private readonly TextureSet _textures;
+
         public DigBuildGame Game => _game;
 
         public IWorld World => _world;
@@ -64,26 +72,42 @@ namespace DigBuild.Controller
         public WorldRenderer WorldRenderer { get; }
         public UiManager UiManager { get; }
 
+        public IReadOnlyTextureSet Textures => _textures;
+
         public GameplayController(DigBuildGame game)
         {
             _game = game;
-            
+            _textures = new TextureSet(this);
+
             var config = Config.Load("server/config.json");
 
             var generator = new WorldGenerator(game.TickSource, config.Worldgen.Features, 0);
-            _world = new World(game.TickSource, generator, pos => new RegionStorage(pos));
+            _world = new World(game.TickSource, generator, pos => new RegionStorage(pos), _game.EventBus);
             RayCastContext = new WorldRayCastContext(World);
             
             _particleSystems = GameRegistries.ParticleSystems.Values.Select(d => d.System).ToImmutableList();
             _particleRenderers = GameRegistries.ParticleSystems.Values.Select(d => d.Renderer).ToImmutableList();
+            
+            WorldRenderer = new WorldRenderer(
+                World,
+                world => ImmutableList.Create<IWorldRenderer>(
+                    new WorldTimeInjector(world),
+                    new ChunkWorldRenderer(
+                        world, _game.EventBus,
+                        chunk => ImmutableList.Create<IChunkRenderer>(
+                            new BlockChunkRenderer(world, chunk, _game.ModelManager.BlockModels, _game.BufferPool)
+                        )
+                    ),
+                    new EntityWorldRenderer(_game.EventBus, _game.ModelManager.EntityModels, _game.BufferPool),
+                    new ParticleWorldRenderer(_particleRenderers)
+                ),
+                WorldRenderLayers,
+                UniformTypes,
+                Textures,
+                _game.BufferPool
+            );
 
-            WorldRenderer = new WorldRenderer(World, _game.ModelManager, WorldRenderLayers, _particleRenderers, _game.BufferPool);
-            _world.ChunkManager.ChunkChanged += chunk => WorldRenderer.OnChunkChanged(chunk);
-            _world.ChunkManager.ChunkUnloaded += chunk => WorldRenderer.OnChunkUnloaded(chunk);
-            _world.EntityAdded += entity => WorldRenderer.OnEntityAdded(entity);
-            _world.EntityRemoved += guid => WorldRenderer.OnEntityRemoved(guid);
-
-            UiManager = new UiManager(this, UiRenderLayers, _game.BufferPool);
+            UiManager = new UiManager(this, UiRenderLayers, UniformTypes, _game.BufferPool);
             
             Player = new Player(World.AddEntity(GameEntities.Player).WithPosition(new Vector3(0, 30, 0)));
             _playerController = new PlayerController(Player);
@@ -174,13 +198,17 @@ namespace DigBuild.Controller
             var loader = new MultiSpriteLoader(_game.ResourceManager, stitcher);
             _game.ModelManager.LoadTextures(loader);
             var spriteSheet = stitcher.Stitch(new ResourceName(DigBuildGame.Domain, "texturemap"));
-            TextureSheet = context.CreateTexture(spriteSheet.Bitmap);
+            _textures.TextureSheet = context.CreateTexture(spriteSheet.Bitmap);
 
             _game.ModelManager.Bake();
             _game.EventBus.Post(new ModelsBakedEvent(_game.ModelManager));
 
-            foreach (var layer in UiRenderLayers)
-                layer.Initialize(context, _game.ResourceManager);
+            var allRenderLayers = new HashSet<IRenderLayer>();
+            WorldRenderLayers.ForEach(l => allRenderLayers.Add(l));
+            UiRenderLayers.ForEach(l => allRenderLayers.Add(l));
+
+            foreach (var layer in allRenderLayers)
+                layer.InitResources(context, _game.ResourceManager, _renderResources.RenderStage);
 
             foreach (var particleRenderer in _particleRenderers)
                 particleRenderer.Initialize(context, _renderResources.RenderStage);
@@ -206,6 +234,8 @@ namespace DigBuild.Controller
             public readonly ShaderSamplerHandle CompositionSamplerHandle;
             public readonly TextureSampler CompositionSampler;
 
+            public readonly TextureSampler DefaultSampler;
+
             public RenderResources(
                 RenderContext context,
                 RenderSurfaceContext surface,
@@ -217,7 +247,6 @@ namespace DigBuild.Controller
                     .WithColorAttachment(out BloomColorAttachment, TextureFormat.B8G8R8A8SRGB)
                     .WithDepthStencilAttachment(out DepthStencilAttachment)
                     .WithStage(out RenderStage, DepthStencilAttachment, DiffuseColorAttachment, BloomColorAttachment);
-                GameplayController.RenderStage = RenderStage;
 
                 CompositionVertexBuffer = context.CreateVertexBuffer(
                     // Tri 1
@@ -242,6 +271,8 @@ namespace DigBuild.Controller
                 ).WithStandardBlending(surface.ColorAttachment);
                 
                 CompositionSampler = context.CreateTextureSampler(wrapping: TextureWrapping.ClampToEdge);
+
+                DefaultSampler = context.CreateTextureSampler(TextureFiltering.Linear, TextureFiltering.Nearest);
             }
         }
 
@@ -286,6 +317,26 @@ namespace DigBuild.Controller
                     cmd.Using(renderResources.CompositionPipeline, uiDiffuseBinding);
                     cmd.Draw(renderResources.CompositionPipeline, renderResources.CompositionVertexBuffer);
                 }
+            }
+        }
+
+        private class TextureSet : IReadOnlyTextureSet
+        {
+            private readonly GameplayController _controller;
+
+            public TextureSampler DefaultSampler => _controller._renderResources.DefaultSampler;
+            public Texture TextureSheet { get; set; } = null!;
+
+            public TextureSet(GameplayController controller)
+            {
+                _controller = controller;
+            }
+
+            public Texture Get(RenderTexture texture)
+            {
+                if (texture == RenderTextures.Main)
+                    return TextureSheet;
+                throw new ArgumentException("Invalid render texture.", nameof(texture));
             }
         }
     }

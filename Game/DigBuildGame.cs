@@ -15,7 +15,7 @@ namespace DigBuild
     public sealed class DigBuildGame : IDisposable
     {
         public const string Domain = "digbuild";
-        public const ushort ViewRadius = 8;
+        public const ushort ViewRadius = 2;
 
         public static DigBuildGame Instance { get; internal set; } = null!;
         

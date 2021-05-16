@@ -7,7 +7,7 @@ using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Registries;
-using DigBuild.Render;
+using DigBuild.Render.Models;
 
 namespace DigBuild.Content.Registries
 {

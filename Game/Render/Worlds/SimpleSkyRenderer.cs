@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Numerics;
 using DigBuild.Engine.Render;
+using DigBuild.Engine.Render.Worlds;
 using DigBuild.Engine.Worlds;
-using DigBuild.Render.GeneratedUniforms;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Resource;
 using DigBuild.Platform.Util;
+using DigBuild.Render.Worlds.GeneratedUniforms;
 using DigBuild.Worlds;
 
-namespace DigBuild.Render
+namespace DigBuild.Render.Worlds
 {
     public class SimpleSkyRenderer : ISkyRenderer
     {
@@ -63,9 +64,9 @@ namespace DigBuild.Render
             );
         }
 
-        public void Update(RenderContext context, ICamera camera, ViewFrustum viewFrustum, Matrix4x4 projection, float partialTick)
+        public void Update(RenderContext context, WorldView worldView, float partialTick)
         {
-            var mat = camera.Transform * projection;
+            var mat = worldView.Camera.Transform * worldView.Projection;
             mat.Translation = Vector3.Zero;
             Matrix4x4.Invert(mat, out var matInv);
 

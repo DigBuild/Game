@@ -8,6 +8,7 @@ using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Render;
+using DigBuild.Engine.Render.Models;
 using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
 using DigBuild.Engine.Ticking;
@@ -59,6 +60,7 @@ namespace DigBuild.Behaviors
         public void Build(EntityBehaviorBuilder<IPhysicalEntityBehavior, IPhysicalEntityBehavior> entity)
         {
             entity.Add(EntityAttributes.Position, (_, data, _) => data.Position);
+            entity.Add(EntityAttributes.Bounds, (_, _, _) => _bounds);
             entity.Add(EntityCapabilities.PhysicalEntity, (_, data, _) => data.Capability);
             entity.Add(ModelData.EntityAttribute, GetModelData);
             entity.Subscribe(OnJoinedWorld);

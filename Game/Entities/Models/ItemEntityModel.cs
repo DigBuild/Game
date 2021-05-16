@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Behaviors;
-using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Render;
-using DigBuild.Registries;
+using DigBuild.Engine.Render.Models;
 
 namespace DigBuild.Entities.Models
 {
@@ -30,7 +29,7 @@ namespace DigBuild.Entities.Models
                    Matrix4x4.CreateTranslation(position);
         }
 
-        public void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, float partialTick)
+        public void AddGeometry(IGeometryBuffer buffer, IReadOnlyModelData data, float partialTick)
         {
             var position = data.Get<PhysicalEntityModelData>()!.Position;
             var itemInfo = data.Get<ItemEntityModelData>()!;
@@ -38,8 +37,8 @@ namespace DigBuild.Entities.Models
             if (!_itemModels.TryGetValue(itemInfo.Item.Type, out var model))
                 return;
             
-            buffers.Transform = GetTransform(itemInfo.JoinWorldTime, position) * buffers.Transform;
-            model.AddGeometry(buffers, data, ItemModelTransform.None, partialTick);
+            buffer.Transform = GetTransform(itemInfo.JoinWorldTime, position) * buffer.Transform;
+            model.AddGeometry(buffer, data, ItemModelTransform.None, partialTick);
         }
     }
 }

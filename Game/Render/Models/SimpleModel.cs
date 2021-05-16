@@ -1,6 +1,8 @@
 ﻿using System;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
+using DigBuild.Engine.Render.Models;
+using DigBuild.Render.Worlds;
 
 namespace DigBuild.Render.Models
 {
@@ -12,20 +14,25 @@ namespace DigBuild.Render.Models
         {
             _vertices = vertices;
         }
-
-        public bool IsFaceSolid(Direction face) => false;
-
-        public void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, Func<Direction, byte> light, DirectionFlags faces)
+        
+        public void AddGeometry(IGeometryBuffer buffer, IReadOnlyModelData data, DirectionFlags faces)
         {
-            var consumer = buffers.Get(WorldRenderLayer.Opaque);
+            var consumer = buffer.Get(WorldRenderLayers.Opaque);
             consumer.Accept(_vertices);
         }
 
-        public void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, ItemModelTransform transform, float partialTick)
-        {
-            buffers.Transform = transform.GetMatrix() * buffers.Transform;
+        public bool HasDynamicGeometry => false;
 
-            var consumer = buffers.Get(WorldRenderLayer.Opaque);
+        public void AddDynamicGeometry(IGeometryBuffer buffer, IReadOnlyModelData data, DirectionFlags visibleFaces, float partialTick)
+        {
+            throw new InvalidOperationException();
+        }
+
+        public void AddGeometry(IGeometryBuffer buffer, IReadOnlyModelData data, ItemModelTransform transform, float partialTick)
+        {
+            buffer.Transform = transform.GetMatrix() * buffer.Transform;
+
+            var consumer = buffer.Get(WorldRenderLayers.Opaque);
             consumer.Accept(_vertices);
         }
     }

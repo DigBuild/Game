@@ -1,59 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Numerics;
-using DigBuild.Engine.Entities;
 using DigBuild.Engine.Render;
+using DigBuild.Engine.Render.Worlds;
 using DigBuild.Engine.Worlds;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Resource;
 using DigBuild.Platform.Util;
+using IRenderLayer = DigBuild.Engine.Render.IRenderLayer;
+using UniformBufferSet = DigBuild.Engine.Render.UniformBufferSet;
 
-namespace DigBuild.Render
+namespace DigBuild.Render.Worlds
 {
     public sealed class WorldRenderer : IDisposable
     {
+        private readonly IEnumerable<IRenderLayer> _layers;
+        private readonly IReadOnlyTextureSet _textures;
         private readonly NativeBufferPool _bufferPool;
 
-        private readonly WorldRenderManager _worldRenderer;
         private readonly ISkyRenderer _skyRenderer;
+        private readonly ImmutableList<IWorldRenderer> _worldRenderers;
+
+        private readonly UniformBufferSet _uniforms;
 
         private CommandBuffer _commandBuffer = null!;
         private Framebuffer _framebuffer = null!;
 
         public WorldRenderer(
             IReadOnlyWorld world,
-            ModelManager modelManager,
-            IEnumerable<IRenderLayer> renderLayers,
-            IEnumerable<IParticleRenderer> particleRenderers,
+            Func<IReadOnlyWorld, ImmutableList<IWorldRenderer>> rendererProvider,
+            IEnumerable<IRenderLayer> layers,
+            IEnumerable<IRenderUniform> uniforms,
+            IReadOnlyTextureSet textures,
             NativeBufferPool bufferPool
         )
         {
+            _layers = layers;
+            _textures = textures;
             _bufferPool = bufferPool;
-            _worldRenderer = new WorldRenderManager(
-                world,
-                modelManager.BlockModels,
-                modelManager.EntityModels,
-                renderLayers,
-                particleRenderers,
-                bufferPool
-            );
+
             _skyRenderer = new SimpleSkyRenderer(world);
+            _worldRenderers = rendererProvider(world);
+
+            _uniforms = new UniformBufferSet(uniforms, bufferPool);
         }
         
         public void Dispose()
         {
             _skyRenderer.Dispose();
         }
-
-        public void OnChunkChanged(IChunk chunk) => _worldRenderer.QueueChunkUpdate(chunk);
-        public void OnChunkUnloaded(IChunk chunk) => _worldRenderer.QueueChunkRemoval(chunk);
-        public void OnEntityAdded(EntityInstance entity) => _worldRenderer.AddEntity(entity);
-        public void OnEntityRemoved(Guid guid) => _worldRenderer.RemoveEntity(guid);
-
+        
         public void Setup(RenderContext context, ResourceManager resourceManager, RenderStage stage)
         {
             _commandBuffer = context.CreateCommandBuffer();
             _skyRenderer.Setup(context, resourceManager, stage);
+            _uniforms.Setup(context);
         }
 
         public Framebuffer UpdateFramebuffer(RenderContext context, FramebufferFormat format, uint width, uint height)
@@ -70,15 +72,34 @@ namespace DigBuild.Render
             var cameraTransform = camera.Transform;
             var viewFrustum = new ViewFrustum(cameraTransform * physicalProjMat);
 
-            _worldRenderer.UpdateChunks(context, camera, viewFrustum);
-            _skyRenderer.Update(context, camera, viewFrustum, projection, partialTick);
+            var worldView = new WorldView(projection, camera, viewFrustum);
+
+            _skyRenderer.Update(context, worldView, partialTick);
+            foreach (var renderer in _worldRenderers)
+                renderer.Update(context, worldView, partialTick);
 
             using (var cmd = _commandBuffer.Record(context, _framebuffer.Format, _bufferPool))
             {
                 cmd.SetViewportAndScissor(_framebuffer);
-
+                
+                _uniforms.Clear();
+                
                 _skyRenderer.Record(context, cmd);
-                _worldRenderer.SubmitGeometry(context, cmd, projection, camera, viewFrustum, partialTick);
+
+                foreach (var renderer in _worldRenderers)
+                    renderer.BeforeDraw(context, cmd, _uniforms, worldView, partialTick);
+                
+                foreach (var layer in _layers)
+                {
+                    layer.SetupCommand(cmd, _uniforms, _textures);
+                    foreach (var renderer in _worldRenderers)
+                        renderer.Draw(context, cmd, layer, _uniforms, worldView, partialTick);
+                }
+
+                foreach (var renderer in _worldRenderers)
+                    renderer.AfterDraw(context, cmd, worldView, partialTick);
+                
+                _uniforms.Upload(context);
             }
 
             context.Enqueue(_framebuffer, _commandBuffer);

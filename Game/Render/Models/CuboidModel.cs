@@ -2,37 +2,42 @@
 using System.Collections.Generic;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render;
+using DigBuild.Engine.Render.Models;
+using DigBuild.Render.Worlds;
 
 namespace DigBuild.Render.Models
 {
     public sealed class CuboidModel : IBlockModel, IItemModel
     {
         private readonly WorldVertex[][] _vertices = new WorldVertex[6][];
-        private readonly bool _solid;
-        private readonly RenderLayer<WorldVertex> _layer;
+        private readonly IRenderLayer<WorldVertex> _layer;
 
-        public CuboidModel(IReadOnlyDictionary<Direction, List<WorldVertex>> vertices, bool solid, RenderLayer<WorldVertex> layer)
+        public CuboidModel(IReadOnlyDictionary<Direction, List<WorldVertex>> vertices, IRenderLayer<WorldVertex> layer)
         {
             foreach (var direction in Directions.All)
                 _vertices[(int) direction] = vertices[direction].ToArray();
-            _solid = solid;
             _layer = layer;
         }
-
-        public bool IsFaceSolid(Direction face) => _solid;
-
-        public void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, Func<Direction, byte> light, DirectionFlags faces)
+        
+        public void AddGeometry(IGeometryBuffer buffer, IReadOnlyModelData data, DirectionFlags visibleFaces)
         {
-            var buf = buffers.Get(_layer);
-            foreach (var face in Directions.In(faces))
-                buf.Accept(_vertices[(int) face].WithBrightness(light(face) / 15f));
+            var buf = buffer.Get(_layer);
+            foreach (var face in Directions.In(visibleFaces))
+                buf.Accept(_vertices[(int) face]);
         }
 
-        public void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, ItemModelTransform transform, float partialTick)
-        {
-            buffers.Transform = transform.GetMatrix() * buffers.Transform;
+        public bool HasDynamicGeometry => false;
 
-            var buf = buffers.Get(_layer);
+        public void AddDynamicGeometry(IGeometryBuffer buffer, IReadOnlyModelData data, DirectionFlags visibleFaces, float partialTick)
+        {
+            throw new NotSupportedException();
+        }
+
+        public void AddGeometry(IGeometryBuffer buffer, IReadOnlyModelData data, ItemModelTransform transform, float partialTick)
+        {
+            buffer.Transform = transform.GetMatrix() * buffer.Transform;
+
+            var buf = buffer.Get(_layer);
             foreach (var face in Directions.All)
                 buf.Accept(_vertices[(int) face].WithBrightness(1));
         }

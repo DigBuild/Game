@@ -69,12 +69,12 @@ void main() {
     vec3 skyColor = mix(skyColorNight, skyColorDay, timeFactor);
 
     vec3 color = skyColor;
-    if (timeFactor < 0) {
+    if (timeFactor < 0.5) {
         vec3 stars = vec3(0);
         stars += starfield(sphereNormal, 20);
         stars += starfield(sphereNormal.yzx, 12) * 0.5;
         stars += starfield(sphereNormal.zxy, 40) * 0.4;
-        color += pow(stars, vec3(1.5)) * -timeFactor;
+        color += pow(stars, vec3(1.5)) * (0.5 - timeFactor) * 2;
     }
 
     float moonLit = smoothstep(0.998, 0.9983, dot(sphereNormal, moonPosition));

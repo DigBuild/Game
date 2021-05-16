@@ -15,8 +15,6 @@ namespace DigBuild.Render.Models
         public ResourceName Name { get; private set; }
 
         public List<Cuboid> Cuboids { get; set; } = null!;
-
-        public bool Solid { get; set; } = true;
         
         public string? Layer { get; set; } = "solid";
         

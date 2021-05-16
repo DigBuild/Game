@@ -3,6 +3,7 @@ using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Render;
+using DigBuild.Engine.Render.Models;
 using DigBuild.Platform.Resource;
 using DigBuild.Registries;
 using DigBuild.Render.Models;

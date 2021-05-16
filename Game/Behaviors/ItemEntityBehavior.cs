@@ -2,6 +2,7 @@
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Render;
+using DigBuild.Engine.Render.Models;
 using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
 using DigBuild.Registries;

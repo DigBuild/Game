@@ -2,7 +2,7 @@
 using System.Numerics;
 using DigBuild.Engine.Render;
 
-namespace DigBuild.Render
+namespace DigBuild.Render.Worlds
 {
     public readonly struct WorldVertex
     {
@@ -63,7 +63,7 @@ namespace DigBuild.Render
 
         public static WorldVertex[] WithBrightness(this WorldVertex[] vertices, float brightness)
         {
-            return vertices.Select(v => v.WithBrightness(brightness)).ToArray();
+            return vertices.Select(v => WithBrightness((WorldVertex) v, brightness)).ToArray();
         }
     }
 }

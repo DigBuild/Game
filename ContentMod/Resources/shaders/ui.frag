@@ -11,5 +11,7 @@ layout(location = 1) out vec4 bloomColor;
 
 void main() {
     outColor = texture(tex, fragUV) * fragColor;
+    if (outColor.a < 0.05)
+        discard;
     bloomColor = vec4(0);
 }

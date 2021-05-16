@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Engine.Math;
-using DigBuild.Engine.Render;
+using DigBuild.Engine.Render.Models;
 using DigBuild.Platform.Resource;
+using DigBuild.Render.Worlds;
 
 namespace DigBuild.Render.Models
 {
@@ -49,12 +50,12 @@ namespace DigBuild.Render.Models
 
             var layer = _modelDefinition.Layer switch
             {
-                "cutout" => WorldRenderLayer.Cutout,
-                "translucent" => WorldRenderLayer.Translucent,
-                _ => WorldRenderLayer.Opaque
+                "cutout" => WorldRenderLayers.Cutout,
+                "translucent" => WorldRenderLayers.Translucent,
+                _ => WorldRenderLayers.Opaque
             };
 
-            return new CuboidModel(vertices, _modelDefinition.Solid, layer);
+            return new CuboidModel(vertices, layer);
         }
 
         IBlockModel IRawModel<IBlockModel>.Build() => Build();

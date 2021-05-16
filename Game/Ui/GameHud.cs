@@ -55,7 +55,7 @@ namespace DigBuild.Ui
             _ui.Add(0, 0, new UiUnboundInventorySlot(player.Inventory.PickedItem, itemModels));
         }
 
-        public void UpdateAndDraw(RenderContext context, GeometryBufferSet buffers, float partialTick)
+        public void UpdateAndDraw(RenderContext context, GeometryBuffer buffer, float partialTick)
         {
             var player = _controller.Player;
             var hit = Raycast.Cast(_controller.RayCastContext, player.GetCamera(partialTick).Ray);
@@ -65,7 +65,7 @@ namespace DigBuild.Ui
             _lightLabel.Text = $"Light: {(hit == null ? "" : player.Entity.World.GetLight(hit.BlockPos.Offset(hit.Face)))}";
             _handLabel.Text = $"Hand: {player.Inventory.Hand.Item}";
 
-            _ui.Draw(context, buffers, partialTick);
+            _ui.Draw(context, buffer, partialTick);
         }
 
         public void OnCursorMove(IUiElementContext context, int x, int y)
