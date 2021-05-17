@@ -90,6 +90,7 @@ namespace DigBuild.Controller
             
             WorldRenderer = new WorldRenderer(
                 World,
+                RayCastContext,
                 world => ImmutableList.Create<IWorldRenderer>(
                     new WorldTimeInjector(world),
                     new ChunkWorldRenderer(

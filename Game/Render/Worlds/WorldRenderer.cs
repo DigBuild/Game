@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Numerics;
+using DigBuild.Engine.Physics;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Render.Worlds;
 using DigBuild.Engine.Worlds;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Resource;
 using DigBuild.Platform.Util;
+using DigBuild.Worlds;
 using IRenderLayer = DigBuild.Engine.Render.IRenderLayer;
 using UniformBufferSet = DigBuild.Engine.Render.UniformBufferSet;
 
@@ -21,6 +23,7 @@ namespace DigBuild.Render.Worlds
 
         private readonly ISkyRenderer _skyRenderer;
         private readonly ImmutableList<IWorldRenderer> _worldRenderers;
+        private readonly SelectionBoxRenderer _selectionBoxRenderer;
 
         private readonly UniformBufferSet _uniforms;
 
@@ -29,6 +32,7 @@ namespace DigBuild.Render.Worlds
 
         public WorldRenderer(
             IReadOnlyWorld world,
+            IGridAlignedRayCastingContext<WorldRayCastContext.Hit> rayCastingContext,
             Func<IReadOnlyWorld, ImmutableList<IWorldRenderer>> rendererProvider,
             IEnumerable<IRenderLayer> layers,
             IEnumerable<IRenderUniform> uniforms,
@@ -42,6 +46,7 @@ namespace DigBuild.Render.Worlds
 
             _skyRenderer = new SimpleSkyRenderer(world);
             _worldRenderers = rendererProvider(world);
+            _selectionBoxRenderer = new SelectionBoxRenderer(rayCastingContext);
 
             _uniforms = new UniformBufferSet(uniforms, bufferPool);
         }
@@ -49,12 +54,14 @@ namespace DigBuild.Render.Worlds
         public void Dispose()
         {
             _skyRenderer.Dispose();
+            _selectionBoxRenderer.Dispose();
         }
         
         public void Setup(RenderContext context, ResourceManager resourceManager, RenderStage stage)
         {
             _commandBuffer = context.CreateCommandBuffer();
             _skyRenderer.Setup(context, resourceManager, stage);
+            _selectionBoxRenderer.Setup(context, resourceManager, stage);
             _uniforms.Setup(context);
         }
 
@@ -77,6 +84,7 @@ namespace DigBuild.Render.Worlds
             _skyRenderer.Update(context, worldView, partialTick);
             foreach (var renderer in _worldRenderers)
                 renderer.Update(context, worldView, partialTick);
+            _selectionBoxRenderer.Update(context, worldView, partialTick);
 
             using (var cmd = _commandBuffer.Record(context, _framebuffer.Format, _bufferPool))
             {
@@ -98,6 +106,8 @@ namespace DigBuild.Render.Worlds
 
                 foreach (var renderer in _worldRenderers)
                     renderer.AfterDraw(context, cmd, worldView, partialTick);
+
+                _selectionBoxRenderer.Record(context, cmd);
                 
                 _uniforms.Upload(context);
             }
