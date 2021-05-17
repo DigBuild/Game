@@ -47,6 +47,7 @@ namespace DigBuild.Content.Registries
                     builder.Attach(new ColliderBehavior(ICollider.None));
                     builder.Attach(new RayColliderBehavior(IRayCollider<VoxelRayCollider.Hit>.None));
                     builder.Attach(new NoPunchBehavior());
+                    builder.Attach(new NonSolidBehavior());
                 },
                 Drops(() => GameItems.Water)
             );
@@ -66,6 +67,7 @@ namespace DigBuild.Content.Registries
                     builder.Attach(new RayColliderBehavior(new VoxelRayCollider(aabb)));
                     
                     builder.Attach(new VerticalSupportBehavior());
+                    builder.Attach(new NonSolidBehavior());
                 },
                 Drops(() => GameItems.Log)
             );
@@ -77,6 +79,8 @@ namespace DigBuild.Content.Registries
                     block => block == Log || block == LogSmall,
                     block => block == Leaves
                 ));
+
+                builder.Attach(new NonSolidBehavior());
             },
                 Drops(() => GameItems.Sapling, 1, 0.1f),
                 Drops(() => GameItems.Twig, 1, 0.2f)
@@ -93,6 +97,8 @@ namespace DigBuild.Content.Registries
                     {
                         model["direction"] = data.Direction.ToString().ToLowerInvariant();
                     }), horizontalDirection);
+
+                    builder.Attach(new NonSolidBehavior());
                 },
                 Drops(() => GameItems.StoneStairs)
             );
@@ -104,6 +110,7 @@ namespace DigBuild.Content.Registries
                     builder.Attach(new CraftingUiBehavior(), data);
 
                     builder.Attach(new LightEmittingBehavior(0xF));
+                    builder.Attach(new NonSolidBehavior());
                 },
                 Drops(() => GameItems.Crafter)
             );
@@ -114,6 +121,7 @@ namespace DigBuild.Content.Registries
                     builder.Attach(new RayColliderBehavior(new VoxelRayCollider(new AABB(0.125f, 0, 0.125f, 0.875f, 0.5f, 0.875f))));
 
                     builder.Attach(new LightEmittingBehavior(0x8));
+                    builder.Attach(new NonSolidBehavior());
 
                     builder.Attach(new CampfireBehavior());
                 },
