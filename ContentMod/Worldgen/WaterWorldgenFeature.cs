@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Immutable;
 using DigBuild.Content.Registries;
 using DigBuild.Engine.Blocks;
@@ -27,7 +27,7 @@ namespace DigBuild.Content.Worldgen
         );
 
         public IImmutableSet<IWorldgenAttribute> OutputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
-            // WorldgenAttributes.TerrainHeight,
+            WorldgenAttributes.TerrainHeight,
             WorldgenAttributes.TerrainType,
             WorldgenAttributes.WaterHeight
         );
@@ -53,13 +53,12 @@ namespace DigBuild.Content.Worldgen
 
             var terrainHeight = terrainHeightIn.ToBuilder();
             var terrainType = terrainTypeIn.ToBuilder();
-
-            var waterHeight = new ImmutableMap2DBuilder<ushort>(ChunkSize);
+            var waterHeight = Grid<ushort>.Builder(ChunkSize);
 
             _waterNoise.SetSeed((int) context.Seed);
-            for (int x = 0; x < ChunkSize; x++)
+            for (var x = 0; x < ChunkSize; x++)
             {
-                for (int z = 0; z < ChunkSize; z++)
+                for (var z = 0; z < ChunkSize; z++)
                 {
                     var noise = _waterNoise.GetNoise(context.Position.X * ChunkSize + x, context.Position.Z * ChunkSize + z);
                     if (noise < Threshold)
@@ -81,9 +80,9 @@ namespace DigBuild.Content.Worldgen
             var terrainType = descriptor.Get(WorldgenAttributes.TerrainType);
             var waterHeight = descriptor.Get(WorldgenAttributes.WaterHeight);
 
-            for (int x = 0; x < ChunkSize; x++)
+            for (var x = 0; x < ChunkSize; x++)
             {
-                for (int z = 0; z < ChunkSize; z++)
+                for (var z = 0; z < ChunkSize; z++)
                 {
                     if (terrainType[x, z] != TerrainType.Water)
                         continue;

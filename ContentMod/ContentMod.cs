@@ -8,6 +8,7 @@ using DigBuild.Events;
 using DigBuild.Modding;
 using DigBuild.Recipes;
 using DigBuild.Registries;
+using DigBuild.Worldgen.Biomes;
 using GameEntities = DigBuild.Content.Registries.GameEntities;
 
 namespace DigBuild.Content
@@ -22,6 +23,7 @@ namespace DigBuild.Content
             bus.Subscribe<RegistryBuildingEvent<ICraftingRecipe>>(evt => GameRecipes.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<IWorldgenAttribute>>(evt => WorldgenAttributes.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<IWorldgenFeature>>(evt => WorldgenFeatures.Register(evt.Registry));
+            bus.Subscribe<RegistryBuildingEvent<IBiome>>(evt => GameBiomes.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<IParticleSystemData>>(ParticleSystems.Register);
         }
     }

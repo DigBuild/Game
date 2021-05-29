@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Immutable;
 using DigBuild.Content.Registries;
 using DigBuild.Engine.Blocks;
@@ -43,13 +43,21 @@ namespace DigBuild.Content.Worldgen
             var height = Grid<ushort>.Builder(ChunkSize);
             var terrainType = Grid<TerrainType>.Builder(ChunkSize, TerrainType.Ground);
 
+            var inBiome = context.Get(WorldgenAttributes.Biome);
+
             _terrainHeightNoise.SetSeed((int) context.Seed);
-            for (int x = 0; x < ChunkSize; x++)
+            for (var x = 0; x < ChunkSize; x++)
             {
-                for (int z = 0; z < ChunkSize; z++)
+                for (var z = 0; z < ChunkSize; z++)
                 {
                     var noise = _terrainHeightNoise.GetNoise(context.Position.X * ChunkSize + x, context.Position.Z * ChunkSize + z) * 0.5f + 0.5f;
-                    height[x, z] = (ushort) (2 + 30 * noise);
+                    var biome = inBiome[x, z];
+
+                    var heightRange = biome.GetConstraints(WorldgenAttributes.TerrainHeight) ?? new RangeT<ushort>(2, 30);
+                    var minHeight = heightRange.Start;
+                    var heightDelta = heightRange.End - heightRange.Start;
+
+                    height[x, z] = (ushort) (minHeight + heightDelta * noise);
                 }
             }
 
@@ -60,18 +68,20 @@ namespace DigBuild.Content.Worldgen
         public void PopulateChunk(WorldSliceDescriptor descriptor, IChunk chunk)
         {
             var height = descriptor.Get(WorldgenAttributes.TerrainHeight);
-            for (int x = 0; x < ChunkSize; x++)
+            var inBiome = descriptor.Get(WorldgenAttributes.Biome);
+            for (var x = 0; x < ChunkSize; x++)
             {
-                for (int z = 0; z < ChunkSize; z++)
+                for (var z = 0; z < ChunkSize; z++)
                 {
                     var relativeHeight = height[x, z] - chunk.Position.Y * ChunkSize;
                     if (relativeHeight <= 0)
                         continue;
                     var localHeight = Math.Min(relativeHeight, ChunkSize);
-                    for (int y = 0; y < localHeight - 1; y++)
+                    var biome = inBiome[x, z];
+                    for (var y = 0; y < localHeight - 1; y++)
                         chunk.SetBlock(new ChunkBlockPos(x, y, z), _terrainBlock);
                     
-                    chunk.SetBlock(new ChunkBlockPos(x, (int) (localHeight - 1), z), localHeight == relativeHeight ? _surfaceBlock : _terrainBlock);
+                    chunk.SetBlock(new ChunkBlockPos(x, (int) (localHeight - 1), z), localHeight == relativeHeight ? biome.SurfaceBlock : _terrainBlock);
                 }
             }
         }

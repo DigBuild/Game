@@ -1,30 +1,46 @@
 ﻿using DigBuild.Content.Worldgen;
+using DigBuild.Engine.Collections;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Platform.Resource;
+using DigBuild.Worldgen.Biomes;
 
 namespace DigBuild.Content.Registries
 {
     public static class WorldgenAttributes
     {
-        public static WorldgenAttribute<ImmutableMap2D<ushort>> TerrainHeight { get; private set; } = null!;
-        public static WorldgenAttribute<ImmutableMap2D<TerrainType>> TerrainType { get; private set; } = null!;
-
-        public static WorldgenAttribute<ImmutableMap2D<ushort>> WaterHeight { get; private set; } = null!;
+        // Environment constraints
         
+        public static WorldgenAttribute<Grid<float>> Inlandness { get; private set; } = null!;
 
-        public static WorldgenAttribute<ImmutableMap2D<byte>> Lushness { get; private set; } = null!;
-        public static WorldgenAttribute<ImmutableMap2D<ushort>> Tree { get; private set; } = null!;
+        // Generation attributes
+        
+        public static WorldgenAttribute<Grid<IBiome>> Biome { get; private set; } = null!;
+
+        public static WorldgenAttribute<Grid<ushort>> TerrainHeight { get; private set; } = null!;
+        public static WorldgenAttribute<Grid<TerrainType>> TerrainType { get; private set; } = null!;
+
+        public static WorldgenAttribute<Grid<ushort>> WaterHeight { get; private set; } = null!;
+        
+        public static WorldgenAttribute<Grid<byte>> Lushness { get; private set; } = null!;
+        public static WorldgenAttribute<Grid<ushort>> Tree { get; private set; } = null!;
 
         internal static void Register(RegistryBuilder<IWorldgenAttribute> builder)
         {
-            TerrainHeight = builder.Create<ImmutableMap2D<ushort>>(new ResourceName(DigBuildGame.Domain, "terrain_height"));
-            TerrainType = builder.Create<ImmutableMap2D<TerrainType>>(new ResourceName(DigBuildGame.Domain, "terrain_type"));
-
-            WaterHeight = builder.Create<ImmutableMap2D<ushort>>(new ResourceName(DigBuildGame.Domain, "water_height"));
+            // Environment constraints
+            Inlandness = builder.Create<Grid<float>>(new ResourceName(DigBuildGame.Domain, "inlandness"));
             
-            Lushness = builder.Create<ImmutableMap2D<byte>>(new ResourceName(DigBuildGame.Domain, "lushness"));
-            Tree = builder.Create<ImmutableMap2D<ushort>>(new ResourceName(DigBuildGame.Domain, "tree"));
+            // Generation attributes
+            
+            Biome = builder.Create<Grid<IBiome>>(new ResourceName(DigBuildGame.Domain, "biome"));
+
+            TerrainHeight = builder.Create<Grid<ushort>>(new ResourceName(DigBuildGame.Domain, "terrain_height"));
+            TerrainType = builder.Create<Grid<TerrainType>>(new ResourceName(DigBuildGame.Domain, "terrain_type"));
+
+            WaterHeight = builder.Create<Grid<ushort>>(new ResourceName(DigBuildGame.Domain, "water_height"));
+            
+            Lushness = builder.Create<Grid<byte>>(new ResourceName(DigBuildGame.Domain, "lushness"));
+            Tree = builder.Create<Grid<ushort>>(new ResourceName(DigBuildGame.Domain, "tree"));
         }
     }
 }

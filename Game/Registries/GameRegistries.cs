@@ -1,4 +1,4 @@
-using DigBuild.Audio;
+﻿using DigBuild.Audio;
 using DigBuild.Blocks;
 using DigBuild.Engine;
 using DigBuild.Engine.Blocks;
@@ -16,6 +16,7 @@ using DigBuild.Events;
 using DigBuild.Items;
 using DigBuild.Platform.Resource;
 using DigBuild.Recipes;
+using DigBuild.Worldgen.Biomes;
 
 namespace DigBuild.Registries
 {
@@ -44,9 +45,9 @@ namespace DigBuild.Registries
 
         public static Registry<IWorldgenAttribute> WorldgenAttributes { get; private set; } = null!;
         public static Registry<IWorldgenFeature> WorldgenFeatures { get; private set; } = null!;
+        public static Registry<IBiome> Biomes { get; private set; } = null!;
 
         public static Registry<ICraftingRecipe> CraftingRecipes { get; private set; } = null!;
-
         public static Registry<IParticleSystemData> ParticleSystems { get; private set; } = null!;
         public static Registry<Sound> Sounds { get; private set; } = null!;
 
@@ -204,6 +205,10 @@ namespace DigBuild.Registries
             var worldgenFeatures = manager.CreateRegistryOf<IWorldgenFeature>(new ResourceName(DigBuildGame.Domain, "worldgen_features"));
             worldgenFeatures.Building += reg => bus.Post(new RegistryBuildingEvent<IWorldgenFeature>(reg));
             worldgenFeatures.Built += reg => WorldgenFeatures = reg;
+
+            var biomes = manager.CreateRegistryOf<IBiome>(new ResourceName(DigBuildGame.Domain, "biomes"));
+            biomes.Building += reg => bus.Post(new RegistryBuildingEvent<IBiome>(reg));
+            biomes.Built += reg => Biomes = reg;
 
             var craftingRecipes = manager.CreateRegistryOf<ICraftingRecipe>(new ResourceName(DigBuildGame.Domain, "crafting_recipes"));
             craftingRecipes.Building += reg => bus.Post(new RegistryBuildingEvent<ICraftingRecipe>(reg));
