@@ -13,12 +13,14 @@ layout(location = 4) in float brightness;
 layout(location = 0) out vec2 fragUV;
 layout(location = 1) out vec2 fragBloomUV;
 layout(location = 2) out vec3 fragNormal;
-layout(location = 3) out float fragBrightness;
+layout(location = 3) out vec3 fragPosition;
+layout(location = 4) out float fragBrightness;
 
 void main() {
     gl_Position = matrix * vec4(pos.xyz, 1.0);
     fragUV = uv;
     fragBloomUV = bloomUV;
 	fragNormal = normal;
+	fragPosition = (gl_Position.xyz / gl_Position.w) * 0.5 + 0.5;
 	fragBrightness = brightness;
 }

@@ -63,7 +63,7 @@ namespace DigBuild.Controller
         private SurfaceResources _surfaceResources = null!;
 
         private readonly TextureSet _textures;
-
+        
         public DigBuildGame Game => _game;
 
         public IWorld World => _world;
@@ -79,7 +79,7 @@ namespace DigBuild.Controller
         {
             _game = game;
             _textures = new TextureSet(this);
-
+            
             var config = Config.Load("server/config.json");
 
             var generator = new WorldGenerator(game.TickSource, config.Worldgen.Features, 0);
@@ -115,8 +115,8 @@ namespace DigBuild.Controller
             _playerController = new PlayerController(Player);
 
             var inventory = Player.Inventory;
-            // inventory.Hand.Item = new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "campfire")!, 1);
-            inventory.Hand.Item = new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "stone_stairs")!, 3);
+            inventory.Hand.Item = new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "campfire")!, 64);
+            // inventory.Hand.Item = new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "stone_stairs")!, 3);
         }
 
         public void Dispose()
@@ -125,13 +125,32 @@ namespace DigBuild.Controller
             WorldRenderer.Dispose();
         }
 
+        public void Boop()
+        {
+            _game.AudioManager.Play(GameSounds.Boop, pitch: 0.8f - (float) (new Random().NextDouble() * 0.05), gain: 0.1f);
+        }
+
         public void Tick()
         {
             _inputController.Update();
             _playerController.UpdateMovement(_inputController);
             _playerController.UpdateHotbar(_inputController);
             var hit = Raycast.Cast(RayCastContext, Player.GetCamera(0).Ray);
-            _playerController.UpdateInteraction(_inputController, hit);
+            var interacted = _playerController.UpdateInteraction(_inputController, hit);
+
+            if (interacted)
+            {
+                Boop();
+            }
+
+            // var z = Player.PhysicalEntity.Position.Z;
+            // const float distance = 30;
+            // const float halfDist = distance / 2;
+            //
+            // var blend = MathF.Max(0, MathF.Min((z + halfDist) / distance, 1));
+            //
+            // _nature1Player.Gain = (1 - blend) * 0.2f;
+            // _nature2Player.Gain = blend * 0.03f;
 
             var particleUpdateContext = new ParticleUpdateContext();
             foreach (var particleSystem in _particleSystems)
@@ -229,12 +248,15 @@ namespace DigBuild.Controller
             public readonly FramebufferFormat Format;
             public readonly FramebufferColorAttachment DiffuseColorAttachment;
             public readonly FramebufferColorAttachment BloomColorAttachment;
+            public readonly FramebufferColorAttachment NormalColorAttachment;
+            public readonly FramebufferColorAttachment PositionColorAttachment;
             public readonly FramebufferDepthStencilAttachment DepthStencilAttachment;
             public readonly RenderStage RenderStage;
-
+            
             public readonly FramebufferFormat CompositionFormat;
             public readonly BlurPostProcessingEffect VBlurEffect;
             public readonly BlurPostProcessingEffect HBlurEffect;
+            public readonly HDRPostProcessingEffect HDREffect;
 
             public readonly VertexBuffer<Vertex2> CompositionVertexBuffer;
             public readonly RenderPipeline<Vertex2> CompositionPipeline;
@@ -251,10 +273,14 @@ namespace DigBuild.Controller
             )
             {
                 Format = context.CreateFramebufferFormat()
-                    .WithColorAttachment(out DiffuseColorAttachment, TextureFormat.B8G8R8A8SRGB)
-                    .WithColorAttachment(out BloomColorAttachment, TextureFormat.B8G8R8A8SRGB)
+                    .WithColorAttachment(out DiffuseColorAttachment, TextureFormat.R32G32B32A32SFloat)
+                    .WithColorAttachment(out BloomColorAttachment, TextureFormat.R32G32B32A32SFloat)
+                    .WithColorAttachment(out NormalColorAttachment, TextureFormat.R32G32B32A32SFloat)
+                    .WithColorAttachment(out PositionColorAttachment, TextureFormat.R32G32B32A32SFloat)
                     .WithDepthStencilAttachment(out DepthStencilAttachment)
-                    .WithStage(out RenderStage, DepthStencilAttachment, DiffuseColorAttachment, BloomColorAttachment);
+                    .WithStage(out RenderStage, DepthStencilAttachment,
+                        DiffuseColorAttachment, BloomColorAttachment, NormalColorAttachment, PositionColorAttachment
+                    );
 
                 CompositionVertexBuffer = context.CreateVertexBuffer(
                     // Tri 1
@@ -268,10 +294,11 @@ namespace DigBuild.Controller
                 );
 
                 CompositionFormat = context.CreateFramebufferFormat()
-                    .WithColorAttachment(out var compColor, TextureFormat.B8G8R8A8SRGB)
-                    .WithStage(out var _, compColor);
+                    .WithColorAttachment(out var compColor, TextureFormat.R32G32B32A32SFloat)
+                    .WithStage(out _, compColor);
                 VBlurEffect = new BlurPostProcessingEffect(BlurDirection.Vertical, 2);
                 HBlurEffect = new BlurPostProcessingEffect(BlurDirection.Horizontal, 2);
+                HDREffect = new HDRPostProcessingEffect();
 
                 var vsCompResource = resourceManager.Get<Shader>(DigBuildGame.Domain, "comp.vert")!;
                 var fsCompResource = resourceManager.Get<Shader>(DigBuildGame.Domain, "comp.frag")!;
@@ -299,7 +326,10 @@ namespace DigBuild.Controller
         {
             public readonly Framebuffer WorldFramebuffer; // Managed by WorldRenderer
             public readonly Framebuffer UiFramebuffer; // Managed by UiManager
+            
+            public readonly Framebuffer WorldCompFramebuffer;
 
+            public readonly CommandBuffer WorldCompositionCommandBuffer;
             public readonly CommandBuffer CompositionCommandBuffer;
             
             public SurfaceResources(
@@ -314,6 +344,8 @@ namespace DigBuild.Controller
             {
                 WorldFramebuffer = worldFramebuffer;
                 UiFramebuffer = uiFramebuffer;
+
+                WorldCompFramebuffer = context.CreateFramebuffer(renderResources.CompositionFormat, surface.Width, surface.Height);
                 
                 renderResources.VBlurEffect.Input = WorldFramebuffer.Get(renderResources.BloomColorAttachment);
                 renderResources.VBlurEffect.Setup(
@@ -343,6 +375,33 @@ namespace DigBuild.Controller
                     renderResources.CompositionSampler,
                     renderResources.HBlurEffect.Output
                 );
+
+                WorldCompositionCommandBuffer = context.CreateCommandBuffer();
+                using (var cmd = WorldCompositionCommandBuffer.Record(context, WorldCompFramebuffer.Format, bufferPool))
+                {
+                    cmd.SetViewportAndScissor(WorldCompFramebuffer);
+
+                    cmd.Using(renderResources.CompositionPipeline, worldDiffuseBinding);
+                    cmd.Draw(renderResources.CompositionPipeline, renderResources.CompositionVertexBuffer);
+
+                    cmd.Using(renderResources.CompositionPipelineAdd, worldBloomBinding);
+                    cmd.Draw(renderResources.CompositionPipelineAdd, renderResources.CompositionVertexBuffer);
+                }
+
+                renderResources.HDREffect.Input = WorldCompFramebuffer.Get(WorldCompFramebuffer.Format.Attachments[0]);
+                renderResources.HDREffect.Setup(
+                    context, surface, resourceManager,
+                    renderResources.CompositionFormat,
+                    renderResources.CompositionVertexBuffer,
+                    renderResources.CompositionSampler,
+                    bufferPool
+                );
+                
+                TextureBinding worldCompBinding = context.CreateTextureBinding(
+                    renderResources.CompositionSamplerHandle,
+                    renderResources.CompositionSampler,
+                    renderResources.HDREffect.Output
+                );
                 TextureBinding uiDiffuseBinding = context.CreateTextureBinding(
                     renderResources.CompositionSamplerHandle,
                     renderResources.CompositionSampler,
@@ -350,24 +409,25 @@ namespace DigBuild.Controller
                 );
 
                 CompositionCommandBuffer = context.CreateCommandBuffer();
-                using var cmd = CompositionCommandBuffer.Record(context, surface.Format, bufferPool);
-                cmd.SetViewportAndScissor(surface);
+                using (var cmd = CompositionCommandBuffer.Record(context, surface.Format, bufferPool))
+                {
+                    cmd.SetViewportAndScissor(surface);
 
-                cmd.Using(renderResources.CompositionPipeline, worldDiffuseBinding);
-                cmd.Draw(renderResources.CompositionPipeline, renderResources.CompositionVertexBuffer);
+                    cmd.Using(renderResources.CompositionPipeline, worldCompBinding);
+                    cmd.Draw(renderResources.CompositionPipeline, renderResources.CompositionVertexBuffer);
 
-                cmd.Using(renderResources.CompositionPipelineAdd, worldBloomBinding);
-                cmd.Draw(renderResources.CompositionPipelineAdd, renderResources.CompositionVertexBuffer);
-
-                cmd.Using(renderResources.CompositionPipeline, uiDiffuseBinding);
-                cmd.Draw(renderResources.CompositionPipeline, renderResources.CompositionVertexBuffer);
+                    cmd.Using(renderResources.CompositionPipeline, uiDiffuseBinding);
+                    cmd.Draw(renderResources.CompositionPipeline, renderResources.CompositionVertexBuffer);
+                }
             }
 
             public void Enqueue(RenderContext context, RenderSurfaceContext surface, RenderResources renderResources)
             {
                 renderResources.VBlurEffect.Apply(context);
                 renderResources.HBlurEffect.Apply(context);
+                context.Enqueue(WorldCompFramebuffer, WorldCompositionCommandBuffer);
 
+                renderResources.HDREffect.Apply(context);
                 context.Enqueue(surface, CompositionCommandBuffer);
             }
         }

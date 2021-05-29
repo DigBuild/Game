@@ -5,7 +5,7 @@ const float threshold = 0.1;
 const float invThreshold = 1 - threshold;
 const float veryOldThreshold = 0.98;
 
-const vec3 tintVeryYoung  = vec3(1, 0, 0.1);
+const vec3 tintVeryYoung  = vec3(1, 0, 0.005);
 const vec3 tintYoung  = vec3(1, 0, 0);
 const vec3 tintOld = vec3(1, 1, 0);
 

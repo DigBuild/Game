@@ -21,17 +21,22 @@ layout(set = 2, binding = 1) uniform sampler2D tex;
 layout(location = 0) in vec2 fragUV;
 layout(location = 1) in vec2 fragBloomUV;
 layout(location = 2) in vec3 fragNormal;
-layout(location = 3) in float fragBrightness;
+layout(location = 3) in vec3 fragPosition;
+layout(location = 4) in float fragBrightness;
 
 layout(location = 0) out vec4 outColor;
-layout(location = 1) out vec4 bloomColor;
+layout(location = 1) out vec4 outBloomColor;
+layout(location = 2) out vec4 outNormal;
+layout(location = 3) out vec4 outPosition;
 
 void compute(float sunlight) {
     vec4 color = texture(tex, fragUV);
     if (color.a == 0)
         discard;
     vec4 bloom = texture(tex, fragBloomUV);
-    compute(color, bloom, fragNormal, fragBrightness, sunlight, outColor, bloomColor);
+    compute(color, bloom, fragNormal, fragBrightness, sunlight, outColor, outBloomColor);
+    outNormal = vec4(fragNormal, 0);
+    outPosition = vec4(fragPosition, 0);
 }
 
 void compute() {

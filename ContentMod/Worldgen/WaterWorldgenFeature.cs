@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Immutable;
 using DigBuild.Content.Registries;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Collections;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worldgen;
@@ -50,8 +51,8 @@ namespace DigBuild.Content.Worldgen
             var terrainHeightIn = context.Get(WorldgenAttributes.TerrainHeight);
             var terrainTypeIn = context.Get(WorldgenAttributes.TerrainType);
 
-            var terrainHeight = new ImmutableMap2DBuilder<ushort>(terrainHeightIn);
-            var terrainType = new ImmutableMap2DBuilder<TerrainType>(terrainTypeIn);
+            var terrainHeight = terrainHeightIn.ToBuilder();
+            var terrainType = terrainTypeIn.ToBuilder();
 
             var waterHeight = new ImmutableMap2DBuilder<ushort>(ChunkSize);
 

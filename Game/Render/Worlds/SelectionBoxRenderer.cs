@@ -49,7 +49,7 @@ namespace DigBuild.Render.Worlds
                 .WithUniform<SimpleTransform>(out var uniform);
             FragmentShader fs = context.CreateFragmentShader(fsResource.Resource);
             _pipeline = context.CreatePipeline<Vertex3>(vs, fs, renderStage, Topology.Lines)
-                .WithDepthTest(CompareOperation.LessOrEqual, true);
+                .WithDepthTest(CompareOperation.LessOrEqual, false);
 
             _vertexBuffer = context.CreateVertexBuffer(out _vertexBufferWriter);
 

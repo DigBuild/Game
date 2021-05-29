@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using DigBuild.Content.Registries;
 using DigBuild.Content.Worldgen.Structure;
+using DigBuild.Engine.Collections;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
@@ -44,41 +44,19 @@ namespace DigBuild.Content.Worldgen
 
         public void DescribeSlice(WorldSliceDescriptionContext context)
         {
-            var terrainTypeData = new Dictionary<WorldSliceOffset, ImmutableMap2D<TerrainType>>();
-            var lushnessData = new Dictionary<WorldSliceOffset, ImmutableMap2D<byte>>();
-            var terrainHeightData = new Dictionary<WorldSliceOffset, ImmutableMap2D<ushort>>();
+            var terrainType = context.GetExtendedGrid(WorldgenAttributes.TerrainType);
+            var lushness = context.GetExtendedGrid(WorldgenAttributes.Lushness);
+            var terrainHeight = context.GetExtendedGrid(WorldgenAttributes.TerrainHeight);
 
-            TerrainType GetTerrainType(int x, int z)
-            {
-                var off = new WorldSliceOffset(x >> 4, z >> 4);
-                if (!terrainTypeData!.TryGetValue(off, out var data))
-                    terrainTypeData[off] = data = context.Get(WorldgenAttributes.TerrainType, off);
-                return data[x & 15, z & 15];
-            }
-            byte GetLushness(int x, int z)
-            {
-                var off = new WorldSliceOffset(x >> 4, z >> 4);
-                if (!lushnessData!.TryGetValue(off, out var data))
-                    lushnessData[off] = data = context.Get(WorldgenAttributes.Lushness, off);
-                return data[x & 15, z & 15];
-            }
-            ushort GetTerrainHeight(int x, int z)
-            {
-                var off = new WorldSliceOffset(x >> 4, z >> 4);
-                if (!terrainHeightData!.TryGetValue(off, out var data))
-                    terrainHeightData[off] = data = context.Get(WorldgenAttributes.TerrainHeight, off);
-                return data[x & 15, z & 15];
-            }
-
-            var trees = new ImmutableMap2DBuilder<ushort>((uint) (ChunkSize + Math.Max(_max.X - _min.X, _max.Z - _min.Z)));
+            var trees = Grid<ushort>.Builder((uint) (ChunkSize + Math.Max(_max.X - _min.X, _max.Z - _min.Z)));
 
             _treeDistributionNoise.SetSeed((int) context.Seed);
             for (var x = _min.X; x < ChunkSize + _max.X; x++)
             for (var z = _min.Z; z < ChunkSize + _max.Z; z++)
             {
-                if (GetTerrainType(x, z) != TerrainType.Ground)
+                if (terrainType[x, z] != TerrainType.Ground)
                     continue;
-                if (GetLushness(x, z) < 0xAF)
+                if (lushness[x, z] < 0xAF)
                     continue;
                 
                 var (nx, nz) = (context.Position.X * ChunkSize + x, context.Position.Z * ChunkSize + z);
@@ -95,7 +73,7 @@ namespace DigBuild.Content.Worldgen
                     )
                 );
                 var generate = noise > neighborNoise;
-                trees[x - _min.X, z - _min.X] = generate ? GetTerrainHeight(x, z) : ushort.MaxValue;
+                trees[x - _min.X, z - _min.X] = generate ? terrainHeight[x, z] : ushort.MaxValue;
             }
 
             context.Submit(WorldgenAttributes.Tree, trees.Build());

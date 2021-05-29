@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Immutable;
 using DigBuild.Content.Registries;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Collections;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worldgen;
@@ -39,8 +40,8 @@ namespace DigBuild.Content.Worldgen
 
         public void DescribeSlice(WorldSliceDescriptionContext context)
         {
-            var height = new ImmutableMap2DBuilder<ushort>(ChunkSize);
-            var terrainType = new ImmutableMap2DBuilder<TerrainType>(ChunkSize, TerrainType.Ground);
+            var height = Grid<ushort>.Builder(ChunkSize);
+            var terrainType = Grid<TerrainType>.Builder(ChunkSize, TerrainType.Ground);
 
             _terrainHeightNoise.SetSeed((int) context.Seed);
             for (int x = 0; x < ChunkSize; x++)

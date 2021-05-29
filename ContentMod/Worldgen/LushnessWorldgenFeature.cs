@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using DigBuild.Content.Registries;
+using DigBuild.Engine.Collections;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
@@ -32,7 +33,7 @@ namespace DigBuild.Content.Worldgen
 
         public void DescribeSlice(WorldSliceDescriptionContext context)
         {
-            var lushness = new ImmutableMap2DBuilder<byte>(ChunkSize);
+            var lushness = Grid<byte>.Builder(ChunkSize);
             var terrainTypeIn = context.Get(WorldgenAttributes.TerrainType);
             
             _lushnessNoise.SetSeed((int) context.Seed);
