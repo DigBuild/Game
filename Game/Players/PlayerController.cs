@@ -39,7 +39,7 @@ namespace DigBuild.Players
                 TransferHotbarDown();
         }
 
-        public void UpdateInteraction(GameInput input, WorldRayCastContext.Hit? hit)
+        public bool UpdateInteraction(GameInput input, WorldRayCastContext.Hit? hit)
         {
             var world = _player.Entity.World;
             ref var hand = ref _player.Inventory.Hand;
@@ -49,11 +49,16 @@ namespace DigBuild.Players
                 var itemResult = hand.Item.Count > 0 ?
                     hand.Item.Type.OnActivate(hand.Item, _player, hit) :
                     ItemEvent.Activate.Result.Fail;
-            
-                if (itemResult == ItemEvent.Activate.Result.Fail && hit != null)
+
+                if (itemResult == ItemEvent.Activate.Result.Success)
+                    return true;
+
+                if (hit != null)
                 {
                     var block = world.GetBlock(hit.BlockPos)!;
                     var blockResult = block.OnActivate(world, hit.BlockPos, hit);
+                    if (blockResult == BlockEvent.Activate.Result.Success)
+                        return true;
                 }
             }
             
@@ -62,13 +67,20 @@ namespace DigBuild.Players
                 var itemResult = hand.Item.Count > 0 ?
                     hand.Item.Type.OnPunch(hand.Item, _player, hit) :
                     ItemEvent.Punch.Result.Fail;
+
+                if (itemResult == ItemEvent.Punch.Result.Success)
+                    return true;
             
-                if (itemResult == ItemEvent.Punch.Result.Fail && hit != null)
+                if (hit != null)
                 {
                     var block = world.GetBlock(hit.BlockPos)!;
                     var blockResult = block.OnPunch(world, hit.BlockPos, hit);
+                    if (blockResult == BlockEvent.Punch.Result.Success)
+                        return true;
                 }
             }
+            
+            return false;
         }
 
         public void TransferHotbarUp()

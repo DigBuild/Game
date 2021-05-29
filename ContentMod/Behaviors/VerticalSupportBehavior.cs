@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Blocks;
+using DigBuild.Controller;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
@@ -25,6 +26,11 @@ namespace DigBuild.Content.Behaviors
                     {
                         evt.Block.OnBreaking(evt.World, evt.Pos);
                         evt.World.SetBlock(evt.Pos, null);
+
+                        if (DigBuildGame.Instance.Controller is GameplayController controller)
+                        {
+                            controller.Boop();
+                        }
                     }
                 };
             }

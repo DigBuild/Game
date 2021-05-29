@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DigBuild.Audio;
 using DigBuild.Controller;
 using DigBuild.Engine.Events;
 using DigBuild.Entities.Models;
@@ -33,12 +34,13 @@ namespace DigBuild
         public NativeBufferPool BufferPool { get; } = new();
         public EventBus EventBus { get; }
 
+        public AudioManager AudioManager { get; }
+        public ModelManager ModelManager { get; } = new();
+
         public IGameController Controller { get; private set; } = null!;
         public TickSource TickSource { get; } = new();
         public GameWindow Window { get; }
-
-        public ModelManager ModelManager { get; } = new();
-
+        
         internal DigBuildGame(EventBus eventBus)
         {
             foreach (var systemData in GameRegistries.ParticleSystems.Values)
@@ -46,6 +48,8 @@ namespace DigBuild
 
             EventBus = eventBus;
             EventBus.Subscribe<ModelsBakedEvent>(OnModelsBaked);
+
+            AudioManager = new AudioManager(ResourceManager);
 
             TickSource.Tick += () => Controller.Tick();
             Window = new GameWindow(this);
@@ -91,6 +95,7 @@ namespace DigBuild
         public void Await()
         {
             Window.Surface.Closed.Wait();
+            AudioManager.Stop();
             if (TickSource.Running)
                 TickSource.Stop();
             TickSource.Await();

@@ -24,14 +24,19 @@ namespace DigBuild.Content.Behaviors
 
         private void OnNeighborChanged(BlockEvent.NeighborChanged evt, object data, Action next)
         {
-            if (evt.Direction == _face && evt.World.GetBlock(evt.Pos.Offset(_face)) != null)
+            if (evt.Direction == _face)
             {
-                evt.World.SetBlock(evt.Pos, _replacementSupplier());
+                var pos = evt.Pos.Offset(_face);
+                var block = evt.World.GetBlock(pos);
+                if (block != null && block
+                    .Get(new ReadOnlyBlockContext(evt.World, pos, block), BlockFaceSolidity.Attribute).Solid
+                    .Has(_face.GetOpposite()))
+                {
+                    evt.World.SetBlock(evt.Pos, _replacementSupplier());
+                    return;
+                }
             }
-            else
-            {
-                next();
-            }
+            next();
         }
     }
 }

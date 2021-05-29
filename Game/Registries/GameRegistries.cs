@@ -1,4 +1,5 @@
-﻿using DigBuild.Blocks;
+using DigBuild.Audio;
+using DigBuild.Blocks;
 using DigBuild.Engine;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.BuiltIn;
@@ -47,6 +48,7 @@ namespace DigBuild.Registries
         public static Registry<ICraftingRecipe> CraftingRecipes { get; private set; } = null!;
 
         public static Registry<IParticleSystemData> ParticleSystems { get; private set; } = null!;
+        public static Registry<Sound> Sounds { get; private set; } = null!;
 
         internal static void Initialize(EventBus bus)
         {
@@ -210,6 +212,11 @@ namespace DigBuild.Registries
             var particleSystems = manager.CreateRegistryOf<IParticleSystemData>(new ResourceName(DigBuildGame.Domain, "particle_systems"));
             particleSystems.Building += reg => bus.Post(new RegistryBuildingEvent<IParticleSystemData>(reg));
             particleSystems.Built += reg => ParticleSystems = reg;
+
+            var sounds = manager.CreateRegistryOf<Sound>(new ResourceName(DigBuildGame.Domain, "sounds"));
+            sounds.Building += GameSounds.Register;
+            sounds.Building += reg => bus.Post(new RegistryBuildingEvent<Sound>(reg));
+            sounds.Built += reg => Sounds = reg;
             
             manager.BuildAll();
         }
