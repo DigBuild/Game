@@ -24,6 +24,7 @@ namespace DigBuild.Content
             bus.Subscribe<RegistryBuildingEvent<IWorldgenAttribute>>(evt => WorldgenAttributes.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<IWorldgenFeature>>(evt => WorldgenFeatures.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<IBiome>>(evt => GameBiomes.Register(evt.Registry));
+            bus.Subscribe<RegistryBuildingEvent<IBiomeAttribute>>(evt => BiomeAttributes.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<IParticleSystemData>>(ParticleSystems.Register);
         }
     }

@@ -4,7 +4,7 @@
   "cuboids": [
     {
       "from": [ 0, 0, 0 ],
-      "to": [ 1, 1, 1 ],
+      "to": [ 1, 0.875, 1 ],
       "textures": {
         "neg_x": "digbuild:blocks/water",
         "pos_x": "digbuild:blocks/water",

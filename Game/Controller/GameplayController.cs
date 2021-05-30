@@ -115,8 +115,7 @@ namespace DigBuild.Controller
             _playerController = new PlayerController(Player);
 
             var inventory = Player.Inventory;
-            inventory.Hand.Item = new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "campfire")!, 64);
-            // inventory.Hand.Item = new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "stone_stairs")!, 3);
+            inventory.Hand.Item = new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "log")!, 64);
         }
 
         public void Dispose()

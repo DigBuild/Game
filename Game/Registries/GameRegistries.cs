@@ -45,6 +45,7 @@ namespace DigBuild.Registries
 
         public static Registry<IWorldgenAttribute> WorldgenAttributes { get; private set; } = null!;
         public static Registry<IWorldgenFeature> WorldgenFeatures { get; private set; } = null!;
+        public static Registry<IBiomeAttribute> BiomeAttributes { get; private set; } = null!;
         public static Registry<IBiome> Biomes { get; private set; } = null!;
 
         public static Registry<ICraftingRecipe> CraftingRecipes { get; private set; } = null!;
@@ -205,6 +206,10 @@ namespace DigBuild.Registries
             var worldgenFeatures = manager.CreateRegistryOf<IWorldgenFeature>(new ResourceName(DigBuildGame.Domain, "worldgen_features"));
             worldgenFeatures.Building += reg => bus.Post(new RegistryBuildingEvent<IWorldgenFeature>(reg));
             worldgenFeatures.Built += reg => WorldgenFeatures = reg;
+
+            var biomeAttributes = manager.CreateRegistryOf<IBiomeAttribute>(new ResourceName(DigBuildGame.Domain, "biome_attributes"));
+            biomeAttributes.Building += reg => bus.Post(new RegistryBuildingEvent<IBiomeAttribute>(reg));
+            biomeAttributes.Built += reg => BiomeAttributes = reg;
 
             var biomes = manager.CreateRegistryOf<IBiome>(new ResourceName(DigBuildGame.Domain, "biomes"));
             biomes.Building += reg => bus.Post(new RegistryBuildingEvent<IBiome>(reg));

@@ -15,81 +15,45 @@ namespace DigBuild.Content.Worldgen
     public class WaterWorldgenFeature : IWorldgenFeature
     {
         private const uint ChunkSize = 16;
-        private const float Threshold = -0.6f;
-
-        private readonly FastNoiseLite _waterNoise = new();
+        private const ushort Threshold = 12;
 
         private readonly Block _waterBlock;
 
         public IImmutableSet<IWorldgenAttribute> InputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
-            WorldgenAttributes.TerrainHeight,
-            WorldgenAttributes.TerrainType
+            WorldgenAttributes.TerrainHeight
         );
 
         public IImmutableSet<IWorldgenAttribute> OutputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
-            WorldgenAttributes.TerrainHeight,
-            WorldgenAttributes.TerrainType,
-            WorldgenAttributes.WaterHeight
         );
 
         public WaterWorldgenFeature(Block waterBlock)
         {
             _waterBlock = waterBlock;
-
-            _waterNoise.SetNoiseType(FastNoiseLite.NoiseType.Cellular);
-            _waterNoise.SetFrequency(0.015f);
-            _waterNoise.SetFractalType(FastNoiseLite.FractalType.None);
-            _waterNoise.SetCellularDistanceFunction(FastNoiseLite.CellularDistanceFunction.EuclideanSq);
-            _waterNoise.SetCellularReturnType(FastNoiseLite.CellularReturnType.Distance2Mul);
-            _waterNoise.SetCellularJitter(1.0f);
-            // _waterNoise.SetDomainWarpType(FastNoiseLite.DomainWarpType.OpenSimplex2Reduced);
-            // _waterNoise.SetDomainWarpAmp(30.0f);
         }
 
         public void DescribeSlice(WorldSliceDescriptionContext context)
         {
-            var terrainHeightIn = context.Get(WorldgenAttributes.TerrainHeight);
-            var terrainTypeIn = context.Get(WorldgenAttributes.TerrainType);
-
-            var terrainHeight = terrainHeightIn.ToBuilder();
-            var terrainType = terrainTypeIn.ToBuilder();
-            var waterHeight = Grid<ushort>.Builder(ChunkSize);
-
-            _waterNoise.SetSeed((int) context.Seed);
-            for (var x = 0; x < ChunkSize; x++)
-            {
-                for (var z = 0; z < ChunkSize; z++)
-                {
-                    var noise = _waterNoise.GetNoise(context.Position.X * ChunkSize + x, context.Position.Z * ChunkSize + z);
-                    if (noise < Threshold)
-                        continue;
-
-                    terrainHeight[x, z] = (ushort) Math.Max(0, terrainHeight[x, z] - Math.Pow(noise - Threshold, 1 / 4f) * 10);
-                    terrainType[x, z] = TerrainType.Water;
-                    waterHeight[x, z] = terrainHeight[x, z];
-                }
-            }
-
-            context.Submit(WorldgenAttributes.TerrainHeight, terrainHeight.Build());
-            context.Submit(WorldgenAttributes.WaterHeight, waterHeight.Build());
-            context.Submit(WorldgenAttributes.TerrainType, terrainType.Build());
         }
 
         public void PopulateChunk(WorldSliceDescriptor descriptor, IChunk chunk)
         {
-            var terrainType = descriptor.Get(WorldgenAttributes.TerrainType);
-            var waterHeight = descriptor.Get(WorldgenAttributes.WaterHeight);
+            var height = descriptor.Get(WorldgenAttributes.TerrainHeight);
 
             for (var x = 0; x < ChunkSize; x++)
+            for (var z = 0; z < ChunkSize; z++)
             {
-                for (var z = 0; z < ChunkSize; z++)
+                if (height[x, z] > Threshold)
+                    continue;
+
+                var relativeHeight = Threshold - chunk.Position.Y * ChunkSize;
+                if (relativeHeight <= 0)
+                    continue;
+                var localHeight = Math.Min(relativeHeight, ChunkSize);
+                for (var y = 0; y <= localHeight - 1; y++)
                 {
-                    if (terrainType[x, z] != TerrainType.Water)
-                        continue;
-                    var localHeight = waterHeight[x, z] - chunk.Position.Y * ChunkSize;
-                    if (localHeight < 0 || localHeight >= ChunkSize)
-                        continue;
-                    chunk.SetBlock(new ChunkBlockPos(x, (int) localHeight, z), _waterBlock);
+                    var pos = new ChunkBlockPos(x, y, z);
+                    if (chunk.GetBlock(pos) == null)
+                        chunk.SetBlock(pos, _waterBlock);
                 }
             }
         }

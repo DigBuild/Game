@@ -20,6 +20,7 @@ namespace DigBuild.Content.Registries
 
         public static Block Dirt { get; private set; } = null!;
         public static Block Grass { get; private set; } = null!;
+        public static Block Sand { get; private set; } = null!;
         public static Block Water { get; private set; } = null!;
         public static Block Stone { get; private set; } = null!;
         public static Block Log { get; private set; } = null!;
@@ -41,6 +42,9 @@ namespace DigBuild.Content.Registries
                     builder.Attach(new ReplaceOnFaceCoveredBehavior(Direction.PosY, () => Dirt));
                 },
                 Drops(() => GameItems.Dirt)
+            );
+            Sand = registry.Create(DigBuildGame.Domain, "sand",
+                Drops(() => GameItems.Sand)
             );
             Water = registry.Create(DigBuildGame.Domain, "water", builder =>
                 {

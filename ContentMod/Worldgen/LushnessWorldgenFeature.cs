@@ -11,7 +11,7 @@ namespace DigBuild.Content.Worldgen
     {
         private const uint ChunkSize = 16;
 
-        private readonly FastNoiseLite _lushnessNoise = new();
+        private readonly SimplexNoise _noise = new(34123413, 0.005f, 2);
 
         public IImmutableSet<IWorldgenAttribute> InputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
             WorldgenAttributes.TerrainType
@@ -20,31 +20,17 @@ namespace DigBuild.Content.Worldgen
         public IImmutableSet<IWorldgenAttribute> OutputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
             WorldgenAttributes.Lushness
         );
-
-        public LushnessWorldgenFeature()
-        {
-            _lushnessNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
-            _lushnessNoise.SetFrequency(0.005f);
-            _lushnessNoise.SetFractalType(FastNoiseLite.FractalType.FBm);
-            _lushnessNoise.SetFractalOctaves(2);
-            _lushnessNoise.SetFractalLacunarity(2.0f);
-            _lushnessNoise.SetFractalGain(0.5f);
-        }
-
+        
         public void DescribeSlice(WorldSliceDescriptionContext context)
         {
-            var lushness = Grid<byte>.Builder(ChunkSize);
-            var terrainTypeIn = context.Get(WorldgenAttributes.TerrainType);
+            var lushness = Grid<float>.Builder(ChunkSize);
             
-            _lushnessNoise.SetSeed((int) context.Seed);
+            _noise.Seed = context.Seed;
             for (var x = 0; x < ChunkSize; x++)
             for (var z = 0; z < ChunkSize; z++)
             {
-                if (terrainTypeIn[x, z] != TerrainType.Ground)
-                    continue;
-
                 var (nx, nz) = (context.Position.X * ChunkSize + x, context.Position.Z * ChunkSize + z);
-                lushness[x, z] = (byte) ((_lushnessNoise.GetNoise(nx, nz) + 1) * 0.5 * 255);
+                lushness[x, z] = _noise[nx, nz] * 0.5f + 0.5f;
             }
 
             context.Submit(WorldgenAttributes.Lushness, lushness.Build());
