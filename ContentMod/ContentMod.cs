@@ -1,4 +1,5 @@
-﻿using DigBuild.Content.Registries;
+﻿using DigBuild.Content.Blocks.Models;
+using DigBuild.Content.Registries;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Events;
@@ -26,6 +27,13 @@ namespace DigBuild.Content
             bus.Subscribe<RegistryBuildingEvent<IBiome>>(evt => GameBiomes.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<IBiomeAttribute>>(evt => BiomeAttributes.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<IParticleSystemData>>(ParticleSystems.Register);
+
+            bus.Subscribe<ModelsBakedEvent>(OnModelsBaked);
+        }
+
+        private void OnModelsBaked(ModelsBakedEvent evt)
+        {
+            evt.ModelManager[GameBlocks.Water] = new WaterModel(evt.ModelManager[GameBlocks.Water]);
         }
     }
 }

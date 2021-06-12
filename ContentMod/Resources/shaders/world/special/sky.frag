@@ -16,10 +16,14 @@ layout(set = 1, binding = 0) uniform UBO {
     float timeFactor;
 };
 
-layout(location = 0) in vec3 fragNormal;
+layout(location = 0) in vec3 fragPosition;
+layout(location = 1) in vec3 fragNormal;
 
 layout(location = 0) out vec4 outColor;
-layout(location = 1) out vec4 bloomColor;
+layout(location = 1) out vec4 outBloomColor;
+layout(location = 2) out vec4 outWater;
+layout(location = 3) out vec4 outNormal;
+layout(location = 4) out vec4 outPosition;
 
 float hash21(vec2 p) {
     p = fract(p * vec2(3573.25, 92052.153));
@@ -84,5 +88,7 @@ void main() {
     color += max(0, moonLit - moonCover) * vec3(1, 0.7, 0.6);
     
     outColor = vec4(color, 1); //vec4(0.15, 0.6, 0.9, 1.0);
-    bloomColor = vec4(0);
+    outBloomColor = outWater = vec4(0);
+    outNormal = vec4(sphereNormal, 1.0);
+    outPosition = vec4(0, 0, 0, 1.0);
 }

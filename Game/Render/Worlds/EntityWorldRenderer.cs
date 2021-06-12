@@ -87,7 +87,11 @@ namespace DigBuild.Render.Worlds
         public void BeforeDraw(RenderContext context, CommandBufferRecorder cmd, UniformBufferSet uniforms, WorldView worldView, float partialTick)
         {
             uniforms.Push(RenderUniforms.ModelViewTransform,
-                new SimpleTransform {Matrix = worldView.Camera.Transform * worldView.Projection}
+                new SimpleTransform
+                {
+                    ModelView = worldView.Camera.Transform,
+                    Projection = worldView.Projection
+                }
             );
             _uniforms = uniforms.CaptureSnapshot();
         }

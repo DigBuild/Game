@@ -7,11 +7,14 @@ layout(location = 0) in vec2 fragUV;
 layout(location = 1) in vec4 fragColor;
 
 layout(location = 0) out vec4 outColor;
-layout(location = 1) out vec4 bloomColor;
+layout(location = 1) out vec4 outBloomColor;
+layout(location = 2) out vec4 outWater;
+layout(location = 3) out vec4 outNormal;
+layout(location = 4) out vec4 outPosition;
 
 void main() {
     outColor = texture(tex, fragUV) * fragColor;
     if (outColor.a < 0.05)
         discard;
-    bloomColor = vec4(0);
+    outBloomColor = outWater = outNormal = outPosition = vec4(0);
 }

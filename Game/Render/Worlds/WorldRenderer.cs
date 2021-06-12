@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Numerics;
+using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Render.Worlds;
@@ -69,12 +70,18 @@ namespace DigBuild.Render.Worlds
         {
             return _framebuffer = context.CreateFramebuffer(format, width, height);
         }
+
+        public Matrix4x4 GetProjectionMatrix(ICamera camera)
+        {
+            var viewDist = (DigBuildGame.ViewRadius + 1) * WorldDimensions.ChunkSize * MathF.Sqrt(2);
+            return Matrix4x4.CreatePerspectiveFieldOfView(
+                camera.FieldOfView, _framebuffer.Width / (float) _framebuffer.Height, 0.1f, viewDist
+            );
+        }
         
         public void UpdateAndRender(RenderContext context, ICamera camera, float partialTick)
         {
-            var physicalProjMat = Matrix4x4.CreatePerspectiveFieldOfView(
-                camera.FieldOfView, _framebuffer.Width / (float) _framebuffer.Height, 0.001f, 500f
-            );
+            var physicalProjMat = GetProjectionMatrix(camera);
             var projection = physicalProjMat * Matrix4x4.CreateRotationZ(MathF.PI);
             var cameraTransform = camera.Transform;
             var viewFrustum = new ViewFrustum(cameraTransform * physicalProjMat);

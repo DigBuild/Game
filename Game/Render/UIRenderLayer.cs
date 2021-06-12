@@ -20,7 +20,7 @@ namespace DigBuild.Render
             new ResourceName(DigBuildGame.Domain, "ui.vert"),
             new ResourceName(DigBuildGame.Domain, "ui.frag"),
             RenderTextures.UiMain,
-            false,
+            false, true,
             new BlendOptions
             {
                 From = BlendFactor.SrcAlpha,

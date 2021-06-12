@@ -1,6 +1,6 @@
 {
   "solid": false,
-  "layer": "translucent",
+  "layer": "water",
   "cuboids": [
     {
       "from": [ 0, 0, 0 ],

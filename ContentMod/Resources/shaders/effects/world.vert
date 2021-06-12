@@ -6,6 +6,5 @@ layout(location = 0) out vec2 fragUV;
 
 void main() {
     gl_Position = vec4((pos - vec2(0.5, 0.5)) * 2, 0.0, 1.0);
-    gl_Position.z = (gl_Position.z + gl_Position.w) / 2.0;
     fragUV = pos;
 }

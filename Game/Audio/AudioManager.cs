@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using DigBuild.Platform.Audio;
@@ -46,6 +46,8 @@ namespace DigBuild.Audio
                         _availablePlayers.Enqueue(sound.Player);
                         return true;
                     });
+
+                    Thread.Sleep(1000 / 50);
                 }
 
                 _audioSystem.Dispose();

@@ -19,6 +19,7 @@ namespace DigBuild.Render
         private readonly ResourceName _fragmentShader;
         private readonly RenderTexture _texture;
         private readonly bool _depthTest;
+        private readonly bool _writeDepth;
         private readonly BlendOptions? _blend;
 
         private RenderResources _resources = null!;
@@ -29,6 +30,7 @@ namespace DigBuild.Render
             ResourceName fragmentShader,
             RenderTexture texture,
             bool depthTest = true,
+            bool writeDepth = true,
             BlendOptions? blend = null
         )
         {
@@ -37,6 +39,7 @@ namespace DigBuild.Render
             _fragmentShader = fragmentShader;
             _texture = texture;
             _depthTest = depthTest;
+            _writeDepth = writeDepth;
             _blend = blend;
         }
 
@@ -52,7 +55,7 @@ namespace DigBuild.Render
 
         public void InitResources(RenderContext context, ResourceManager resourceManager, RenderStage renderStage)
         {
-            _resources = new RenderResources(context, resourceManager, renderStage, _vertexShader, _fragmentShader, _depthTest, _blend);
+            _resources = new RenderResources(context, resourceManager, renderStage, _vertexShader, _fragmentShader, _depthTest, _writeDepth, _blend);
         }
 
         public void SetupCommand(CommandBufferRecorder cmd, IReadOnlyUniformBufferSet uniforms, IReadOnlyTextureSet textures)
@@ -84,6 +87,7 @@ namespace DigBuild.Render
                 ResourceName vertexShader,
                 ResourceName fragmentShader,
                 bool depthTest,
+                bool writeDepth,
                 BlendOptions? blend
             )
             {
@@ -104,7 +108,7 @@ namespace DigBuild.Render
                     vs, fs, renderStage, Topology.Triangles
                 );
                 if (depthTest)
-                    pipelineBuilder = pipelineBuilder.WithDepthTest(CompareOperation.LessOrEqual, true);
+                    pipelineBuilder = pipelineBuilder.WithDepthTest(CompareOperation.LessOrEqual, writeDepth);
                 if (blend != null)
                 {
                     foreach (var attachment in renderStage.Format.Attachments.OfType<FramebufferColorAttachment>())

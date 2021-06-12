@@ -73,7 +73,8 @@ namespace DigBuild.Render.Worlds
             GenerateBoundingBoxGeometry(_vertexNativeBuffer, _hit.Bounds);
             _vertexBufferWriter.Write(_vertexNativeBuffer);
                 
-            _uniformNativeBuffer[0].Matrix = Matrix4x4.CreateTranslation(_hit.Position) * worldView.Camera.Transform * worldView.Projection;
+            _uniformNativeBuffer[0].ModelView = Matrix4x4.CreateTranslation(_hit.Position) * worldView.Camera.Transform;
+            _uniformNativeBuffer[0].Projection = worldView.Projection;
             _uniformBuffer.Write(_uniformNativeBuffer);
         }
         

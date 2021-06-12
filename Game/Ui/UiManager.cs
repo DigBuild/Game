@@ -132,17 +132,21 @@ namespace DigBuild.Ui
                                Matrix4x4.CreateTranslation(-1, -1, 0);
 
             _uniforms.Clear();
-            _uniforms.Push(RenderUniforms.ModelViewTransform, new SimpleTransform { Matrix = uiProjection });
+            _uniforms.Push(RenderUniforms.ModelViewTransform, new SimpleTransform
+            {
+                ModelView = Matrix4x4.Identity,
+                Projection = uiProjection
+            });
 
             using (var cmd = _commandBuffer.Record(context, _framebuffer.Format, _bufferPool))
             {
                 cmd.SetViewportAndScissor(_framebuffer);
                 
-                // foreach (var layer in _layers)
-                // {
-                //     layer.SetupCommand(cmd, _uniforms, _textureSet);
-                //     _geometryBuffer.Draw(layer, cmd, _uniforms);
-                // }
+                foreach (var layer in _layers)
+                {
+                    layer.SetupCommand(cmd, _uniforms, _textureSet);
+                    _geometryBuffer.Draw(cmd, layer, _uniforms);
+                }
             }
 
             _uniforms.Upload(context);

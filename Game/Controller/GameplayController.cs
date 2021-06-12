@@ -33,13 +33,13 @@ namespace DigBuild.Controller
         private static readonly List<IRenderLayer> WorldRenderLayers = new(){
             Render.Worlds.WorldRenderLayers.Opaque,
             Render.Worlds.WorldRenderLayers.Cutout,
-            Render.Worlds.WorldRenderLayers.Translucent
+            Render.Worlds.WorldRenderLayers.Water
         };
         private static readonly List<IRenderLayer> UiRenderLayers = new(){
             // UiRenderLayer.Ui,
             // Render.WorldRenderLayers.Opaque,
             // Render.WorldRenderLayers.Cutout,
-            // Render.WorldRenderLayers.Translucent,
+            // Render.WorldRenderLayers.Water,
             // UiRenderLayer.Text,
         };
 
@@ -115,7 +115,7 @@ namespace DigBuild.Controller
             _playerController = new PlayerController(Player);
 
             var inventory = Player.Inventory;
-            inventory.Hand.Item = new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "log")!, 64);
+            inventory.Hand.Item = new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "campfire")!, 64);
         }
 
         public void Dispose()
@@ -169,7 +169,7 @@ namespace DigBuild.Controller
             {
                 if (_firstUpdate)
                     SetupResources(context, surface);
-                if (surface.Resized || _firstUpdate)
+                if (surface.Resized || _firstUpdate || Game.ResourceManager.GetAndClearModifiedResources().Count > 0)
                     SetupSurfaceResources(context, surface);
                 
                 surface.InputContext.CursorMode = UiManager.Ui == null ? CursorMode.Raw : CursorMode.Normal;
@@ -180,7 +180,12 @@ namespace DigBuild.Controller
                 WorldRenderer.UpdateAndRender(context, Player.GetCamera(partialTick), partialTick);
                 UiManager.UpdateAndRender(context, partialTick);
 
-                _surfaceResources.Enqueue(context, surface, _renderResources);
+                var playerCamera = Player.GetCamera(_game.TickSource.CurrentTick.Value);
+                var projMat = WorldRenderer.GetProjectionMatrix(playerCamera);
+                var worldTime = World.AbsoluteTime;
+                var underwater = playerCamera.IsUnderwater;
+
+                _surfaceResources.Enqueue(context, surface, _renderResources, projMat, worldTime, underwater);
             }
 
             _firstUpdate = false;
@@ -239,7 +244,8 @@ namespace DigBuild.Controller
         {
             var worldFB = WorldRenderer.UpdateFramebuffer(context, _renderResources.Format, surface.Width, surface.Height);
             var uiFB = UiManager.UpdateFramebuffer(context, _renderResources.Format, surface.Width, surface.Height);
-            _surfaceResources = new SurfaceResources(context, surface, _game.ResourceManager, _renderResources, _game.BufferPool, worldFB, uiFB);
+            var projMat = WorldRenderer.GetProjectionMatrix(Player.GetCamera(0));
+            _surfaceResources = new SurfaceResources(context, surface, _game.ResourceManager, _renderResources, _game.BufferPool, worldFB, uiFB, projMat);
         }
 
         private sealed class RenderResources
@@ -247,12 +253,14 @@ namespace DigBuild.Controller
             public readonly FramebufferFormat Format;
             public readonly FramebufferColorAttachment DiffuseColorAttachment;
             public readonly FramebufferColorAttachment BloomColorAttachment;
+            public readonly FramebufferColorAttachment WaterColorAttachment;
             public readonly FramebufferColorAttachment NormalColorAttachment;
             public readonly FramebufferColorAttachment PositionColorAttachment;
             public readonly FramebufferDepthStencilAttachment DepthStencilAttachment;
             public readonly RenderStage RenderStage;
             
             public readonly FramebufferFormat CompositionFormat;
+            public readonly WorldPostProcessingEffect WorldEffect;
             public readonly BlurPostProcessingEffect VBlurEffect;
             public readonly BlurPostProcessingEffect HBlurEffect;
             public readonly HDRPostProcessingEffect HDREffect;
@@ -274,11 +282,14 @@ namespace DigBuild.Controller
                 Format = context.CreateFramebufferFormat()
                     .WithColorAttachment(out DiffuseColorAttachment, TextureFormat.R32G32B32A32SFloat)
                     .WithColorAttachment(out BloomColorAttachment, TextureFormat.R32G32B32A32SFloat)
+                    .WithColorAttachment(out WaterColorAttachment, TextureFormat.R32G32B32A32SFloat)
                     .WithColorAttachment(out NormalColorAttachment, TextureFormat.R32G32B32A32SFloat)
                     .WithColorAttachment(out PositionColorAttachment, TextureFormat.R32G32B32A32SFloat)
                     .WithDepthStencilAttachment(out DepthStencilAttachment)
-                    .WithStage(out RenderStage, DepthStencilAttachment,
-                        DiffuseColorAttachment, BloomColorAttachment, NormalColorAttachment, PositionColorAttachment
+                    .WithStage(
+                        out RenderStage, DepthStencilAttachment,
+                        DiffuseColorAttachment, BloomColorAttachment, WaterColorAttachment,
+                        NormalColorAttachment, PositionColorAttachment
                     );
 
                 CompositionVertexBuffer = context.CreateVertexBuffer(
@@ -295,6 +306,7 @@ namespace DigBuild.Controller
                 CompositionFormat = context.CreateFramebufferFormat()
                     .WithColorAttachment(out var compColor, TextureFormat.R32G32B32A32SFloat)
                     .WithStage(out _, compColor);
+                WorldEffect = new WorldPostProcessingEffect();
                 VBlurEffect = new BlurPostProcessingEffect(BlurDirection.Vertical, 2);
                 HBlurEffect = new BlurPostProcessingEffect(BlurDirection.Horizontal, 2);
                 HDREffect = new HDRPostProcessingEffect();
@@ -338,7 +350,8 @@ namespace DigBuild.Controller
                 RenderResources renderResources,
                 NativeBufferPool bufferPool,
                 Framebuffer worldFramebuffer,
-                Framebuffer uiFramebuffer
+                Framebuffer uiFramebuffer,
+                Matrix4x4 projectionMatrix
             )
             {
                 WorldFramebuffer = worldFramebuffer;
@@ -346,6 +359,18 @@ namespace DigBuild.Controller
 
                 WorldCompFramebuffer = context.CreateFramebuffer(renderResources.CompositionFormat, surface.Width, surface.Height);
                 
+                renderResources.WorldEffect.ProjectionMatrix = projectionMatrix;
+                renderResources.WorldEffect.InputWorld = WorldFramebuffer.Get(renderResources.DiffuseColorAttachment);
+                renderResources.WorldEffect.InputPosition = WorldFramebuffer.Get(renderResources.PositionColorAttachment);
+                renderResources.WorldEffect.InputWater = WorldFramebuffer.Get(renderResources.WaterColorAttachment);
+                renderResources.WorldEffect.Setup(
+                    context, surface, resourceManager,
+                    renderResources.CompositionFormat,
+                    renderResources.CompositionVertexBuffer,
+                    renderResources.CompositionSampler,
+                    bufferPool
+                );
+
                 renderResources.VBlurEffect.Input = WorldFramebuffer.Get(renderResources.BloomColorAttachment);
                 renderResources.VBlurEffect.Setup(
                     context, surface, resourceManager,
@@ -367,7 +392,7 @@ namespace DigBuild.Controller
                 TextureBinding worldDiffuseBinding = context.CreateTextureBinding(
                     renderResources.CompositionSamplerHandle,
                     renderResources.CompositionSampler,
-                    WorldFramebuffer.Get(renderResources.DiffuseColorAttachment)
+                    renderResources.WorldEffect.Output
                 );
                 TextureBinding worldBloomBinding = context.CreateTextureBinding(
                     renderResources.CompositionSamplerHandle,
@@ -420,8 +445,22 @@ namespace DigBuild.Controller
                 }
             }
 
-            public void Enqueue(RenderContext context, RenderSurfaceContext surface, RenderResources renderResources)
+            public void Enqueue(
+                RenderContext context,
+                RenderSurfaceContext surface,
+                RenderResources renderResources,
+                Matrix4x4 projectionMatrix,
+                ulong worldTime,
+                bool underwater
+            )
             {
+                renderResources.WorldEffect.ProjectionMatrix = projectionMatrix;
+                renderResources.WorldEffect.WorldTime = worldTime;
+                renderResources.WorldEffect.Flags = WorldPostProcessingFlags.None;
+                if (underwater)
+                    renderResources.WorldEffect.Flags |= WorldPostProcessingFlags.Underwater;
+
+                renderResources.WorldEffect.Apply(context);
                 renderResources.VBlurEffect.Apply(context);
                 renderResources.HBlurEffect.Apply(context);
                 context.Enqueue(WorldCompFramebuffer, WorldCompositionCommandBuffer);

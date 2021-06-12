@@ -52,6 +52,7 @@ namespace DigBuild.Content.Registries
                     builder.Attach(new RayColliderBehavior(IRayCollider<VoxelRayCollider.Hit>.None));
                     builder.Attach(new NoPunchBehavior());
                     builder.Attach(new NonSolidBehavior());
+                    builder.Attach(new WaterBehavior());
                 },
                 Drops(() => GameItems.Water)
             );

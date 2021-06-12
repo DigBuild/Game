@@ -5,6 +5,8 @@ namespace DigBuild.Players
 {
     public interface IPlayerCamera : ICamera
     {
-        Raycast.Ray Ray { get; }   
+        Raycast.Ray Ray { get; }
+
+        bool IsUnderwater { get; }
     }
 }

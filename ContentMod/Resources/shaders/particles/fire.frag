@@ -15,7 +15,10 @@ layout(location = 0) in vec2 fragUV;
 layout(location = 1) in flat float fragAge;
 
 layout(location = 0) out vec4 outColor;
-layout(location = 1) out vec4 bloomColor;
+layout(location = 1) out vec4 outBloomColor;
+layout(location = 2) out vec4 outWater;
+layout(location = 3) out vec4 outNormal;
+layout(location = 4) out vec4 outPosition;
 
 void main() {
     vec3 tint = tintVeryYoung;
@@ -27,5 +30,6 @@ void main() {
 
     vec4 color = texture(tex, fragUV) * vec4(tint, 1.0) * fade * fadeOut;
 
-    outColor = bloomColor = color * 0.2;
+    outColor = outBloomColor = color * 0.2;
+    outWater = outNormal = outPosition = vec4(0);
 }

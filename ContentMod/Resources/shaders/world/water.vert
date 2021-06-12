@@ -11,18 +11,13 @@ layout(location = 2) in vec2 uv;
 layout(location = 3) in vec2 bloomUV;
 layout(location = 4) in float brightness;
 
-layout(location = 0) out vec2 fragUV;
-layout(location = 1) out vec2 fragBloomUV;
-layout(location = 2) out vec3 fragNormal;
-layout(location = 3) out vec3 fragPosition;
-layout(location = 4) out float fragBrightness;
+layout(location = 0) out vec3 fragNormal;
+layout(location = 1) out vec3 fragPosition;
 
 void main() {
-    gl_Position = projection * modelView * vec4(pos.xyz, 1.0);
+    gl_Position = projection * modelView * vec4(pos, 1.0);
     gl_Position.z = (gl_Position.z + gl_Position.w) / 2.0;
-    fragUV = uv;
-    fragBloomUV = bloomUV;
+
 	fragNormal = normal;
 	fragPosition = (gl_Position.xyz) * vec3(0.5, 0.5, 1) + vec3(0.5, 0.5, 0);
-	fragBrightness = brightness;
 }

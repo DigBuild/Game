@@ -2,7 +2,9 @@
 using System.Numerics;
 using DigBuild.Behaviors;
 using DigBuild.Engine.Entities;
+using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
+using DigBuild.Platform.Resource;
 using DigBuild.Registries;
 
 namespace DigBuild.Players
@@ -19,7 +21,9 @@ namespace DigBuild.Players
 
     public sealed class Player : IPlayer
     {
-        public static readonly AABB BoundingBox = new(-0.4f, 0, -0.4f, 0.4f, 1.85f, 0.4f); 
+        public static readonly AABB BoundingBox = new(-0.4f, 0, -0.4f, 0.4f, 1.85f, 0.4f);
+        public const float CameraHeight = 1.75f;
+
         public const float JumpForce = 12f * TickSource.TickDurationSeconds; 
         public const float JumpKickSpeed = 0.8f * TickSource.TickDurationSeconds; 
         public const float MovementSpeedGround = 6 * TickSource.TickDurationSeconds; 
@@ -39,11 +43,18 @@ namespace DigBuild.Players
         public IPlayerCamera GetCamera(float partialTick)
         {
             var physicalEntity = PhysicalEntity;
+            var eyePosition = physicalEntity.PrevPosition + physicalEntity.PrevVelocity * partialTick + Vector3.UnitY * CameraHeight;
+            var blockPos = new BlockPos(eyePosition);
+            var eyeBlock = Entity.World.GetBlock(blockPos);
+
+            var underwater = eyeBlock != null && eyeBlock.Name.Equals(new ResourceName(DigBuildGame.Domain, "water"));
+
             return new PlayerCamera(
-                physicalEntity.PrevPosition + physicalEntity.PrevVelocity * partialTick + Vector3.UnitY * 1.75f,
+                eyePosition,
                 physicalEntity.PrevPitch + physicalEntity.AngularVelocityPitch * partialTick,
                 physicalEntity.PrevYaw + physicalEntity.AngularVelocityYaw * partialTick,
-                MathF.PI / 2
+                MathF.PI / 2,
+                underwater
             );
         }
     }

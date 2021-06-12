@@ -51,7 +51,7 @@ namespace DigBuild.Render.Models
             var layer = _modelDefinition.Layer switch
             {
                 "cutout" => WorldRenderLayers.Cutout,
-                "translucent" => WorldRenderLayers.Translucent,
+                "water" => WorldRenderLayers.Water,
                 _ => WorldRenderLayers.Opaque
             };
 

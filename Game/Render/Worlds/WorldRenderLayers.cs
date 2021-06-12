@@ -20,17 +20,18 @@ namespace DigBuild.Render.Worlds
             RenderTextures.Main
         );
         
-        public static IRenderLayer<WorldVertex> Translucent { get; } = new SimpleRenderLayer<WorldVertex>(
+        public static IRenderLayer<WorldVertex> Water { get; } = new SimpleRenderLayer<WorldVertex>(
             WorldVertex.CreateTransformer,
-            new ResourceName(DigBuildGame.Domain, "world/base.vert"),
-            new ResourceName(DigBuildGame.Domain, "world/translucent.frag"),
+            new ResourceName(DigBuildGame.Domain, "world/water.vert"),
+            new ResourceName(DigBuildGame.Domain, "world/water.frag"),
             RenderTextures.Main,
+            writeDepth: false,
             blend: new BlendOptions
-            {
-                From = BlendFactor.SrcAlpha,
-                To = BlendFactor.OneMinusSrcAlpha,
-                Operation = BlendOperation.Add
-            }
+            { 
+                From = BlendFactor.SrcAlpha, 
+                To = BlendFactor.OneMinusSrcAlpha, 
+                Operation = BlendOperation.Add 
+            } 
         );
     }
 }
