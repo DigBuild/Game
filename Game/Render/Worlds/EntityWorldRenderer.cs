@@ -7,7 +7,6 @@ using DigBuild.Engine.Events;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Render.Models;
 using DigBuild.Engine.Render.Worlds;
-using DigBuild.Engine.Worlds;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Util;
 
@@ -96,9 +95,12 @@ namespace DigBuild.Render.Worlds
             _uniforms = uniforms.CaptureSnapshot();
         }
 
-        public void Draw(RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer, IReadOnlyUniformBufferSet uniforms, WorldView worldView, float partialTick)
+        public void Draw(
+            RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer, RenderLayerBindingSet bindings,
+            IReadOnlyUniformBufferSet uniforms, WorldView worldView, float partialTick
+        )
         {
-            _geometryBuffer.Draw(cmd, layer, _uniforms);
+            _geometryBuffer.Draw(cmd, layer, bindings, _uniforms);
         }
 
         public void AfterDraw(RenderContext context, CommandBufferRecorder cmd, WorldView worldView, float partialTick)

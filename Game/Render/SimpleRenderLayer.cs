@@ -9,7 +9,7 @@ using DigBuild.Render.GeneratedUniforms;
 
 namespace DigBuild.Render
 {
-    public sealed class SimpleRenderLayer<TVertex> : IRenderLayer<TVertex>
+    public sealed class SimpleRenderLayer<TVertex> : IRenderLayer<TVertex, SimpleRenderLayer<TVertex>.Bindings>
         where TVertex : unmanaged
     {
         public delegate IVertexConsumer<TVertex> VertexTransformerProviderDelegate(IVertexConsumer<TVertex> consumer, Matrix4x4 transform, bool transformNormal);
@@ -58,28 +58,35 @@ namespace DigBuild.Render
             _resources = new RenderResources(context, resourceManager, renderStage, _vertexShader, _fragmentShader, _depthTest, _writeDepth, _blend);
         }
 
-        public void SetupCommand(CommandBufferRecorder cmd, IReadOnlyUniformBufferSet uniforms, IReadOnlyTextureSet textures)
+        public void InitBindings(RenderContext context, RenderLayerBindingSet bindings)
         {
-            _resources.UniformBinding.Update(uniforms.Get(RenderUniforms.ModelViewTransform));
-            _resources.WorldTimeUniformBinding.Update(uniforms.Get(RenderUniforms.WorldTime));
-            _resources.TextureBinding.Update(textures.DefaultSampler, textures.Get(_texture));
-            cmd.Using(_resources.Pipeline, _resources.TextureBinding);
+            bindings.Set(this, new Bindings(context, _resources));
         }
 
-        public void Draw(CommandBufferRecorder cmd, IReadOnlyUniformBufferSet uniforms, VertexBuffer<TVertex> vertexBuffer)
+        public void SetupCommand(CommandBufferRecorder cmd, RenderLayerBindingSet bindings, IReadOnlyUniformBufferSet uniforms, IReadOnlyTextureSet textures)
         {
-            cmd.Using(_resources.Pipeline, _resources.UniformBinding, uniforms.GetIndex(RenderUniforms.ModelViewTransform));
-            cmd.Using(_resources.Pipeline, _resources.WorldTimeUniformBinding, uniforms.GetIndex(RenderUniforms.WorldTime));
+            var b = bindings.Get(this);
+            b.UniformBinding.Update(uniforms.Get(RenderUniforms.ModelViewTransform));
+            b.WorldTimeUniformBinding.Update(uniforms.Get(RenderUniforms.WorldTime));
+            b.TextureBinding.Update(textures.DefaultSampler, textures.Get(_texture));
+            cmd.Using(_resources.Pipeline, b.TextureBinding);
+        }
+
+        public void Draw(CommandBufferRecorder cmd, RenderLayerBindingSet bindings, IReadOnlyUniformBufferSet uniforms, VertexBuffer<TVertex> vertexBuffer)
+        {
+            var b = bindings.Get(this);
+            cmd.Using(_resources.Pipeline, b.UniformBinding, uniforms.GetIndex(RenderUniforms.ModelViewTransform));
+            cmd.Using(_resources.Pipeline, b.WorldTimeUniformBinding, uniforms.GetIndex(RenderUniforms.WorldTime));
             cmd.Draw(_resources.Pipeline, vertexBuffer);
         }
 
-        private sealed class RenderResources
+        internal sealed class RenderResources
         {
             public readonly RenderPipeline<TVertex> Pipeline;
-            public readonly UniformBinding<SimpleTransform> UniformBinding;
-            public readonly UniformBinding<WorldTimeUniform> WorldTimeUniformBinding;
-            public readonly TextureBinding TextureBinding;
-            
+            public readonly UniformHandle<SimpleTransform> VertexUniform;
+            public readonly UniformHandle<WorldTimeUniform> WorldTime;
+            public readonly ShaderSamplerHandle TextureSampler;
+
             public RenderResources(
                 RenderContext context,
                 ResourceManager resourceManager,
@@ -95,14 +102,10 @@ namespace DigBuild.Render
                 var fsResource = resourceManager.Get<Shader>(fragmentShader)!;
 
                 VertexShader vs = context.CreateVertexShader(vsResource.Resource)
-                    .WithUniform<SimpleTransform>(out var vertexUniform);
+                    .WithUniform(out VertexUniform);
                 FragmentShader fs = context.CreateFragmentShader(fsResource.Resource)
-                    .WithUniform<WorldTimeUniform>(out var worldTime)
-                    .WithSampler(out var textureSampler);
-                
-                UniformBinding = context.CreateUniformBinding(vertexUniform);
-                WorldTimeUniformBinding = context.CreateUniformBinding(worldTime);
-                TextureBinding = context.CreateTextureBinding(textureSampler);
+                    .WithUniform(out WorldTime)
+                    .WithSampler(out TextureSampler);
 
                 var pipelineBuilder = context.CreatePipeline<TVertex>(
                     vs, fs, renderStage, Topology.Triangles
@@ -122,6 +125,20 @@ namespace DigBuild.Render
                     }
                 }
                 Pipeline = pipelineBuilder;
+            }
+        }
+        
+        public sealed class Bindings
+        {
+            public readonly UniformBinding<SimpleTransform> UniformBinding;
+            public readonly UniformBinding<WorldTimeUniform> WorldTimeUniformBinding;
+            public readonly TextureBinding TextureBinding;
+
+            internal Bindings(RenderContext context, RenderResources resources)
+            {
+                UniformBinding = context.CreateUniformBinding(resources.VertexUniform);
+                WorldTimeUniformBinding = context.CreateUniformBinding(resources.WorldTime);
+                TextureBinding = context.CreateTextureBinding(resources.TextureSampler);
             }
         }
     }

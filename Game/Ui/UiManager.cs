@@ -11,6 +11,8 @@ using DigBuild.Platform.Render;
 using DigBuild.Platform.Resource;
 using DigBuild.Platform.Util;
 using DigBuild.Render;
+using DigBuild.Render.GeneratedUniforms;
+using DigBuild.Worlds;
 
 namespace DigBuild.Ui
 {
@@ -24,6 +26,7 @@ namespace DigBuild.Ui
 
         private readonly GeometryBuffer _geometryBuffer;
         private readonly UniformBufferSet _uniforms;
+        private readonly RenderLayerBindingSet _bindingSet = new();
 
         private CommandBuffer _commandBuffer = null!;
         private Framebuffer _framebuffer = null!;
@@ -117,6 +120,12 @@ namespace DigBuild.Ui
             return _framebuffer;
         }
 
+        public void InitLayerBindings(RenderContext context)
+        {
+            foreach (var layer in _layers)
+                layer.InitBindings(context, _bindingSet);
+        }
+
         public void UpdateAndRender(RenderContext context, float partialTick)
         {
             _geometryBuffer.Clear();
@@ -137,6 +146,10 @@ namespace DigBuild.Ui
                 ModelView = Matrix4x4.Identity,
                 Projection = uiProjection
             });
+            _uniforms.Push(RenderUniforms.WorldTime, new WorldTimeUniform
+            {
+                WorldTime = 1
+            });
 
             using (var cmd = _commandBuffer.Record(context, _framebuffer.Format, _bufferPool))
             {
@@ -144,8 +157,8 @@ namespace DigBuild.Ui
                 
                 foreach (var layer in _layers)
                 {
-                    layer.SetupCommand(cmd, _uniforms, _textureSet);
-                    _geometryBuffer.Draw(cmd, layer, _uniforms);
+                    layer.SetupCommand(cmd, _bindingSet, _uniforms, _textureSet);
+                    _geometryBuffer.Draw(cmd, layer, _bindingSet, _uniforms);
                 }
             }
 

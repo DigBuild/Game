@@ -28,7 +28,10 @@ namespace DigBuild.Render.Worlds
         {
         }
 
-        public void Draw(RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer, IReadOnlyUniformBufferSet uniforms, WorldView worldView, float partialTick)
+        public void Draw(
+            RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer, RenderLayerBindingSet bindings,
+            IReadOnlyUniformBufferSet uniforms, WorldView worldView, float partialTick
+        )
         {
         }
 

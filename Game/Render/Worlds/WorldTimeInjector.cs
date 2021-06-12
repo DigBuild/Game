@@ -32,7 +32,10 @@ namespace DigBuild.Render.Worlds
             uniforms.Push(RenderUniforms.WorldTime, new WorldTimeUniform {WorldTime = timeFactor});
         }
 
-        public void Draw(RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer, IReadOnlyUniformBufferSet uniforms, WorldView worldView, float partialTick)
+        public void Draw(
+            RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer, RenderLayerBindingSet bindings,
+            IReadOnlyUniformBufferSet uniforms, WorldView worldView, float partialTick
+        )
         {
         }
 

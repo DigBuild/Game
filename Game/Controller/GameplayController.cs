@@ -33,18 +33,17 @@ namespace DigBuild.Controller
         private static readonly List<IRenderLayer> WorldRenderLayers = new(){
             Render.Worlds.WorldRenderLayers.Opaque,
             Render.Worlds.WorldRenderLayers.Cutout,
-            Render.Worlds.WorldRenderLayers.Water
+            Render.Worlds.WorldRenderLayers.Water,
         };
         private static readonly List<IRenderLayer> UiRenderLayers = new(){
-            // UiRenderLayer.Ui,
-            // Render.WorldRenderLayers.Opaque,
-            // Render.WorldRenderLayers.Cutout,
-            // Render.WorldRenderLayers.Water,
-            // UiRenderLayer.Text,
+            UiRenderLayer.Ui,
+            Render.Worlds.WorldRenderLayers.Opaque,
+            Render.Worlds.WorldRenderLayers.Cutout,
+            Render.Worlds.WorldRenderLayers.Water,
+            UiRenderLayer.Text,
         };
 
         private static readonly ImmutableList<IRenderUniform> UniformTypes = ImmutableList.Create<IRenderUniform>(
-            // RenderUniforms.ProjectionTransform,
             RenderUniforms.ModelViewTransform,
             RenderUniforms.WorldTime
         );
@@ -235,6 +234,8 @@ namespace DigBuild.Controller
 
             foreach (var layer in allRenderLayers)
                 layer.InitResources(context, _game.ResourceManager, _renderResources.RenderStage);
+            WorldRenderer.InitLayerBindings(context);
+            UiManager.InitLayerBindings(context);
 
             foreach (var particleRenderer in _particleRenderers)
                 particleRenderer.Initialize(context, _renderResources.RenderStage);
@@ -268,6 +269,7 @@ namespace DigBuild.Controller
             public readonly VertexBuffer<Vertex2> CompositionVertexBuffer;
             public readonly RenderPipeline<Vertex2> CompositionPipeline;
             public readonly RenderPipeline<Vertex2> CompositionPipelineAdd;
+            public readonly RenderPipeline<Vertex2> SurfaceCompositionPipeline;
             public readonly ShaderSamplerHandle CompositionSamplerHandle;
             public readonly TextureSampler CompositionSampler;
 
@@ -305,7 +307,7 @@ namespace DigBuild.Controller
 
                 CompositionFormat = context.CreateFramebufferFormat()
                     .WithColorAttachment(out var compColor, TextureFormat.R32G32B32A32SFloat)
-                    .WithStage(out _, compColor);
+                    .WithStage(out var compositionStage, compColor);
                 WorldEffect = new WorldPostProcessingEffect();
                 VBlurEffect = new BlurPostProcessingEffect(BlurDirection.Vertical, 2);
                 HBlurEffect = new BlurPostProcessingEffect(BlurDirection.Horizontal, 2);
@@ -318,14 +320,20 @@ namespace DigBuild.Controller
                     .WithSampler(out CompositionSamplerHandle);
                 CompositionPipeline = context.CreatePipeline<Vertex2>(
                     vsComp, fsComp,
-                    surface.RenderStage,
+                    compositionStage,
                     Topology.Triangles
                 ).WithStandardBlending(surface.ColorAttachment);
                 CompositionPipelineAdd = context.CreatePipeline<Vertex2>(
                     vsComp, fsComp,
+                    compositionStage,
+                    Topology.Triangles
+                ).WithBlending(compColor, BlendFactor.SrcAlpha, BlendFactor.One, BlendOperation.Add);
+
+                SurfaceCompositionPipeline = context.CreatePipeline<Vertex2>(
+                    vsComp, fsComp,
                     surface.RenderStage,
                     Topology.Triangles
-                ).WithBlending(surface.ColorAttachment, BlendFactor.SrcAlpha, BlendFactor.One, BlendOperation.Add);
+                ).WithStandardBlending(surface.ColorAttachment);
                 
                 CompositionSampler = context.CreateTextureSampler(wrapping: TextureWrapping.ClampToEdge);
 
@@ -437,11 +445,11 @@ namespace DigBuild.Controller
                 {
                     cmd.SetViewportAndScissor(surface);
 
-                    cmd.Using(renderResources.CompositionPipeline, worldCompBinding);
-                    cmd.Draw(renderResources.CompositionPipeline, renderResources.CompositionVertexBuffer);
+                    cmd.Using(renderResources.SurfaceCompositionPipeline, worldCompBinding);
+                    cmd.Draw(renderResources.SurfaceCompositionPipeline, renderResources.CompositionVertexBuffer);
 
-                    cmd.Using(renderResources.CompositionPipeline, uiDiffuseBinding);
-                    cmd.Draw(renderResources.CompositionPipeline, renderResources.CompositionVertexBuffer);
+                    cmd.Using(renderResources.SurfaceCompositionPipeline, uiDiffuseBinding);
+                    cmd.Draw(renderResources.SurfaceCompositionPipeline, renderResources.CompositionVertexBuffer);
                 }
             }
 
@@ -459,7 +467,7 @@ namespace DigBuild.Controller
                 renderResources.WorldEffect.Flags = WorldPostProcessingFlags.None;
                 if (underwater)
                     renderResources.WorldEffect.Flags |= WorldPostProcessingFlags.Underwater;
-
+                
                 renderResources.WorldEffect.Apply(context);
                 renderResources.VBlurEffect.Apply(context);
                 renderResources.HBlurEffect.Apply(context);

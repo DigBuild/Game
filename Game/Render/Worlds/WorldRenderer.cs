@@ -27,6 +27,7 @@ namespace DigBuild.Render.Worlds
         private readonly SelectionBoxRenderer _selectionBoxRenderer;
 
         private readonly UniformBufferSet _uniforms;
+        private readonly RenderLayerBindingSet _bindingSet = new();
 
         private CommandBuffer _commandBuffer = null!;
         private Framebuffer _framebuffer = null!;
@@ -71,6 +72,12 @@ namespace DigBuild.Render.Worlds
             return _framebuffer = context.CreateFramebuffer(format, width, height);
         }
 
+        public void InitLayerBindings(RenderContext context)
+        {
+            foreach (var layer in _layers)
+                layer.InitBindings(context, _bindingSet);
+        }
+
         public Matrix4x4 GetProjectionMatrix(ICamera camera)
         {
             var viewDist = (DigBuildGame.ViewRadius + 1) * WorldDimensions.ChunkSize * MathF.Sqrt(2);
@@ -106,9 +113,9 @@ namespace DigBuild.Render.Worlds
                 
                 foreach (var layer in _layers)
                 {
-                    layer.SetupCommand(cmd, _uniforms, _textures);
+                    layer.SetupCommand(cmd, _bindingSet, _uniforms, _textures);
                     foreach (var renderer in _worldRenderers)
-                        renderer.Draw(context, cmd, layer, _uniforms, worldView, partialTick);
+                        renderer.Draw(context, cmd, layer, _bindingSet, _uniforms, worldView, partialTick);
                 }
 
                 foreach (var renderer in _worldRenderers)
