@@ -6,6 +6,8 @@ namespace DigBuild.Players
     public interface IPlayerInventory
     {
         IReadOnlyList<IInventorySlot> Hotbar { get; }
+        IPlayerEquipment Equipment { get; }
+
         uint ActiveHotbarSlot { get; set; }
         ref IInventorySlot Hand { get; }
         IInventorySlot PickedItem { get; }
@@ -15,14 +17,15 @@ namespace DigBuild.Players
 
     public sealed class PlayerInventory : IPlayerInventory
     {
-        public const int HotbarSize = 8;
+        public const int HotbarSize = 10;
 
         private readonly IInventorySlot[] _hotbar = new IInventorySlot[HotbarSize];
         
         public IReadOnlyList<IInventorySlot> Hotbar => _hotbar;
-        public uint ActiveHotbarSlot { get; set; } = 0;
-        public ref IInventorySlot Hand => ref _hotbar[ActiveHotbarSlot];
+        public IPlayerEquipment Equipment { get; } = new PlayerEquipment();
 
+        public uint ActiveHotbarSlot { get; set; }
+        public ref IInventorySlot Hand => ref _hotbar[ActiveHotbarSlot];
         public IInventorySlot PickedItem { get; } = new InventorySlot();
 
         public PlayerInventory()

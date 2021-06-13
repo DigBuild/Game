@@ -107,8 +107,9 @@ namespace DigBuild.Controller
                 Textures,
                 _game.BufferPool
             );
-
+            
             UiManager = new UiManager(this, UiRenderLayers, UniformTypes, _game.BufferPool);
+            game.EventBus.Subscribe<UiTextureStitchingEvent>(GameHud.OnUiTextureStitching);
             
             Player = new Player(World.AddEntity(GameEntities.Player).WithPosition(new Vector3(0, 30, 0)));
             _playerController = new PlayerController(Player);

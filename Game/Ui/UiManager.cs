@@ -6,6 +6,7 @@ using DigBuild.Engine.BuiltIn.GeneratedUniforms;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Textures;
 using DigBuild.Engine.Ui;
+using DigBuild.Events;
 using DigBuild.Platform.Input;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Resource;
@@ -106,6 +107,7 @@ namespace DigBuild.Ui
 
             var uiStitcher = new TextureStitcher();
             uiStitcher.Add(resourceManager.GetResource(DigBuildGame.Domain, "textures/ui/white.png")!);
+            _controller.Game.EventBus.Post(new UiTextureStitchingEvent(uiStitcher, resourceManager));
             _textureSet.UiTexture = context.CreateTexture(uiStitcher.Stitch(new ResourceName(DigBuildGame.Domain, "ui_texturemap")).Bitmap);
 
             IUiElement.GlobalTextRenderer = new TextRenderer(UiRenderLayer.Text);
