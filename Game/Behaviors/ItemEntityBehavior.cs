@@ -1,7 +1,8 @@
 ﻿using System;
+using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
+using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Items;
-using DigBuild.Engine.Render;
 using DigBuild.Engine.Render.Models;
 using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
@@ -31,6 +32,16 @@ namespace DigBuild.Behaviors
             entity.Add(EntityAttributes.ItemJoinWorldTime, (_, data, _) => data.JoinWorldTime);
             entity.Add(EntityCapabilities.ItemEntity, (_, data, _) => data.Capability);
             entity.Add(ModelData.EntityAttribute, GetModelData);
+            entity.Subscribe(OnJoinedWorld);
+        }
+
+        private void OnJoinedWorld(BuiltInEntityEvent.JoinedWorld evt, IItemEntityBehavior data, Action next)
+        {
+            evt.Entity.World.TickScheduler.After(5 * 60 * TickSource.TicksPerSecond).Tick += () =>
+            {
+                evt.Entity.World.RemoveEntity(evt.Entity.Id);
+            };
+            next();
         }
 
         private ModelData GetModelData(IReadOnlyEntityInstance instance, IItemEntityBehavior data, Func<ModelData> next)
