@@ -142,6 +142,7 @@ namespace DigBuild.Registries
             
             var itemAttributes = manager.CreateRegistryOf<IItemAttribute>(new ResourceName(DigBuildGame.Domain, "item_attributes"));
             itemAttributes.Building += DigBuildEngine.Register;
+            itemAttributes.Building += Registries.ItemAttributes.Register;
             itemAttributes.Building += reg => bus.Post(new RegistryBuildingEvent<IItemAttribute>(reg));
             itemAttributes.Built += reg =>
             {

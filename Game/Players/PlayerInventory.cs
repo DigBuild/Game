@@ -39,7 +39,7 @@ namespace DigBuild.Players
             for (var i = 0; i < HotbarSize; i++)
                 _hotbar[i] = new InventorySlot(other._hotbar[i].Item);
             ActiveHotbarSlot = other.ActiveHotbarSlot;
-            PickedItem.Item = other.PickedItem.Item;
+            PickedItem.TrySetItem(other.PickedItem.Item);
         }
 
         public void CycleHotbar(int amount)

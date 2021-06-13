@@ -86,8 +86,8 @@ namespace DigBuild.Players
         public void TransferHotbarUp()
         {
             if (_player.Inventory.PickedItem.Item.Count > 0) return;
-            _player.Inventory.PickedItem.Item = _player.Inventory.Hand.Item;
-            _player.Inventory.Hand.Item = ItemInstance.Empty;
+            _player.Inventory.PickedItem.TrySetItem(_player.Inventory.Hand.Item);
+            _player.Inventory.Hand.TrySetItem(ItemInstance.Empty);
             HotbarTransfer = true;
         }
 
@@ -95,8 +95,8 @@ namespace DigBuild.Players
         {
             if (_player.Inventory.PickedItem.Item.Count == 0) return;
             var hand = _player.Inventory.Hand.Item;
-            _player.Inventory.Hand.Item = _player.Inventory.PickedItem.Item;
-            _player.Inventory.PickedItem.Item = hand;
+            _player.Inventory.Hand.TrySetItem(_player.Inventory.PickedItem.Item);
+            _player.Inventory.PickedItem.TrySetItem(hand);
             HotbarTransfer = true;
         }
     }

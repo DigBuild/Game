@@ -21,14 +21,14 @@ namespace DigBuild.Content.Blocks
 
         public CraftingOutput? ActiveRecipeOutput
         {
-            set => OutputSlot.Item = value?.Output ?? ItemInstance.Empty;
+            set => OutputSlot.TrySetItem(value?.Output ?? ItemInstance.Empty);
         }
 
         public CrafterBlockData Copy()
         {
             var copy = new CrafterBlockData();
             for (var i = 0; i < ShapedSlots.Count; i++)
-                copy.ShapedSlots[i].Item = ShapedSlots[i].Item.Copy();
+                copy.ShapedSlots[i].TrySetItem(ShapedSlots[i].Item.Copy());
             return copy;
         }
     }
