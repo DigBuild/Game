@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DigBuild.Blocks;
 using DigBuild.Content.Ui;
+using DigBuild.Controller;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Items;
@@ -33,7 +34,14 @@ namespace DigBuild.Content.Behaviors
 
         private BlockEvent.Activate.Result OnActivate(BlockEvent.Activate evt, ICraftingUiBehavior data, Func<BlockEvent.Activate.Result> next)
         {
-            // GameWindow.FunnyUi = CraftingUi.Create(new CraftingInventory(data), GameWindow.PickedItemSlot, GameWindow.ItemModels);
+            var gameplayController = (GameplayController)DigBuildGame.Instance.Controller;
+            var ui = CraftingUi.Create(
+                new CraftingInventory(data),
+                gameplayController.Player.Inventory.PickedItem,
+                DigBuildGame.Instance.ModelManager.ItemModels
+            );
+            gameplayController.UiManager.Open(ui);
+
             return BlockEvent.Activate.Result.Success;
         }
 

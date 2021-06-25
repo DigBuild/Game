@@ -52,8 +52,9 @@ namespace DigBuild.Ui
             
             _geometryBuffer = new GeometryBuffer(bufferPool);
             _uniforms = new UniformBufferSet(uniforms, bufferPool);
-
+            
             Open(new GameHud(Controller));
+            Open(MenuUi.Create());
         }
 
         public void Open(IUi ui)
@@ -121,7 +122,7 @@ namespace DigBuild.Ui
             _geometryBuffer.Transform = Matrix4x4.Identity;
             _geometryBuffer.TransformNormal = false;
             {
-                foreach (var ui in _uis)
+                foreach (var ui in _uis.Reverse())
                     ui.UpdateAndDraw(context, _geometryBuffer, partialTick);
             }
             _geometryBuffer.Upload(context);
@@ -158,21 +159,21 @@ namespace DigBuild.Ui
 
         public void OnCursorMoved(uint x, uint y, CursorAction action)
         {
-            foreach (var ui in _uis.Reverse())
+            foreach (var ui in _uis)
                 if (ui.OnCursorMoved((int)x, (int)y))
                     break;
         }
 
         public void OnMouseEvent(uint button, MouseAction action)
         {
-            foreach (var ui in _uis.Reverse())
+            foreach (var ui in _uis)
                 if (ui.OnMouseEvent(button, action))
                     break;
         }
 
         public void OnKeyboardEvent(uint code, KeyboardAction action)
         {
-            foreach (var ui in _uis.Reverse())
+            foreach (var ui in _uis)
                 if (ui.OnKeyboardEvent(code, action))
                     break;
         }

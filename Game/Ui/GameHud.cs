@@ -32,6 +32,7 @@ namespace DigBuild.Ui
 
         private readonly UiContainer _ui = new();
         private SimpleUi.Context _context = null!;
+        private UiManager _manager;
 
         private UiLabel _positionLabel = null!;
         private UiLabel _lookLabel = null!;
@@ -51,6 +52,7 @@ namespace DigBuild.Ui
         public void OnOpened(UiManager manager)
         {
             _context = new SimpleUi.Context(this, manager);
+            _manager = manager;
             _isTop = true;
         }
 
@@ -149,20 +151,20 @@ namespace DigBuild.Ui
 
         public bool OnCursorMoved(int x, int y)
         {
-            if (_isMouseFree)
-                _ui.OnCursorMoved(_context, x, y);
-            else
+            if (!_isMouseFree && _isTop)
                 _controller.InputController.OnCursorMoved((uint) x, (uint) y);
+            else
+                _ui.OnCursorMoved(_context, x, y);
 
             return true;
         }
 
         public bool OnMouseEvent(uint button, MouseAction action)
         {
-            if (_isMouseFree)
-                _ui.OnMouseEvent(_context, button, action);
-            else
+            if (!_isMouseFree && _isTop)
                 _controller.InputController.OnMouseEvent(button, action);
+            else
+                _ui.OnMouseEvent(_context, button, action);
 
             return true;
         }
@@ -175,10 +177,16 @@ namespace DigBuild.Ui
                 return true;
             }
 
-            if (_isMouseFree)
-                _context.KeyboardEventDelegate?.Invoke(code, action);
-            else
+            if (_isTop && code == 1 && action == KeyboardAction.Press)
+            {
+                _manager.Open(MenuUi.Create());
+                return true;
+            }
+            
+            if (!_isMouseFree && _isTop)
                 _controller.InputController.OnKeyboardEvent(code, action);
+            else
+                _context.KeyboardEventDelegate?.Invoke(code, action);
 
             return true;
         }
