@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using DigBuild.Controller;
 using DigBuild.Engine.BuiltIn.GeneratedUniforms;
@@ -13,13 +14,13 @@ using DigBuild.Platform.Resource;
 using DigBuild.Platform.Util;
 using DigBuild.Render;
 using DigBuild.Render.GeneratedUniforms;
-using DigBuild.Worlds;
 
 namespace DigBuild.Ui
 {
     public sealed class UiManager
     {
-        private readonly GameplayController _controller;
+        public GameplayController Controller { get; }
+
         private readonly IEnumerable<IRenderLayer> _layers;
         private readonly NativeBufferPool _bufferPool;
 
@@ -32,19 +33,9 @@ namespace DigBuild.Ui
         private CommandBuffer _commandBuffer = null!;
         private Framebuffer _framebuffer = null!;
         
-        private readonly GameHud _hud;
-        private IUiElement? _ui;
-        private Context _uiContext = null!;
+        private readonly Stack<IUi> _uis = new();
 
-        public IUiElement? Ui
-        {
-            get => _ui;
-            set
-            {
-                _ui = value;
-                _uiContext = value != null ? new Context(this) : null!;
-            }
-        }
+        public CursorMode CursorMode => _uis.Peek().CursorMode;
 
         public UiManager(
             GameplayController controller,
@@ -53,47 +44,42 @@ namespace DigBuild.Ui
             NativeBufferPool bufferPool
         )
         {
-            _controller = controller;
+            Controller = controller;
             _layers = layers;
             _bufferPool = bufferPool;
 
             _textureSet = new TextureSet(this);
-
-            _hud = new GameHud(controller);
-
+            
             _geometryBuffer = new GeometryBuffer(bufferPool);
             _uniforms = new UniformBufferSet(uniforms, bufferPool);
 
-            Ui = MenuUi.Create();
+            Open(new GameHud(Controller));
         }
 
-        public sealed class TextureSet : IReadOnlyTextureSet
+        public void Open(IUi ui)
         {
-            private readonly UiManager _manager;
+            var hasTop = _uis.TryPeek(out var top);
 
-            public TextureSampler DefaultSampler { get; internal set; } = null!;
+            _uis.Push(ui);
 
-            public Texture UiTexture { get; internal set; } = null!;
-            public Texture FontTexture { get; internal set; } = null!;
+            ui.OnOpened(this);
+            if (_framebuffer != null)
+                ui.OnResized(_framebuffer);
 
-            public TextureSet(UiManager manager)
-            {
-                _manager = manager;
-            }
-
-            public Texture Get(RenderTexture texture)
-            {
-                if (texture == RenderTextures.UiMain)
-                    return UiTexture;
-                if (texture == RenderTextures.UiText)
-                    return FontTexture;
-                return _manager._controller.Textures.Get(texture);
-            }
+            if (hasTop)
+                top!.OnLayerAdded();
         }
 
-        private void CloseUi()
+        public void Close(IUi ui)
         {
-            Ui = null;
+            if (!_uis.Contains(ui))
+                throw new Exception("Attempted to close invalid UI");
+
+            while (_uis.Count > 1 && _uis.TryPop(out var top) && top != ui)
+                top.OnClosed();
+
+            if (_uis.TryPeek(out var top2))
+                top2.OnLayerRemoved();
         }
 
         public void Setup(RenderContext context, ResourceManager resourceManager, RenderStage renderStage)
@@ -107,7 +93,7 @@ namespace DigBuild.Ui
 
             var uiStitcher = new TextureStitcher();
             uiStitcher.Add(resourceManager.GetResource(DigBuildGame.Domain, "textures/ui/white.png")!);
-            _controller.Game.EventBus.Post(new UiTextureStitchingEvent(uiStitcher, resourceManager));
+            Controller.Game.EventBus.Post(new UiTextureStitchingEvent(uiStitcher, resourceManager));
             _textureSet.UiTexture = context.CreateTexture(uiStitcher.Stitch(new ResourceName(DigBuildGame.Domain, "ui_texturemap")).Bitmap);
 
             IUiElement.GlobalTextRenderer = new TextRenderer(UiRenderLayer.Text);
@@ -118,7 +104,8 @@ namespace DigBuild.Ui
         public Framebuffer UpdateFramebuffer(RenderContext context, FramebufferFormat format, uint width, uint height)
         {
             _framebuffer = context.CreateFramebuffer(format, width, height);
-            _hud.Setup(_framebuffer);
+            foreach (var ui in _uis)
+                ui.OnResized(_framebuffer);
             return _framebuffer;
         }
 
@@ -134,8 +121,8 @@ namespace DigBuild.Ui
             _geometryBuffer.Transform = Matrix4x4.Identity;
             _geometryBuffer.TransformNormal = false;
             {
-                _hud.UpdateAndDraw(context, _geometryBuffer, partialTick);
-                Ui?.Draw(context, _geometryBuffer, partialTick);
+                foreach (var ui in _uis)
+                    ui.UpdateAndDraw(context, _geometryBuffer, partialTick);
             }
             _geometryBuffer.Upload(context);
             
@@ -169,61 +156,48 @@ namespace DigBuild.Ui
             context.Enqueue(_framebuffer, _commandBuffer);
         }
 
-        public bool OnCursorMoved(uint x, uint y, CursorAction action)
+        public void OnCursorMoved(uint x, uint y, CursorAction action)
         {
-            if (Ui == null) return false;
-            Ui.OnCursorMoved(_uiContext, (int) x, (int) y);
-            _hud.OnCursorMove(_uiContext, (int) x, (int) y);
-            return true;
+            foreach (var ui in _uis.Reverse())
+                if (ui.OnCursorMoved((int)x, (int)y))
+                    break;
         }
 
-        public bool OnMouseEvent(uint button, MouseAction action)
+        public void OnMouseEvent(uint button, MouseAction action)
         {
-            if (Ui == null) return false;
-            Ui.OnMouseEvent(_uiContext, button, action);
-            _hud.OnMouseEvent(_uiContext, button, action);
-            return true;
+            foreach (var ui in _uis.Reverse())
+                if (ui.OnMouseEvent(button, action))
+                    break;
         }
 
-        public bool OnKeyboardEvent(uint code, KeyboardAction action)
+        public void OnKeyboardEvent(uint code, KeyboardAction action)
         {
-            if (code == 1 && action == KeyboardAction.Press)
-            {
-                Ui = Ui != null ? null : MenuUi.Create();
-                return true;
-            }
-            
-            if (Ui == null) return false;
-            _uiContext.KeyboardEventDelegate?.Invoke(code, action);
-            return true;
+            foreach (var ui in _uis.Reverse())
+                if (ui.OnKeyboardEvent(code, action))
+                    break;
         }
 
-        private sealed class Context : IUiElementContext
+        public sealed class TextureSet : IReadOnlyTextureSet
         {
             private readonly UiManager _manager;
 
-            public IUiElementContext.KeyboardEventDelegate? KeyboardEventDelegate;
-            private Action? _keyboardEventDelegateRemoveCallback;
+            public TextureSampler DefaultSampler { get; internal set; } = null!;
 
-            public Context(UiManager manager)
+            public Texture UiTexture { get; internal set; } = null!;
+            public Texture FontTexture { get; internal set; } = null!;
+
+            public TextureSet(UiManager manager)
             {
                 _manager = manager;
             }
 
-            public void SetKeyboardEventHandler(IUiElementContext.KeyboardEventDelegate? handler, Action? removeCallback = null)
+            public Texture Get(RenderTexture texture)
             {
-                KeyboardEventDelegate = handler;
-                _keyboardEventDelegateRemoveCallback?.Invoke();
-                _keyboardEventDelegateRemoveCallback = removeCallback;
-            }
-
-            public void RequestRedraw()
-            {
-            }
-
-            public void RequestClose()
-            {
-                _manager.CloseUi();
+                if (texture == RenderTextures.UiMain)
+                    return UiTexture;
+                if (texture == RenderTextures.UiText)
+                    return FontTexture;
+                return _manager.Controller.Textures.Get(texture);
             }
         }
     }

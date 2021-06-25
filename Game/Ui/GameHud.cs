@@ -12,7 +12,7 @@ using DigBuild.Render;
 
 namespace DigBuild.Ui
 {
-    public sealed class GameHud
+    public sealed class GameHud : IUi
     {
         private static ISprite EquipmentButtonSprite { get; set; } = null!;
         private static ISprite EquipmentButtonSprite2 { get; set; } = null!;
@@ -30,20 +30,33 @@ namespace DigBuild.Ui
 
         private readonly GameplayController _controller;
 
-        private UiContainer _ui = null!;
+        private readonly UiContainer _ui = new();
+        private SimpleUi.Context _context = null!;
+
         private UiLabel _positionLabel = null!;
         private UiLabel _lookLabel = null!;
         private UiLabel _lightLabel = null!;
         private UiLabel _handLabel = null!;
-        
+
+        private bool _isTop;
+        private bool _isMouseFree;
+
+        public CursorMode CursorMode => _isMouseFree ? CursorMode.Normal : CursorMode.Raw;
+
         public GameHud(GameplayController controller)
         {
             _controller = controller;
         }
 
-        public void Setup(IRenderTarget renderTarget)
+        public void OnOpened(UiManager manager)
         {
-            _ui = new UiContainer();
+            _context = new SimpleUi.Context(this, manager);
+            _isTop = true;
+        }
+
+        public void OnResized(IRenderTarget target)
+        {
+            _ui.Clear();
 
             _ui.Add(20, 20, _positionLabel = new UiLabel(""));
             _ui.Add(20, 50, _lookLabel = new UiLabel(""));
@@ -58,12 +71,12 @@ namespace DigBuild.Ui
             {
                 var width = (player.Inventory.Hotbar.Count + 1) * slotSize * 2;
 
-                var off = (int) (renderTarget.Width - width) / 2 + slotSize;
+                var off = (int) (target.Width - width) / 2 + slotSize;
                 var i = 0;
                 foreach (var slot in player.Inventory.Hotbar)
                 {
                     var i1 = i;
-                    _ui.Add(off, (int) renderTarget.Height - 60, new UiInventorySlot(
+                    _ui.Add(off, (int) target.Height - 60, new UiInventorySlot(
                         slot, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, 
                         () => player.Inventory.ActiveHotbarSlot == i1)
                     );
@@ -78,7 +91,7 @@ namespace DigBuild.Ui
 
             var equipmentButton = new UiButton(slotSize * 2, slotSize * 2, UiRenderLayer.Ui,
                 EquipmentButtonSprite, EquipmentButtonSprite2, EquipmentButtonSprite3);
-            _ui.Add(renderTarget.Width / 2 - slotSize, renderTarget.Height - 60 - slotSize, equipmentButton);
+            _ui.Add(target.Width / 2 - slotSize, target.Height - 60 - slotSize, equipmentButton);
 
             var equipmentContainer = new UiContainer {Visible = false};
             {
@@ -109,7 +122,7 @@ namespace DigBuild.Ui
                     player.Inventory.Equipment.EquipBottomRight, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, () => false)
                 );
             }
-            _ui.Add(renderTarget.Width / 2, renderTarget.Height - 60 - slotSize, equipmentContainer);
+            _ui.Add(target.Width / 2, target.Height - 60 - slotSize, equipmentContainer);
 
             // Toggle equipment container with button
             equipmentButton.Released += () => equipmentContainer.Visible = !equipmentContainer.Visible;
@@ -117,7 +130,11 @@ namespace DigBuild.Ui
             _ui.Add(0, 0, new UiUnboundInventorySlot(player.Inventory.PickedItem, itemModels));
         }
 
-        public void UpdateAndDraw(RenderContext context, GeometryBuffer buffer, float partialTick)
+        public void OnClosed()
+        {
+        }
+
+        public void UpdateAndDraw(RenderContext context, IGeometryBuffer buffer, float partialTick)
         {
             var player = _controller.Player;
             var hit = Raycast.Cast(_controller.RayCastContext, player.GetCamera(partialTick).Ray);
@@ -130,14 +147,50 @@ namespace DigBuild.Ui
             _ui.Draw(context, buffer, partialTick);
         }
 
-        public void OnCursorMove(IUiElementContext context, int x, int y)
+        public bool OnCursorMoved(int x, int y)
         {
-            _ui.OnCursorMoved(context, x, y);
+            if (_isMouseFree)
+                _ui.OnCursorMoved(_context, x, y);
+            else
+                _controller.InputController.OnCursorMoved((uint) x, (uint) y);
+
+            return true;
         }
 
-        public void OnMouseEvent(IUiElementContext context, uint button, MouseAction action)
+        public bool OnMouseEvent(uint button, MouseAction action)
         {
-            _ui.OnMouseEvent(context, button, action);
+            if (_isMouseFree)
+                _ui.OnMouseEvent(_context, button, action);
+            else
+                _controller.InputController.OnMouseEvent(button, action);
+
+            return true;
+        }
+
+        public bool OnKeyboardEvent(uint code, KeyboardAction action)
+        {
+            if (code == 56)
+            {
+                _isMouseFree = _isTop && action != KeyboardAction.Release;
+                return true;
+            }
+
+            if (_isMouseFree)
+                _context.KeyboardEventDelegate?.Invoke(code, action);
+            else
+                _controller.InputController.OnKeyboardEvent(code, action);
+
+            return true;
+        }
+
+        public void OnLayerAdded()
+        {
+            _isTop = false;
+        }
+
+        public void OnLayerRemoved()
+        {
+            _isTop = true;
         }
     }
 }

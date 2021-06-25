@@ -53,8 +53,7 @@ namespace DigBuild.Content.Registries
                     builder.Attach(new NoPunchBehavior());
                     builder.Attach(new NonSolidBehavior());
                     builder.Attach(new WaterBehavior());
-                },
-                Drops(() => GameItems.Water)
+                }
             );
             Stone = registry.Create(DigBuildGame.Domain, "stone",
                 Drops(() => GameItems.Stone)

@@ -47,7 +47,7 @@ namespace DigBuild.Controller
             }
         }
 
-        public void OnCursorMoved(uint x, uint y, CursorAction action)
+        public void OnCursorMoved(uint x, uint y)
         {
             _cursorX = x;
             _cursorY = y;

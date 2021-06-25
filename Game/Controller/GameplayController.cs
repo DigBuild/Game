@@ -50,8 +50,7 @@ namespace DigBuild.Controller
         
         private readonly DigBuildGame _game;
         private readonly World _world;
-        
-        private readonly GameInput _inputController = new();
+
         private readonly PlayerController _playerController;
         
         private readonly IList<IParticleSystem> _particleSystems;
@@ -68,6 +67,8 @@ namespace DigBuild.Controller
         public IWorld World => _world;
         public WorldRayCastContext RayCastContext { get; }
         public IPlayer Player { get; }
+        
+        public GameInput InputController { get; } = new();
 
         public WorldRenderer WorldRenderer { get; }
         public UiManager UiManager { get; }
@@ -131,11 +132,11 @@ namespace DigBuild.Controller
 
         public void Tick()
         {
-            _inputController.Update();
-            _playerController.UpdateMovement(_inputController);
-            _playerController.UpdateHotbar(_inputController);
+            InputController.Update();
+            _playerController.UpdateMovement(InputController);
+            _playerController.UpdateHotbar(InputController);
             var hit = Raycast.Cast(RayCastContext, Player.GetCamera(0).Ray);
-            var interacted = _playerController.UpdateInteraction(_inputController, hit);
+            var interacted = _playerController.UpdateInteraction(InputController, hit);
 
             if (interacted)
             {
@@ -172,7 +173,7 @@ namespace DigBuild.Controller
                 if (surface.Resized || _firstUpdate || Game.ResourceManager.GetAndClearModifiedResources().Count > 0)
                     SetupSurfaceResources(context, surface);
                 
-                surface.InputContext.CursorMode = UiManager.Ui == null ? CursorMode.Raw : CursorMode.Normal;
+                surface.InputContext.CursorMode = UiManager.CursorMode;
                 // if (UiManager.Ui != null)
                 //     surface.InputContext.CenterCursor();
                 
@@ -193,23 +194,20 @@ namespace DigBuild.Controller
 
         private void OnCursorMoved(uint x, uint y, CursorAction action)
         {
-            if (UiManager.OnCursorMoved(x, y, action))
-                return;
-            _inputController.OnCursorMoved(x, y, action);
+            UiManager.OnCursorMoved(x, y, action);
+            // _inputController.OnCursorMoved(x, y, action);
         }
 
         private void OnMouseEvent(uint button, MouseAction action)
         {
-            if (UiManager.OnMouseEvent(button, action))
-                return;
-            _inputController.OnMouseEvent(button, action);
+            UiManager.OnMouseEvent(button, action);
+            // _inputController.OnMouseEvent(button, action);
         }
 
         private void OnKeyboardEvent(uint code, KeyboardAction action)
         {
-            if (UiManager.OnKeyboardEvent(code, action))
-                return;
-            _inputController.OnKeyboardEvent(code, action);
+            UiManager.OnKeyboardEvent(code, action);
+            // _inputController.OnKeyboardEvent(code, action);
         }
 
         private void SetupResources(RenderContext context, RenderSurfaceContext surface)
