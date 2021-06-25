@@ -10,6 +10,8 @@ namespace DigBuild.Ui
     {
         private readonly IUiElement _root;
         private Context _context = null!;
+
+        public bool PassEventsThrough { get; set; } = true;
         
         public Action? Resized = null;
         public Action? Closed = null;
@@ -47,13 +49,13 @@ namespace DigBuild.Ui
         public bool OnCursorMoved(int x, int y)
         {
             _root.OnCursorMoved(_context, x, y);
-            return false;
+            return !PassEventsThrough;
         }
 
         public bool OnMouseEvent(uint button, MouseAction action)
         {
             _root.OnMouseEvent(_context, button, action);
-            return false;
+            return !PassEventsThrough;
         }
 
         public bool OnKeyboardEvent(uint code, KeyboardAction action)
@@ -70,7 +72,7 @@ namespace DigBuild.Ui
                 return true;
             }
 
-            return false;
+            return !PassEventsThrough;
         }
 
         public void OnLayerAdded()

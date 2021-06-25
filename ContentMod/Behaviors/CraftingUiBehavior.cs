@@ -47,7 +47,14 @@ namespace DigBuild.Content.Behaviors
 
         private ItemEvent.Activate.Result OnActivate(ItemEvent.Activate evt, ICraftingUiBehavior data, Func<ItemEvent.Activate.Result> next)
         {
-            // GameWindow.FunnyUi = CraftingUi.Create(new CraftingInventory(data), GameWindow.PickedItemSlot, GameWindow.ItemModels);
+            var gameplayController = (GameplayController)DigBuildGame.Instance.Controller;
+            var ui = CraftingUi.Create(
+                new CraftingInventory(data),
+                gameplayController.Player.Inventory.PickedItem,
+                DigBuildGame.Instance.ModelManager.ItemModels
+            );
+            gameplayController.UiManager.Open(ui);
+
             return ItemEvent.Activate.Result.Success;
         }
 

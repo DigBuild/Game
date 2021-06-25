@@ -9,14 +9,14 @@ namespace DigBuild.Ui
         public static IUi Create()
         {
             var container = new UiContainer();
-            var ui = new SimpleUi(container);
-
-            ui.Resized += () =>
+            return new SimpleUi(container)
             {
-                container.Add(0, 0, new UiRectangle(10000, 10000, UiRenderLayer.Ui, null, new Vector4(0.1f, 0.1f, 0.1f, 0.8f)));
+                Resized = () =>
+                {
+                    container.Add(0, 0, new UiRectangle(10000, 10000, UiRenderLayer.Ui, null, new Vector4(0.1f, 0.1f, 0.1f, 0.8f)));
+                },
+                PassEventsThrough = false
             };
-            
-            return ui;
         }
     }
 }

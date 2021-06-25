@@ -12,36 +12,35 @@ namespace DigBuild.Content.Ui
         public static IUi Create(ICraftingInventory inventory, IInventorySlot pickedItemSlot, IReadOnlyDictionary<Item, IItemModel> itemModels)
         {
             var container = new UiContainer();
-            var ui = new SimpleUi(container);
-
-            ui.Resized += () =>
+            return new SimpleUi(container)
             {
-                container.Clear();
-
-                uint x = 120u, y = 120u;
-                var shapedSlots = new UiInventorySlot[inventory.ShapedSlots.Count];
-                for (var i = 0; i < shapedSlots.Length; i++)
+                Resized = () =>
                 {
-                    container.Add(x, y, new UiInventorySlot(
-                        inventory.ShapedSlots[i], pickedItemSlot, itemModels, UiRenderLayer.Ui
+                    container.Clear();
+
+                    uint x = 120u, y = 120u;
+                    var shapedSlots = new UiInventorySlot[inventory.ShapedSlots.Count];
+                    for (var i = 0; i < shapedSlots.Length; i++)
+                    {
+                        container.Add(x, y, new UiInventorySlot(
+                            inventory.ShapedSlots[i], pickedItemSlot, itemModels, UiRenderLayer.Ui
+                        ));
+                        if (i is 1 or 4)
+                        {
+                            x -= 45 * 3;
+                            y += 76;
+                        }
+                        else
+                        {
+                            x += 90;
+                        }
+                    }
+
+                    container.Add(120 + 90 * 3, 120 + 76, new UiInventorySlot(
+                        inventory.OutputSlot, pickedItemSlot, itemModels, UiRenderLayer.Ui
                     ));
-                    if (i == 1 || i == 4)
-                    {
-                        x -= 45 * 3;
-                        y += 76;
-                    }
-                    else
-                    {
-                        x += 90;
-                    }
                 }
-
-                container.Add(120 + 90 * 3, 120 + 76, new UiInventorySlot(
-                    inventory.OutputSlot, pickedItemSlot, itemModels, UiRenderLayer.Ui
-                ));
             };
-
-            return ui;
         }
     }
 }
