@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using DigBuild.Behaviors;
+using DigBuild.Controller;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
@@ -11,6 +12,8 @@ namespace DigBuild.Players
 {
     public interface IPlayer
     {
+        GameplayController GameplayController { get; }
+
         EntityInstance Entity { get; }
         IPhysicalEntity PhysicalEntity { get; }
         IPlayerInventory Inventory { get; }
@@ -28,15 +31,18 @@ namespace DigBuild.Players
         public const float JumpKickSpeed = 0.8f * TickSource.TickDurationSeconds; 
         public const float MovementSpeedGround = 6 * TickSource.TickDurationSeconds; 
         public const float MovementSpeedAir = 5 * TickSource.TickDurationSeconds; 
-        public const float RotationSpeed = 4 * TickSource.TickDurationSeconds; 
+        public const float RotationSpeed = 4 * TickSource.TickDurationSeconds;
+
+        public GameplayController GameplayController { get; }
 
         public EntityInstance Entity { get; }
         public IPhysicalEntity PhysicalEntity => Entity.Get(EntityCapabilities.PhysicalEntity)!;
         public IPlayerInventory Inventory => Entity.Get(EntityCapabilities.PlayerEntity)!.Inventory;
         public IPlayerState State => Entity.Get(EntityCapabilities.PlayerEntity)!.State;
 
-        public Player(EntityInstance entity)
+        public Player(GameplayController gameplayController, EntityInstance entity)
         {
+            GameplayController = gameplayController;
             Entity = entity;
         }
 

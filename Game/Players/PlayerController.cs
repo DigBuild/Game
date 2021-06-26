@@ -56,7 +56,7 @@ namespace DigBuild.Players
                 if (hit != null)
                 {
                     var block = world.GetBlock(hit.BlockPos)!;
-                    var blockResult = block.OnActivate(world, hit.BlockPos, hit);
+                    var blockResult = block.OnActivate(world, hit.BlockPos, hit, _player);
                     if (blockResult == BlockEvent.Activate.Result.Success)
                         return true;
                 }
@@ -74,7 +74,7 @@ namespace DigBuild.Players
                 if (hit != null)
                 {
                     var block = world.GetBlock(hit.BlockPos)!;
-                    var blockResult = block.OnPunch(world, hit.BlockPos, hit);
+                    var blockResult = block.OnPunch(world, hit.BlockPos, hit, _player);
                     if (blockResult == BlockEvent.Punch.Result.Success)
                         return true;
                 }

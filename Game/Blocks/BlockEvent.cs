@@ -34,11 +34,13 @@ namespace DigBuild.Blocks
 
         public sealed class Activate : BlockContext, IBlockEvent<Activate.Result>
         {
-            public readonly WorldRayCastContext.Hit Hit;
+            public WorldRayCastContext.Hit Hit { get; }
+            public IPlayer Player { get; }
 
-            public Activate(IWorld world, BlockPos pos, Block block, WorldRayCastContext.Hit hit) : base(world, pos, block)
+            public Activate(IWorld world, BlockPos pos, Block block, WorldRayCastContext.Hit hit, IPlayer player) : base(world, pos, block)
             {
                 Hit = hit;
+                Player = player;
             }
 
             public enum Result
@@ -49,11 +51,13 @@ namespace DigBuild.Blocks
 
         public sealed class Punch : BlockContext, IBlockEvent<Punch.Result>
         {
-            public readonly WorldRayCastContext.Hit Hit;
+            public WorldRayCastContext.Hit Hit { get; }
+            public IPlayer Player { get; }
 
-            public Punch(IWorld world, BlockPos pos, Block block, WorldRayCastContext.Hit hit) : base(world, pos, block)
+            public Punch(IWorld world, BlockPos pos, Block block, WorldRayCastContext.Hit hit, IPlayer player) : base(world, pos, block)
             {
                 Hit = hit;
+                Player = player;
             }
 
             public enum Result
@@ -64,7 +68,7 @@ namespace DigBuild.Blocks
 
         public sealed class NeighborChanged : BlockContext, IBlockEvent
         {
-            public readonly Direction Direction;
+            public Direction Direction { get; }
 
             public NeighborChanged(IWorld world, BlockPos pos, Block block, Direction direction) : base(world, pos, block)
             {
@@ -104,9 +108,12 @@ namespace DigBuild.Blocks
             builder.Subscribe(onActivate);
         }
 
-        public static BlockEvent.Activate.Result OnActivate(this Block block, IWorld world, BlockPos pos, WorldRayCastContext.Hit hit)
+        public static BlockEvent.Activate.Result OnActivate(
+            this Block block, IWorld world, BlockPos pos,
+            WorldRayCastContext.Hit hit, IPlayer player
+        )
         {
-            return block.Post<BlockEvent.Activate, BlockEvent.Activate.Result>(new BlockEvent.Activate(world, pos, block, hit));
+            return block.Post<BlockEvent.Activate, BlockEvent.Activate.Result>(new BlockEvent.Activate(world, pos, block, hit, player));
         }
 
         public static void Subscribe<TReadOnlyData, TData>(
@@ -118,9 +125,12 @@ namespace DigBuild.Blocks
             builder.Subscribe(onPunch);
         }
 
-        public static BlockEvent.Punch.Result OnPunch(this Block block, IWorld world, BlockPos pos, WorldRayCastContext.Hit hit)
+        public static BlockEvent.Punch.Result OnPunch(
+            this Block block, IWorld world, BlockPos pos,
+            WorldRayCastContext.Hit hit, IPlayer player
+        )
         {
-            return block.Post<BlockEvent.Punch, BlockEvent.Punch.Result>(new BlockEvent.Punch(world, pos, block, hit));
+            return block.Post<BlockEvent.Punch, BlockEvent.Punch.Result>(new BlockEvent.Punch(world, pos, block, hit, player));
         }
         
         public static void Subscribe<TReadOnlyData, TData>(
