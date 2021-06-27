@@ -79,11 +79,13 @@ namespace DigBuild.Behaviors
             data.Capability = new PhysicalEntity(evt.Entity.World, _bounds, data, this);
             data.InWorld = true;
             evt.Entity.World.TickScheduler.After(1).Enqueue(GameJobs.PhysicalEntityMove, data.Capability);
+            next();
         }
 
         private void OnLeavingWorld(BuiltInEntityEvent.LeavingWorld evt, IPhysicalEntityBehavior data, Action next)
         {
             data.InWorld = false;
+            next();
         }
 
         public static void Update(Scheduler scheduler, IPhysicalEntity entity)

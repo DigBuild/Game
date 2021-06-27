@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using DigBuild.Engine.Items;
-using DigBuild.Engine.Render.Models;
+﻿using DigBuild.Engine.Items;
 using DigBuild.Engine.Ui;
 using DigBuild.Render;
 using DigBuild.Ui;
@@ -9,8 +7,9 @@ namespace DigBuild.Content.Ui
 {
     public static class CraftingUi
     {
-        public static IUi Create(ICraftingInventory inventory, IInventorySlot pickedItemSlot, IReadOnlyDictionary<Item, IItemModel> itemModels)
+        public static IUi Create(ICraftingInventory inventory, IInventorySlot pickedItemSlot)
         {
+            var itemModels = DigBuildGame.Instance.ModelManager.ItemModels;
             var container = new UiContainer();
             return new SimpleUi(container)
             {

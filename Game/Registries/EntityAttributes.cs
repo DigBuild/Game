@@ -9,7 +9,7 @@ namespace DigBuild.Registries
 {
     public class EntityAttributes
     {
-        public static EntityAttribute<Vector3?> Position { get; private set; } = null!;
+        public static EntityAttribute<Vector3> Position { get; private set; } = null!;
         public static EntityAttribute<AABB?> Bounds { get; private set; } = null!;
         // public static EntityAttribute<ICollider?> Collider { get; private set; } = null!;
 
@@ -20,7 +20,7 @@ namespace DigBuild.Registries
         {
             Position = registry.Register(
                 new ResourceName(DigBuildGame.Domain, "position"),
-                (Vector3?) null
+                Vector3.Zero
             );
             Bounds = registry.Register(
                 new ResourceName(DigBuildGame.Domain, "bounds"),

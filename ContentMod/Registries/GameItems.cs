@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Behaviors;
+using DigBuild.Content.Behaviors;
+using DigBuild.Content.Items;
 using DigBuild.Content.Worldgen.Structure;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Registries;
+using DigBuild.Items;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Content.Registries
@@ -28,6 +31,8 @@ namespace DigBuild.Content.Registries
         public static Item Twig { get; private set; } = null!;
 
         public static Item Multiblock { get; private set; } = null!;
+
+        public static Item Pouch { get; private set; } = null!;
 
         internal static void Register(RegistryBuilder<Item> registry)
         {
@@ -77,6 +82,14 @@ namespace DigBuild.Content.Registries
                     [new Vector3I(0, 0, 1)] = GameBlocks.Multiblock,
                     [new Vector3I(0, 1, 1)] = GameBlocks.Multiblock,
                 }));
+            });
+            
+            Pouch = registry.Create(new ResourceName(DigBuildGame.Domain, "pouch"), builder =>
+            {
+                var data = builder.Add<PouchData>();
+                builder.Attach(new PouchBehavior(), data);
+
+                builder.Attach(new EquippableBehavior(EquippableFlags.Equipment));
             });
         }
 

@@ -37,6 +37,10 @@ namespace DigBuild.Registries
 
                 var playerData = builder.Add<PlayerBehaviorData>();
                 builder.Attach(new PlayerBehavior(), playerData);
+                builder.Attach(new ItemPickupBehavior()
+                {
+                    Bounds = new AABB(-2, -1, -2, 2, 2.5f, 2)
+                }, playerData);
             });
         }
     }

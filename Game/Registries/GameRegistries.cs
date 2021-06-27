@@ -151,6 +151,7 @@ namespace DigBuild.Registries
             };
             
             var itemCapabilities = manager.CreateRegistryOf<IItemCapability>(new ResourceName(DigBuildGame.Domain, "item_capabilities"));
+            itemCapabilities.Building += Registries.ItemCapabilities.Register;
             itemCapabilities.Building += reg => bus.Post(new RegistryBuildingEvent<IItemCapability>(reg));
             itemCapabilities.Built += reg =>
             {

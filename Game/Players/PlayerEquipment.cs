@@ -17,6 +17,8 @@ namespace DigBuild.Players
         IInventorySlot EquipTopRight { get; }
         IInventorySlot EquipBottomLeft { get; }
         IInventorySlot EquipBottomRight { get; }
+
+        IEnumerable<IInventorySlot> EquipmentSlots { get; }
     }
 
     public sealed class PlayerEquipment : IPlayerEquipment
@@ -30,7 +32,18 @@ namespace DigBuild.Players
         public IInventorySlot EquipTopRight { get; } = new InventorySlot(IsEquipment);
         public IInventorySlot EquipBottomLeft { get; } = new InventorySlot(IsEquipment);
         public IInventorySlot EquipBottomRight { get; } = new InventorySlot(IsEquipment);
-        
+
+        public IEnumerable<IInventorySlot> EquipmentSlots
+        {
+            get
+            {
+                yield return EquipTopLeft;
+                yield return EquipTopRight;
+                yield return EquipBottomLeft;
+                yield return EquipBottomRight;
+            }
+        }
+
         public IEnumerator<IInventorySlot> GetEnumerator()
         {
             yield return Helmet;
