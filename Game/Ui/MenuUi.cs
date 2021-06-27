@@ -11,9 +11,12 @@ namespace DigBuild.Ui
             var container = new UiContainer();
             return new SimpleUi(container)
             {
-                Resized = () =>
+                Resized = target =>
                 {
-                    container.Add(0, 0, new UiRectangle(10000, 10000, UiRenderLayer.Ui, null, new Vector4(0.1f, 0.1f, 0.1f, 0.8f)));
+                    container.Add(0, 0, new UiRectangle(
+                        target.Width, target.Height, UiRenderLayer.Ui,
+                        null, new Vector4(0.0f, 0.0f, 0.0f, 0.95f)
+                    ));
                 },
                 PassEventsThrough = false
             };

@@ -13,7 +13,7 @@ namespace DigBuild.Ui
 
         public bool PassEventsThrough { get; set; } = true;
         
-        public Action? Resized = null;
+        public Action<IRenderTarget>? Resized = null;
         public Action? Closed = null;
 
         public Action? LayerAdded = null;
@@ -33,7 +33,7 @@ namespace DigBuild.Ui
 
         public void OnResized(IRenderTarget target)
         {
-            Resized?.Invoke();
+            Resized?.Invoke(target);
         }
 
         public void OnClosed()

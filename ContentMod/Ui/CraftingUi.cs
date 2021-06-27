@@ -14,7 +14,7 @@ namespace DigBuild.Content.Ui
             var container = new UiContainer();
             return new SimpleUi(container)
             {
-                Resized = () =>
+                Resized = target =>
                 {
                     container.Clear();
 
