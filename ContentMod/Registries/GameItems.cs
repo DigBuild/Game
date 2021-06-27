@@ -15,7 +15,6 @@ namespace DigBuild.Content.Registries
         public static Item Dirt { get; private set; } = null!;
         public static Item Grass { get; private set; } = null!;
         public static Item Sand { get; private set; } = null!;
-        public static Item Water { get; private set; } = null!;
         public static Item Stone { get; private set; } = null!;
         public static Item Log { get; private set; } = null!;
         public static Item LogSmall { get; private set; } = null!;
@@ -40,9 +39,6 @@ namespace DigBuild.Content.Registries
             );
             Sand = registry.Create(new ResourceName(DigBuildGame.Domain, "sand"),
                 BlockPlacement(() => GameBlocks.Sand)
-            );
-            Water = registry.Create(new ResourceName(DigBuildGame.Domain, "water"),
-                BlockPlacement(() => GameBlocks.Water)
             );
             Stone = registry.Create(new ResourceName(DigBuildGame.Domain, "stone"),
                 BlockPlacement(() => GameBlocks.Stone)
