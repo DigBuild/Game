@@ -17,6 +17,8 @@ namespace DigBuild.Ui
         private static ISprite EquipmentButtonSprite { get; set; } = null!;
         private static ISprite EquipmentButtonSprite2 { get; set; } = null!;
         private static ISprite EquipmentButtonSprite3 { get; set; } = null!;
+        
+        public static ISprite InventorySlotSprite { get; set; } = null!;
 
         public static void OnUiTextureStitching(UiTextureStitchingEvent evt)
         {
@@ -26,6 +28,7 @@ namespace DigBuild.Ui
             EquipmentButtonSprite = stitcher.Add(resourceManager.Get<BitmapTexture>(DigBuildGame.Domain, "textures/ui/button_inactive.png")!);
             EquipmentButtonSprite2 = stitcher.Add(resourceManager.Get<BitmapTexture>(DigBuildGame.Domain, "textures/ui/button_hovered.png")!);
             EquipmentButtonSprite3 = stitcher.Add(resourceManager.Get<BitmapTexture>(DigBuildGame.Domain, "textures/ui/button_clicked.png")!);
+            InventorySlotSprite = stitcher.Add(resourceManager.Get<BitmapTexture>(DigBuildGame.Domain, "textures/ui/inventory_slot.png")!);
         }
 
         private readonly GameplayController _controller;
@@ -75,11 +78,18 @@ namespace DigBuild.Ui
 
                 var off = (int) (target.Width - width) / 2 + slotSize;
                 var i = 0;
+                
+                // _ui.Add(off - 32, (int) target.Height - 60 - 32, new UiButton(
+                //     64, 64, UiRenderLayer.Ui,
+                //     InventorySlotSprite, InventorySlotSprite, InventorySlotSprite
+                // ));
+
                 foreach (var slot in player.Inventory.Hotbar)
                 {
                     var i1 = i;
                     _ui.Add(off, (int) target.Height - 60, new UiInventorySlot(
                         slot, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, 
+                        InventorySlotSprite,
                         () => player.Inventory.ActiveHotbarSlot == i1)
                     );
                     off += slotSize * 2;
@@ -99,29 +109,29 @@ namespace DigBuild.Ui
             {
                 const int distance = slotSize * 2 + 10;
                 equipmentContainer.Add(0, -50 - 0 * distance, new UiInventorySlot(
-                    player.Inventory.Equipment.Boots, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, () => false)
+                    player.Inventory.Equipment.Boots, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
                 );
                 equipmentContainer.Add(0, -50 - 1 * distance, new UiInventorySlot(
-                    player.Inventory.Equipment.Leggings, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, () => false)
+                    player.Inventory.Equipment.Leggings, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
                 );
                 equipmentContainer.Add(0, -50 - 2 * distance, new UiInventorySlot(
-                    player.Inventory.Equipment.Chestplate, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, () => false)
+                    player.Inventory.Equipment.Chestplate, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
                 );
                 equipmentContainer.Add(0, -50 - 3 * distance, new UiInventorySlot(
-                    player.Inventory.Equipment.Helmet, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, () => false)
+                    player.Inventory.Equipment.Helmet, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
                 );
                 
                 equipmentContainer.Add(-slotSize * 2, -50 - (int) (2.5 * distance), new UiInventorySlot(
-                    player.Inventory.Equipment.EquipTopLeft, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, () => false)
+                    player.Inventory.Equipment.EquipTopLeft, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
                 );
                 equipmentContainer.Add(slotSize * 2, -50 - (int) (2.5 * distance), new UiInventorySlot(
-                    player.Inventory.Equipment.EquipTopRight, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, () => false)
+                    player.Inventory.Equipment.EquipTopRight, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
                 );
                 equipmentContainer.Add(-slotSize * 2, -50 - (int) (1.5 * distance), new UiInventorySlot(
-                    player.Inventory.Equipment.EquipBottomLeft, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, () => false)
+                    player.Inventory.Equipment.EquipBottomLeft, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
                 );
                 equipmentContainer.Add(slotSize * 2, -50 - (int) (1.5 * distance), new UiInventorySlot(
-                    player.Inventory.Equipment.EquipBottomRight, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, () => false)
+                    player.Inventory.Equipment.EquipBottomRight, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
                 );
             }
             _ui.Add(target.Width / 2, target.Height - 60 - slotSize, equipmentContainer);

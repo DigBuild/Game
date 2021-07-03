@@ -23,7 +23,7 @@ namespace DigBuild.Content.Ui
                     for (var i = 0; i < slots.Length; i++)
                     {
                         container.Add(x, y, new UiInventorySlot(
-                            pouch.Slots[i], pickedItemSlot, itemModels, UiRenderLayer.Ui
+                            pouch.Slots[i], pickedItemSlot, itemModels, UiRenderLayer.Ui, GameHud.InventorySlotSprite
                         ));
                         x += 60;
                         if (i % 5 == 4)
