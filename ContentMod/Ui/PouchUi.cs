@@ -1,4 +1,5 @@
-﻿using DigBuild.Content.Behaviors;
+﻿using System.Numerics;
+using DigBuild.Content.Behaviors;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Ui;
 using DigBuild.Render;
@@ -18,7 +19,16 @@ namespace DigBuild.Content.Ui
                 {
                     container.Clear();
 
-                    uint x = 120u, y = 120u;
+                    // 450 x 300
+                    // 330 x 170
+
+                    uint x = 220u, y = 120u;
+
+                    x = (target.Width - 330) / 2 + 30;
+                    y = (target.Height - 170) / 2 + 32;
+
+                    container.Add(x - 60 - 30, y - 65 - 32, new UiRectangle(512, 512, UiRenderLayer.Ui, GameHud.PouchBackgroundSprite, Vector4.One));
+
                     var slots = new UiInventorySlot[pouch.Slots.Length];
                     for (var i = 0; i < slots.Length; i++)
                     {

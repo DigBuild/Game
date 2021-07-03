@@ -19,6 +19,7 @@ namespace DigBuild.Ui
         private static ISprite EquipmentButtonSprite3 { get; set; } = null!;
         
         public static ISprite InventorySlotSprite { get; set; } = null!;
+        public static ISprite PouchBackgroundSprite { get; set; } = null!;
 
         public static void OnUiTextureStitching(UiTextureStitchingEvent evt)
         {
@@ -29,6 +30,7 @@ namespace DigBuild.Ui
             EquipmentButtonSprite2 = stitcher.Add(resourceManager.Get<BitmapTexture>(DigBuildGame.Domain, "textures/ui/button_hovered.png")!);
             EquipmentButtonSprite3 = stitcher.Add(resourceManager.Get<BitmapTexture>(DigBuildGame.Domain, "textures/ui/button_clicked.png")!);
             InventorySlotSprite = stitcher.Add(resourceManager.Get<BitmapTexture>(DigBuildGame.Domain, "textures/ui/inventory_slot.png")!);
+            PouchBackgroundSprite = stitcher.Add(resourceManager.Get<BitmapTexture>(DigBuildGame.Domain, "textures/ui/pouch_background.png")!);
         }
 
         private readonly GameplayController _controller;
