@@ -35,6 +35,8 @@ namespace DigBuild.Ui
         
         private readonly Stack<IUi> _uis = new();
 
+        public IEnumerable<IUi> Uis => _uis;
+
         public CursorMode CursorMode => _uis.Peek().CursorMode;
 
         public UiManager(

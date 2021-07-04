@@ -1,9 +1,10 @@
 ﻿using System.Numerics;
 using DigBuild.Content.Behaviors;
 using DigBuild.Engine.Items;
-using DigBuild.Engine.Ui;
+using DigBuild.Engine.Ui.Elements;
 using DigBuild.Render;
 using DigBuild.Ui;
+using DigBuild.Ui.Elements;
 
 namespace DigBuild.Content.Ui
 {
@@ -22,10 +23,8 @@ namespace DigBuild.Content.Ui
                     // 450 x 300
                     // 330 x 170
 
-                    uint x = 220u, y = 120u;
-
-                    x = (target.Width - 330) / 2 + 30;
-                    y = (target.Height - 170) / 2 + 32;
+                    var x = (target.Width - 330) / 2 + 30;
+                    var y = (target.Height - 170) / 2 + 32;
 
                     container.Add(x - 60 - 30, y - 65 - 32, new UiRectangle(512, 512, UiRenderLayer.Ui, GameHud.PouchBackgroundSprite, Vector4.One));
 

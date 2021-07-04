@@ -11,6 +11,8 @@ namespace DigBuild.Items
         {
             registry.Register((Activate _) => Activate.Result.Fail);
             registry.Register((Punch _) => Punch.Result.Fail);
+            registry.Register((EquipmentActivate _) => { });
+            registry.Register((Use _) => { });
         }
 
         public sealed class Activate : ItemEventBase, IItemEvent<Activate.Result>
@@ -44,6 +46,26 @@ namespace DigBuild.Items
             public enum Result
             {
                 Success, Fail
+            }
+        }
+
+        public sealed class EquipmentActivate : ItemEventBase
+        {
+            public IPlayer Player { get; }
+
+            public EquipmentActivate(ItemInstance instance, IPlayer player) : base(instance)
+            {
+                Player = player;
+            }
+        }
+
+        public sealed class Use : ItemEventBase
+        {
+            public IPlayer Player { get; }
+
+            public Use(ItemInstance instance, IPlayer player) : base(instance)
+            {
+                Player = player;
             }
         }
     }
@@ -86,6 +108,44 @@ namespace DigBuild.Items
         public static ItemEvent.Punch.Result OnPunch(this ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit)
         {
             return instance.Type.OnPunch(instance, player, hit);
+        }
+
+        public static void Subscribe<TReadOnlyData, TData>(
+            this IItemBehaviorBuilder<TReadOnlyData, TData> builder,
+            ItemEventDelegate<TData, ItemEvent.EquipmentActivate> onEquipmentActivate
+        )
+            where TData : TReadOnlyData
+        {
+            builder.Subscribe(onEquipmentActivate);
+        }
+
+        public static void OnEquipmentActivate(this Item item, ItemInstance instance, IPlayer player)
+        {
+            item.Post(new ItemEvent.EquipmentActivate(instance, player));
+        }
+
+        public static void OnEquipmentActivate(this ItemInstance instance, IPlayer player)
+        {
+            instance.Type.OnEquipmentActivate(instance, player);
+        }
+
+        public static void Subscribe<TReadOnlyData, TData>(
+            this IItemBehaviorBuilder<TReadOnlyData, TData> builder,
+            ItemEventDelegate<TData, ItemEvent.Use> onUse
+        )
+            where TData : TReadOnlyData
+        {
+            builder.Subscribe(onUse);
+        }
+
+        public static void OnUse(this Item item, ItemInstance instance, IPlayer player)
+        {
+            item.Post(new ItemEvent.Use(instance, player));
+        }
+
+        public static void OnUse(this ItemInstance instance, IPlayer player)
+        {
+            instance.Type.OnUse(instance, player);
         }
     }
 }

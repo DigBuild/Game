@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Linq;
 using DigBuild.Content.Registries;
 using DigBuild.Content.Ui;
 using DigBuild.Engine.Items;
 using DigBuild.Items;
 using DigBuild.Players;
 using DigBuild.Registries;
+using DigBuild.Ui;
 
 namespace DigBuild.Content.Behaviors
 {
@@ -20,6 +22,7 @@ namespace DigBuild.Content.Behaviors
             item.Add(ItemCapabilities.InventoryExtension, (_, data, _) => new InventoryExtension(data));
 
             item.Subscribe(OnActivate);
+            item.Subscribe(OnEquipmentActivate);
         }
 
         private ItemEvent.Activate.Result OnActivate(ItemEvent.Activate evt, IPouch data, Func<ItemEvent.Activate.Result> next)
@@ -30,6 +33,19 @@ namespace DigBuild.Content.Behaviors
             ));
 
             return ItemEvent.Activate.Result.Success;
+        }
+
+        private void OnEquipmentActivate(ItemEvent.EquipmentActivate evt, IPouch data, Action next)
+        {
+            var uiManager = evt.Player.GameplayController.UiManager;
+
+            if (uiManager.Uis.First() is not GameHud)
+                return;
+            
+            evt.Player.GameplayController.UiManager.Open(PouchUi.Create(
+                data,
+                evt.Player.Inventory.PickedItem
+            ));
         }
 
         public bool Equals(IPouch first, IPouch second)

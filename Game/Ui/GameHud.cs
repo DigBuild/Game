@@ -1,14 +1,17 @@
 ﻿using DigBuild.Controller;
 using DigBuild.Engine.Impl.Worlds;
+using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Textures;
-using DigBuild.Engine.Ui;
+using DigBuild.Engine.Ui.Elements;
 using DigBuild.Events;
+using DigBuild.Items;
 using DigBuild.Platform.Input;
 using DigBuild.Platform.Render;
 using DigBuild.Render;
+using DigBuild.Ui.Elements;
 
 namespace DigBuild.Ui
 {
@@ -37,7 +40,7 @@ namespace DigBuild.Ui
 
         private readonly UiContainer _ui = new();
         private SimpleUi.Context _context = null!;
-        private UiManager _manager;
+        private UiManager _manager = null!;
 
         private UiLabel _positionLabel = null!;
         private UiLabel _lookLabel = null!;
@@ -81,11 +84,6 @@ namespace DigBuild.Ui
                 var off = (int) (target.Width - width) / 2 + slotSize;
                 var i = 0;
                 
-                // _ui.Add(off - 32, (int) target.Height - 60 - 32, new UiButton(
-                //     64, 64, UiRenderLayer.Ui,
-                //     InventorySlotSprite, InventorySlotSprite, InventorySlotSprite
-                // ));
-
                 foreach (var slot in player.Inventory.Hotbar)
                 {
                     var i1 = i;
@@ -194,7 +192,39 @@ namespace DigBuild.Ui
                 _manager.Open(MenuUi.Create());
                 return true;
             }
-            
+
+            var player = _controller.Player;
+            var equipment = player.Inventory.Equipment;
+            if (action == KeyboardAction.Character)
+            {
+                var item = ItemInstance.Empty;
+                switch (code)
+                {
+                    case 'q':
+                    case 'Q':
+                        item = equipment.EquipTopLeft.Item;
+                        break;
+                    case 'e':
+                    case 'E':
+                        item = equipment.EquipTopRight.Item;
+                        break;
+                    case 'z':
+                    case 'Z':
+                        item = equipment.EquipBottomLeft.Item;
+                        break;
+                    case 'c':
+                    case 'C':
+                        item = equipment.EquipBottomRight.Item;
+                        break;
+                }
+
+                if (item.Count > 0)
+                {
+                    item.OnEquipmentActivate(player);
+                    return true;
+                }
+            }
+
             if (!_isMouseFree && _isTop)
                 _controller.InputController.OnKeyboardEvent(code, action);
             else
