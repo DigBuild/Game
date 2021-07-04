@@ -41,6 +41,7 @@ namespace DigBuild.Controller
             Render.Worlds.WorldRenderLayers.Cutout,
             Render.Worlds.WorldRenderLayers.Water,
             UiRenderLayer.Text,
+            UiRenderLayer.UiOverlay
         };
 
         private static readonly ImmutableList<IRenderUniform> UniformTypes = ImmutableList.Create<IRenderUniform>(

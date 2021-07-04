@@ -28,5 +28,20 @@ namespace DigBuild.Render
                 Operation = BlendOperation.Add
             }
         );
+
+        public static IRenderLayer<UiVertex> UiOverlay { get; } = new SimpleRenderLayer<UiVertex>(
+            UiVertex.CreateTransformer,
+            new ResourceName(DigBuildGame.Domain, "ui.vert"),
+            new ResourceName(DigBuildGame.Domain, "ui.frag"),
+            RenderTextures.UiMain,
+            false, true,
+            new BlendOptions
+            {
+                From = BlendFactor.SrcAlpha,
+                To = BlendFactor.OneMinusSrcAlpha,
+                Operation = BlendOperation.Add
+
+            }
+        );
     }
 }

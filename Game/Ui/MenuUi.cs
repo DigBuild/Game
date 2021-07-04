@@ -13,8 +13,10 @@ namespace DigBuild.Ui
             {
                 Resized = target =>
                 {
+                    container.Clear();
+
                     container.Add(0, 0, new UiRectangle(
-                        target.Width, target.Height, UiRenderLayer.Ui,
+                        target.Width, target.Height, UiRenderLayer.UiOverlay,
                         null, new Vector4(0.0f, 0.0f, 0.0f, 0.95f)
                     ));
                 },
