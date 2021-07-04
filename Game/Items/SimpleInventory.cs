@@ -48,7 +48,7 @@ namespace DigBuild.Items
                 for (var i = 0u; i < _slots.Length; i++)
                 {
                     var current = Get(i);
-                    if (current.Count == 0)
+                    if (current.Count == 0 && _slots[i].TrySetItem(item, false))
                     {
                         _items[i] = item.Copy();
                         _modified[i] = true;
