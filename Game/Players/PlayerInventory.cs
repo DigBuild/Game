@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using DigBuild.Engine.Items;
+using DigBuild.Items;
 
 namespace DigBuild.Players
 {
@@ -31,13 +32,13 @@ namespace DigBuild.Players
         public PlayerInventory()
         {
             for (var i = 0; i < HotbarSize; i++)
-                _hotbar[i] = new InventorySlot();
+                _hotbar[i] = new LockableInventorySlot(new InventorySlot());
         }
 
         private PlayerInventory(PlayerInventory other)
         {
             for (var i = 0; i < HotbarSize; i++)
-                _hotbar[i] = new InventorySlot(other._hotbar[i].Item);
+                _hotbar[i] = new LockableInventorySlot(new InventorySlot(other._hotbar[i].Item));
             ActiveHotbarSlot = other.ActiveHotbarSlot;
             PickedItem.TrySetItem(other.PickedItem.Item);
         }

@@ -121,7 +121,9 @@ namespace DigBuild.Controller
             
             inventory.Hotbar[3].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "campfire")!, 64));
             inventory.Hotbar[4].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "stone")!, 6));
-            inventory.Hotbar[5].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "log")!, 1));
+            inventory.Hotbar[5].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "log")!, 10));
+            inventory.Hotbar[6].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "log")!, 15));
+            inventory.Hotbar[7].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "log")!, 93));
         }
 
         public void Dispose()
