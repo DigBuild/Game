@@ -56,16 +56,16 @@ namespace DigBuild.Render.Worlds
 
         public void Update(RenderContext context, WorldView worldView, float partialTick)
         {
-            lock (_removedEntities)
-            {
-                _trackedEntities.ExceptWith(_removedEntities);
-                _removedEntities.Clear();
-            }
-
             lock (_addedEntities)
             {
                 _trackedEntities.UnionWith(_addedEntities);
                 _addedEntities.Clear();
+            }
+
+            lock (_removedEntities)
+            {
+                _trackedEntities.ExceptWith(_removedEntities);
+                _removedEntities.Clear();
             }
             
             _geometryBuffer.Reset();
