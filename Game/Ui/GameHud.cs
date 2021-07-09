@@ -10,8 +10,10 @@ using DigBuild.Events;
 using DigBuild.Items;
 using DigBuild.Platform.Input;
 using DigBuild.Platform.Render;
+using DigBuild.Registries;
 using DigBuild.Render;
 using DigBuild.Ui.Elements;
+using DigBuild.Worlds;
 
 namespace DigBuild.Ui
 {
@@ -151,9 +153,12 @@ namespace DigBuild.Ui
             var player = _controller.Player;
             var hit = Raycast.Cast(_controller.RayCastContext, player.GetCamera(partialTick).Ray);
 
-            _positionLabel.Text = $"Position: {new BlockPos(player.PhysicalEntity.Position)}";
+            var blockPos = new BlockPos(player.PhysicalEntity.Position);
+            var biome = player.Entity.World.GetBiome(blockPos);
+
+            _positionLabel.Text = $"Position: {blockPos}";
             _lookLabel.Text = $"Look: {hit?.Position} {(hit != null ? player.Entity.World.GetBlock(hit.BlockPos) : null)}";
-            _lightLabel.Text = $"Light: {(hit == null ? "" : player.Entity.World.GetLight(hit.BlockPos.Offset(hit.Face)))}";
+            _lightLabel.Text = $"Biome: {GameRegistries.Biomes.GetNameOrNull(biome)}";
             _handLabel.Text = $"Hand: {player.Inventory.Hand.Item}";
 
             _ui.Draw(context, buffer, partialTick);

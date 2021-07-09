@@ -38,6 +38,12 @@ namespace DigBuild.Content.Worldgen
 
         public void Populate(ChunkDescriptor descriptor, IChunk chunk)
         {
+            var biomes = descriptor.Get(WorldgenAttributes.Biome);
+            var biomeStorage = chunk.Get(GameChunkStorages.Biomes);
+            
+            for (var x = 0; x < biomes.Size; x++)
+            for (var z = 0; z < biomes.Size; z++)
+                biomeStorage.Set(x, z, biomes[x, z]);
         }
     }
 }
