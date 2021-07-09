@@ -2,7 +2,6 @@
 using System.Collections.Immutable;
 using DigBuild.Content.Registries;
 using DigBuild.Engine.Blocks;
-using DigBuild.Engine.Collections;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worldgen;
@@ -31,11 +30,11 @@ namespace DigBuild.Content.Worldgen
             _waterBlock = waterBlock;
         }
 
-        public void DescribeSlice(WorldSliceDescriptionContext context)
+        public void Describe(ChunkDescriptionContext context)
         {
         }
 
-        public void PopulateChunk(WorldSliceDescriptor descriptor, IChunk chunk)
+        public void Populate(ChunkDescriptor descriptor, IChunk chunk)
         {
             var height = descriptor.Get(WorldgenAttributes.TerrainHeight);
 
@@ -45,10 +44,7 @@ namespace DigBuild.Content.Worldgen
                 if (height[x, z] > Threshold)
                     continue;
 
-                var relativeHeight = Threshold - chunk.Position.Y * ChunkSize;
-                if (relativeHeight <= 0)
-                    continue;
-                var localHeight = Math.Min(relativeHeight, ChunkSize);
+                var localHeight = Math.Min(Threshold, ChunkSize);
                 for (var y = 0; y <= localHeight - 1; y++)
                 {
                     var pos = new ChunkBlockPos(x, y, z);

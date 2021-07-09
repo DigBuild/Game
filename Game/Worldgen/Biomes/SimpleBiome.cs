@@ -9,7 +9,7 @@ namespace DigBuild.Worldgen.Biomes
         public IReadOnlyWorldgenRangeSet Constraints { get; init; } = new WorldgenRangeSet();
         public IReadOnlyBiomeAttributeSet Attributes { get; init; } = new BiomeAttributeSet();
         
-        public Grid<float> GetScores(WorldSliceDescriptionContext context)
+        public Grid<float> GetScores(ChunkDescriptionContext context)
         {
             return Constraints.GetScores(context);
         }

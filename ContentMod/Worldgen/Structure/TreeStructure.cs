@@ -9,7 +9,7 @@ namespace DigBuild.Content.Worldgen.Structure
 {
     public class TreeStructure : IWorldgenStructure
     {
-        private static readonly Vector3I OneChunk = new(15, 15, 15);
+        private static readonly Vector3I OneChunk = new(15, 255, 15);
         public static Dictionary<Vector3I, Block> Blocks { get; } = new();
 
         static TreeStructure()

@@ -26,7 +26,7 @@ namespace DigBuild.Content.Worldgen
             _inlandnessNoise.SetFractalGain(0.5f);
         }
 
-        public void DescribeSlice(WorldSliceDescriptionContext context)
+        public void Describe(ChunkDescriptionContext context)
         {
             var inlandness = Grid<float>.Builder(ChunkSize);
             
@@ -41,7 +41,7 @@ namespace DigBuild.Content.Worldgen
             context.Submit(WorldgenAttributes.Inlandness, inlandness.Build());
         }
 
-        public void PopulateChunk(WorldSliceDescriptor descriptor, IChunk chunk)
+        public void Populate(ChunkDescriptor descriptor, IChunk chunk)
         {
         }
     }

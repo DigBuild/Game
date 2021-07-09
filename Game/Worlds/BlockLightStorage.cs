@@ -14,31 +14,38 @@ namespace DigBuild.Worlds
         private const uint ChunkSize = 16;
 
         // private readonly byte[,,] _values = new byte[ChunkSize, ChunkSize, ChunkSize];
-        private readonly IOctree<int> _values = new Octree<int>(3, 0);
+        private readonly Octree<int>[] _values = new Octree<int>[WorldDimensions.ChunkVerticalSubdivisions];
 
         public event Action? Changed;
 
+        public ChunkBlockLight()
+        {
+            for (var i = 0; i < _values.Length; i++)
+                _values[i] = new Octree<int>(3, 0);
+        }
+
         public byte Get(ChunkBlockPos pos)
         {
-            var clusterValue = _values[pos.X >> 1, pos.Y >> 1, pos.Z >> 1];
+            var clusterValue = _values[pos.Y >> 4][pos.X >> 1, (pos.Y & 15) >> 1, pos.Z >> 1];
             return (byte) ((clusterValue >> (4 * (((pos.X & 1) << 2) | ((pos.Y & 1) << 1) | ((pos.Z & 1) << 0)))) & 0xF);
         }
 
         public void Set(ChunkBlockPos pos, byte value)
         {
-            var clusterValue = _values[pos.X >> 1, pos.Y >> 1, pos.Z >> 1];
+            var clusterValue = _values[pos.Y >> 4][pos.X >> 1, (pos.Y & 15) >> 1, pos.Z >> 1];
             var position = 1 << (4 * (((pos.X & 1) << 2) | ((pos.Y & 1) << 1) | ((pos.Z & 1) << 0)));
             var newValue = (clusterValue & ~(0xF * position)) | (value * position);
-            _values[pos.X >> 1, pos.Y >> 1, pos.Z >> 1] = newValue;
+            _values[pos.Y >> 4][pos.X >> 1, (pos.Y & 15) >> 1, pos.Z >> 1] = newValue;
         }
         
         public IChunkBlockLight Copy()
         {
             var copy = new ChunkBlockLight();
+            for (var i = 0; i < WorldDimensions.ChunkVerticalSubdivisions; i++)
             for (var x = 0; x < ChunkSize; x++)
             for (var y = 0; y < ChunkSize; y++)
             for (var z = 0; z < ChunkSize; z++)
-                copy._values[x, y, z] = _values[x, y, z];
+                copy._values[i][x, y, z] = _values[i][x, y, z];
             return copy;
         }
 

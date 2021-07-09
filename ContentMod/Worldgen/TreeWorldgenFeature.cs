@@ -35,7 +35,7 @@ namespace DigBuild.Content.Worldgen
             _max = structure.Max;
         }
 
-        public void DescribeSlice(WorldSliceDescriptionContext context)
+        public void Describe(ChunkDescriptionContext context)
         {
             var inTerrainType = context.GetExtendedGrid(WorldgenAttributes.TerrainType);
             var inLushness = context.GetExtendedGrid(WorldgenAttributes.Lushness);
@@ -72,7 +72,7 @@ namespace DigBuild.Content.Worldgen
             context.Submit(WorldgenAttributes.Tree, trees.Build());
         }
 
-        public void PopulateChunk(WorldSliceDescriptor descriptor, IChunk chunk)
+        public void Populate(ChunkDescriptor descriptor, IChunk chunk)
         {
             var trees = descriptor.Get(WorldgenAttributes.Tree);
             
@@ -84,10 +84,8 @@ namespace DigBuild.Content.Worldgen
                     continue;
                 if (treeY == 0)
                     continue;
-
-                var localHeight = (int) (treeY - chunk.Position.Y * ChunkSize);
-
-                _structure.Place((x, localHeight, z), chunk);
+                
+                _structure.Place((x, treeY, z), chunk);
             }
         }
     }

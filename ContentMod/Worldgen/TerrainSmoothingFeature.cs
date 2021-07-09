@@ -25,7 +25,7 @@ namespace DigBuild.Content.Worldgen
         public IImmutableSet<IWorldgenAttribute> InputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>();
         public IImmutableSet<IWorldgenAttribute> OutputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>();
 
-        public void DescribeSlice(WorldSliceDescriptionContext context)
+        public void Describe(ChunkDescriptionContext context)
         {
             var inTerrainHeight = context.GetExtendedGrid(WorldgenAttributes.TerrainHeight);
             var terrainHeight = Grid<ushort>.Builder(WorldDimensions.ChunkSize);
@@ -45,7 +45,7 @@ namespace DigBuild.Content.Worldgen
             context.Submit(WorldgenAttributes.TerrainHeight, terrainHeight.Build());
         }
 
-        public void PopulateChunk(WorldSliceDescriptor descriptor, IChunk chunk)
+        public void Populate(ChunkDescriptor descriptor, IChunk chunk)
         {
         }
     }

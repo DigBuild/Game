@@ -21,7 +21,7 @@ namespace DigBuild.Content.Worldgen
             WorldgenAttributes.Lushness
         );
         
-        public void DescribeSlice(WorldSliceDescriptionContext context)
+        public void Describe(ChunkDescriptionContext context)
         {
             var lushness = Grid<float>.Builder(ChunkSize);
             
@@ -36,7 +36,7 @@ namespace DigBuild.Content.Worldgen
             context.Submit(WorldgenAttributes.Lushness, lushness.Build());
         }
 
-        public void PopulateChunk(WorldSliceDescriptor descriptor, IChunk chunk)
+        public void Populate(ChunkDescriptor descriptor, IChunk chunk)
         {
         }
     }

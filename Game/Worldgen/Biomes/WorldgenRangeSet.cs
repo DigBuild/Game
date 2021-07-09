@@ -15,13 +15,13 @@ namespace DigBuild.Worldgen.Biomes
         RangeT<T>? Get<T>(WorldgenAttribute<Grid<T>> attribute);
         bool TryGet<T>(WorldgenAttribute<Grid<T>> attribute, [MaybeNullWhen(false)] out RangeT<T> range);
 
-        Grid<float> GetScores(WorldSliceDescriptionContext context);
+        Grid<float> GetScores(ChunkDescriptionContext context);
     }
 
     public sealed class WorldgenRangeSet : IReadOnlyWorldgenRangeSet, ICollection<KeyValuePair<IWorldgenAttribute, IRangeT>>
     {
         private readonly Dictionary<IWorldgenAttribute, IRangeT> _ranges = new();
-        private readonly Dictionary<IWorldgenAttribute, Func<WorldSliceDescriptionContext, Grid<float>>> _scoreProviders = new();
+        private readonly Dictionary<IWorldgenAttribute, Func<ChunkDescriptionContext, Grid<float>>> _scoreProviders = new();
 
         public int Count => _ranges.Count;
         public bool IsReadOnly => false;
@@ -83,7 +83,7 @@ namespace DigBuild.Worldgen.Biomes
             return false;
         }
 
-        public Grid<float> GetScores(WorldSliceDescriptionContext context)
+        public Grid<float> GetScores(ChunkDescriptionContext context)
         {
             var scores = Grid<float>.Builder(WorldDimensions.ChunkSize);
             foreach (var provider in _scoreProviders.Values)

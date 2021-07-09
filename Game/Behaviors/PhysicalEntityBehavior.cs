@@ -7,7 +7,6 @@ using DigBuild.Engine.Entities;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
-using DigBuild.Engine.Render;
 using DigBuild.Engine.Render.Models;
 using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
@@ -275,9 +274,8 @@ namespace DigBuild.Behaviors
                 var chunkPos = new BlockPos(Position).ChunkPos;
                 var chunksToLoad = new HashSet<ChunkPos>();
                 for (var x = -_behavior._chunkLoadRadius; x <= _behavior._chunkLoadRadius; x++)
-                for (var y = -2; y <= 2; y++)
                 for (var z = -_behavior._chunkLoadRadius; z <= _behavior._chunkLoadRadius; z++)
-                    chunksToLoad.Add(new ChunkPos(chunkPos.X + x, chunkPos.Y + y, chunkPos.Z + z));
+                    chunksToLoad.Add(new ChunkPos(chunkPos.X + x, chunkPos.Z + z));
 
                 var prevTicket = _chunkLoadingTicket;
                 if (!_world.ChunkManager.TryLoad(chunksToLoad, false, out _chunkLoadingTicket))

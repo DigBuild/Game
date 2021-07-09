@@ -60,19 +60,14 @@ namespace DigBuild.Worlds
 
         private string GetPath(RegionChunkPos pos)
         {
-            var path = $"world/region/{Position.X}.{Position.Y}.{Position.Z}/chunk/{pos.X}.{pos.Y}.{pos.Z}.bin";
+            var path = $"world/region/{Position.X}.{Position.Z}/chunk/{pos.X}.{pos.Z}.bin";
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
             return path;
         }
 
         public DataContainer<IRegion> LoadOrCreateManagedData()
         {
-            return new();
-        }
-
-        public ILowDensityRegion LoadOrCreateManagedLowDensity()
-        {
-            throw new System.NotImplementedException();
+            return new DataContainer<IRegion>();
         }
     }
 }

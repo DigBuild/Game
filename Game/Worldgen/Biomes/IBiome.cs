@@ -8,7 +8,7 @@ namespace DigBuild.Worldgen.Biomes
 {
     public interface IBiome
     {
-        Grid<float> GetScores(WorldSliceDescriptionContext context);
+        Grid<float> GetScores(ChunkDescriptionContext context);
 
         bool TryGetAttribute<T>(BiomeAttribute<T> attribute, [MaybeNullWhen(false)] out T value)
             where T : notnull;

@@ -32,7 +32,7 @@ namespace DigBuild.Content.Worldgen
             _surfaceBlock = surfaceBlock;
         }
 
-        public void DescribeSlice(WorldSliceDescriptionContext context)
+        public void Describe(ChunkDescriptionContext context)
         {
             var inBiome = context.Get(WorldgenAttributes.Biome);
 
@@ -58,7 +58,7 @@ namespace DigBuild.Content.Worldgen
             context.Submit(WorldgenAttributes.TerrainType, terrainType.Build());
         }
 
-        public void PopulateChunk(WorldSliceDescriptor descriptor, IChunk chunk)
+        public void Populate(ChunkDescriptor descriptor, IChunk chunk)
         {
             var height = descriptor.Get(WorldgenAttributes.TerrainHeight);
             var inBiome = descriptor.Get(WorldgenAttributes.Biome);
@@ -66,7 +66,7 @@ namespace DigBuild.Content.Worldgen
             {
                 for (var z = 0; z < ChunkSize; z++)
                 {
-                    var relativeHeight = height[x, z] - chunk.Position.Y * ChunkSize;
+                    var relativeHeight = height[x, z];
                     if (relativeHeight <= 0)
                         continue;
                     var localHeight = Math.Min(relativeHeight, ChunkSize);
