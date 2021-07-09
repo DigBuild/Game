@@ -39,7 +39,8 @@ namespace DigBuild.Registries
                 builder.Attach(new PlayerBehavior(), playerData);
                 builder.Attach(new ItemPickupBehavior()
                 {
-                    Bounds = new AABB(-2, -1, -2, 2, 2.5f, 2)
+                    PickupBounds = Players.Player.BoundingBox,
+                    AttractionBounds = Players.Player.BoundingBox.Grow(3),
                 }, playerData);
             });
         }

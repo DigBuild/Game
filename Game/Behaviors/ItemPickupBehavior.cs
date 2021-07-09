@@ -18,7 +18,8 @@ namespace DigBuild.Behaviors
 
     public sealed class ItemPickupBehavior : IEntityBehavior<IItemPickup>
     {
-        public AABB Bounds { get; set; } = AABB.FullBlock - (Vector3.One / 2);
+        public AABB AttractionBounds { get; set; } = AABB.FullBlock - (Vector3.One / 2);
+        public AABB PickupBounds { get; set; } = AABB.FullBlock - (Vector3.One / 2);
 
         public void Build(EntityBehaviorBuilder<IItemPickup, IItemPickup> entity)
         {
@@ -44,23 +45,34 @@ namespace DigBuild.Behaviors
         {
             if (!data.InWorld) return;
 
-            var pos = entity.Get(EntityAttributes.Position);
+            var pos = entity.Get(EntityAttributes.Position) + PickupBounds.Center;
 
             foreach (var itemEntity in entity.World.GetEntities(GameEntities.Item))
             {
                 var itemPos = itemEntity.Get(EntityAttributes.Position);
                 var relPos = itemPos - pos;
 
-                if (!Bounds.Contains(relPos))
+                if (!AttractionBounds.Contains(relPos))
                     continue;
 
-                var item = itemEntity.Get(EntityAttributes.Item)!;
-                    
-                var t = data.PickupTarget.BeginTransaction();
-                if (t.Insert(item).Count == 0)
+                if (PickupBounds.Contains(relPos))
                 {
-                    t.Commit();
-                    itemEntity.Remove();
+                    var item = itemEntity.Get(EntityAttributes.Item)!;
+                    
+                    var t = data.PickupTarget.BeginTransaction();
+                    if (t.Insert(item).Count == 0)
+                    {
+                        t.Commit();
+                        itemEntity.Remove();
+                    }
+                }
+                else
+                {
+                    var distance = relPos.Length();
+                    var unitMotion = -relPos / distance;
+                    var motion = unitMotion * MathF.Exp(-distance * 0.75f);
+
+                    itemEntity.Get(EntityCapabilities.PhysicalEntity)!.Velocity += motion;
                 }
             }
             

@@ -31,7 +31,8 @@ namespace DigBuild.Entities.Models
 
         public void AddGeometry(IGeometryBuffer buffer, IReadOnlyModelData data, float partialTick)
         {
-            var position = data.Get<PhysicalEntityModelData>()!.Position;
+            var physicalEntityModelData = data.Get<PhysicalEntityModelData>()!;
+            var position = physicalEntityModelData.Position + physicalEntityModelData.Velocity * partialTick;
             var itemInfo = data.Get<ItemEntityModelData>()!;
             
             if (!_itemModels.TryGetValue(itemInfo.Item.Type, out var model))

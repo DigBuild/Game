@@ -69,7 +69,11 @@ namespace DigBuild.Behaviors
         private ModelData GetModelData(IReadOnlyEntityInstance instance, IPhysicalEntityBehavior data, Func<ModelData> next)
         {
             var modelData = next();
-            modelData.CreateOrExtend<PhysicalEntityModelData>(d => d.Position = data.Position);
+            modelData.CreateOrExtend<PhysicalEntityModelData>(d =>
+            {
+                d.Position = data.Position;
+                d.Velocity = data.Velocity;
+            });
             return modelData;
         }
 
@@ -356,5 +360,6 @@ namespace DigBuild.Behaviors
     public sealed class PhysicalEntityModelData
     {
         public Vector3 Position { get; set; }
+        public Vector3 Velocity { get; set; }
     }
 }
