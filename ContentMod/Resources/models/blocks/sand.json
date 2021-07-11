@@ -4,8 +4,7 @@
       "when": {},
       "geometry": "digbuild:blocks/_cube_all_sides",
       "variables": {
-        "texture": "digbuild:blocks/leaves",
-        "layer": "digbuild:cutout"
+        "texture": "digbuild:blocks/sand"
       }
     }
   ]

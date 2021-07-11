@@ -16,6 +16,7 @@ using DigBuild.Events;
 using DigBuild.Items;
 using DigBuild.Platform.Resource;
 using DigBuild.Recipes;
+using DigBuild.Render.Models.Geometry;
 using DigBuild.Worldgen.Biomes;
 
 namespace DigBuild.Registries
@@ -51,6 +52,7 @@ namespace DigBuild.Registries
         public static Registry<ICraftingRecipe> CraftingRecipes { get; private set; } = null!;
         public static Registry<IParticleSystemData> ParticleSystems { get; private set; } = null!;
         public static Registry<Sound> Sounds { get; private set; } = null!;
+        public static Registry<IGeometryProvider> GeometryProviders { get; private set; } = null!;
 
         internal static void Initialize(EventBus bus)
         {
@@ -229,6 +231,11 @@ namespace DigBuild.Registries
             sounds.Building += GameSounds.Register;
             sounds.Building += reg => bus.Post(new RegistryBuildingEvent<Sound>(reg));
             sounds.Built += reg => Sounds = reg;
+
+            var geometryProviders = manager.CreateRegistryOf<IGeometryProvider>(new ResourceName(DigBuildGame.Domain, "geometry_providers"));
+            geometryProviders.Building += GameGeometryProviders.Register;
+            geometryProviders.Building += reg => bus.Post(new RegistryBuildingEvent<IGeometryProvider>(reg));
+            geometryProviders.Built += reg => GeometryProviders = reg;
             
             manager.BuildAll();
         }

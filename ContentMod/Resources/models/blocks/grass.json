@@ -1,16 +1,18 @@
 {
-  "variables": {
-    "neg_x": "digbuild:blocks/grass_side",
-    "pos_x": "digbuild:blocks/grass_side",
-    "neg_y": "digbuild:blocks/dirt",
-    "pos_y": "digbuild:blocks/grass",
-    "neg_z": "digbuild:blocks/grass_side",
-    "pos_z": "digbuild:blocks/grass_side"
-  },
-  "components": {
-    "cube": {
-      "_type": "digbuild:include",
-      "from": "digbuild:blocks/_cube"
+  "variants": [
+    {
+      "when": {},
+      "geometry": "digbuild:blocks/_cube",
+      "variables": {
+        "textures": {
+          "neg_x": "digbuild:blocks/grass_side",
+          "pos_x": "digbuild:blocks/grass_side",
+          "neg_y": "digbuild:blocks/dirt",
+          "pos_y": "digbuild:blocks/grass",
+          "neg_z": "digbuild:blocks/grass_side",
+          "pos_z": "digbuild:blocks/grass_side"
+        }
+      }
     }
-  }
+  ]
 }

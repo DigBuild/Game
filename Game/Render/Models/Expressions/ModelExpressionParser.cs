@@ -6,7 +6,7 @@ namespace DigBuild.Render.Models.Expressions
 {
     public static class ModelExpressionParser
     {
-        private static readonly Regex VariableRegex = new(@"^\$\{([\w\/]+)(?:\|([\s\w.,_-]+))?\}", RegexOptions.Compiled);
+        private static readonly Regex VariableRegex = new(@"^\$\{([\w\/]+)(?:\|([\s\w.,_\-\:]+))?\}", RegexOptions.Compiled);
         private static readonly Regex NumberRegex = new(@"^[+-]?(?:\d+(?:\.\d+)?|\.\d+)", RegexOptions.Compiled);
 
         public static IModelExpression Parse(string expressionString)

@@ -1,0 +1,18 @@
+{
+  "elements": [
+    {
+      "_type": "digbuild:cuboid",
+      "from": [ 0, 0, 0 ],
+      "to": [ 1, 1, 1 ],
+      "textures": {
+        "neg_x": "${textures/neg_x}",
+        "pos_x": "${textures/pos_x}",
+        "neg_y": "${textures/neg_y}",
+        "pos_y": "${textures/pos_y}",
+        "neg_z": "${textures/neg_z}",
+        "pos_z": "${textures/pos_z}"
+      },
+      "layer": "${layer|digbuild:solid}"
+    }
+  ]
+}

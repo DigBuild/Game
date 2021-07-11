@@ -2,11 +2,11 @@
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
-using DigBuild.Engine.Render;
 using DigBuild.Engine.Render.Models;
 using DigBuild.Platform.Resource;
 using DigBuild.Registries;
 using DigBuild.Render.Models;
+using DigBuild.Render.Models.Json;
 
 namespace DigBuild.Render
 {
@@ -30,8 +30,7 @@ namespace DigBuild.Render
             _rawItemModels.Clear();
             _rawEntityModels.Clear();
 
-            var rawMissingModelDefinition = resourceManager.Get<RawCuboidModelDefinition>(DigBuildGame.Domain, "missing")!;
-            var rawMissingModel = new RawCuboidModel(rawMissingModelDefinition);
+            var rawMissingModel = resourceManager.Get<RawJsonModel>(DigBuildGame.Domain, "blocks/missing")!;
 
             LoadBlockModels(resourceManager, rawMissingModel);
             LoadItemModels(resourceManager, rawMissingModel);
@@ -41,20 +40,13 @@ namespace DigBuild.Render
         {
             foreach (var block in GameRegistries.Blocks.Values)
             {
-                var rawModelDefinition = resourceManager.Get<RawCuboidModelDefinition>(block.Name);
-                if (rawModelDefinition != null)
+                var rawJsonModel = resourceManager.Get<RawJsonModel>(block.Name.Domain, "blocks/" + block.Name.Path);
+                if (rawJsonModel != null)
                 {
-                    _rawBlockModels[block] = new RawCuboidModel(rawModelDefinition);
+                    _rawBlockModels[block] = rawJsonModel;
                     continue;
                 }
-
-                var rawObjModel = resourceManager.Get<RawObjModel>(block.Name.Domain, $"blocks/{block.Name.Path}");
-                if (rawObjModel != null)
-                {
-                    _rawBlockModels[block] = rawObjModel;
-                    continue;
-                }
-
+                
                 _rawBlockModels[block] = missingModel;
             }
         }
@@ -75,10 +67,10 @@ namespace DigBuild.Render
                     continue;
                 }
 
-                var rawObjModel = resourceManager.Get<RawObjModel>(item.Name.Domain, $"items/{item.Name.Path}");
-                if (rawObjModel != null)
+                var rawJsonModel = resourceManager.Get<RawJsonModel>(item.Name.Domain, $"items/{item.Name.Path}");
+                if (rawJsonModel != null)
                 {
-                    _rawItemModels[item] = rawObjModel;
+                    _rawItemModels[item] = rawJsonModel;
                     continue;
                 }
 

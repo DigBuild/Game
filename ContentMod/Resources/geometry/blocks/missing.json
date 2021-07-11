@@ -1,0 +1,12 @@
+{
+  "elements": [
+    {
+      "_type": "digbuild:include",
+      "geometry": "_cube_all_sides",
+      "variables": {
+        "texture": "digbuild:missing",
+        "layer": "digbuild:solid"
+      }
+    }
+  ]
+}

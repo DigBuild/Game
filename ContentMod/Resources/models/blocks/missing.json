@@ -2,7 +2,7 @@
   "variants": [
     {
       "when": {},
-      "geometry": "digbuild:blocks/water"
+      "geometry": "digbuild:blocks/missing"
     }
   ]
 }

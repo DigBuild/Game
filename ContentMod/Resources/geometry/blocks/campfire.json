@@ -1,0 +1,9 @@
+{
+  "elements": [
+    {
+      "_type": "digbuild:include_obj",
+      "model": "campfire",
+      "layer": "digbuild:solid"
+    }
+  ]
+}

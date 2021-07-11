@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using DigBuild.Audio;
 using DigBuild.Controller;
 using DigBuild.Engine.Events;
+using DigBuild.Engine.Textures;
 using DigBuild.Entities.Models;
 using DigBuild.Events;
 using DigBuild.Platform.Resource;
 using DigBuild.Platform.Util;
 using DigBuild.Registries;
 using DigBuild.Render;
+using DigBuild.Render.Models.Expressions;
+using DigBuild.Render.Models.Geometry;
 using GameWindow = DigBuild.Render.GameWindow;
 
 namespace DigBuild
@@ -43,6 +47,24 @@ namespace DigBuild
         
         internal DigBuildGame(EventBus eventBus)
         {
+            // var json = ResourceManager.Get<GeometryJson>(Domain, "models2/blocks/geometry/_cube_all_sides")!;
+            // var partialGeometry = json.Geometry.ApplySubstitutions(
+            //     new Dictionary<string, IModelExpression>()
+            //     {
+            //         ["texture"] = new LiteralModelExpression("digbuild:blocks/dirt")
+            //     }
+            // );
+            // var rawGeometry = partialGeometry.Prime();
+            //
+            // var stitcher = new TextureStitcher();
+            // var spriteLoader = new MultiSpriteLoader(ResourceManager, stitcher);
+            // rawGeometry.LoadTextures(spriteLoader);
+            // stitcher.Stitch(new ResourceName("beep", "boop"));
+            //
+            // var geometry = rawGeometry.Build();
+            //
+            // Console.WriteLine(geometry);
+
             foreach (var systemData in GameRegistries.ParticleSystems.Values)
                 systemData.InitializeRenderer(BufferPool, ResourceManager);
 

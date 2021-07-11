@@ -1,0 +1,18 @@
+{
+  "elements": [
+    {
+      "_type": "digbuild:include",
+      "geometry": "_cube",
+      "variables": {
+        "textures": {
+          "neg_x": "${texture}",
+          "pos_x": "${texture}",
+          "neg_y": "${texture}",
+          "pos_y": "${texture}",
+          "neg_z": "${texture}",
+          "pos_z": "${texture}"
+        }
+      }
+    }
+  ]
+}
