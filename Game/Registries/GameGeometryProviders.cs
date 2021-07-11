@@ -10,6 +10,7 @@ namespace DigBuild.Registries
             registry.Add(DigBuildGame.Domain, "cuboid", new CuboidGeometryProvider());
             registry.Add(DigBuildGame.Domain, "include", new IncludeGeometryProvider());
             registry.Add(DigBuildGame.Domain, "include_obj", new IncludeObjGeometryProvider());
+            registry.Add(DigBuildGame.Domain, "transform", new TransformGeometryProvider());
         }
     }
 }

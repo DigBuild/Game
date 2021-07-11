@@ -1,22 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace DigBuild.Render.Models.Expressions
 {
     public sealed class ModelExpressionCompilationContext
     {
+        private static readonly MethodInfo ParseDouble = typeof(double).GetMethod(
+            "Parse", BindingFlags.Public | BindingFlags.Static,
+            null, CallingConventions.Any, new[]{typeof(string)},
+            null
+        )!;
+        
         private readonly ParameterExpression _parameter;
 
         public ModelExpressionCompilationContext(ParameterExpression parameter)
         {
             _parameter = parameter;
         }
-
-
+        
         public Expression GetRuntimeVariable(string name, bool numeric)
         {
-            return Expression.Parameter(numeric ? typeof(double) : typeof(string), name);
+            var baseExp = Expression.Call(_parameter, "get_Item", null, Expression.Constant(name));
+            
+            return !numeric ? baseExp : Expression.Call(null, ParseDouble, baseExp);
         }
     }
 

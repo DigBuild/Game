@@ -11,16 +11,19 @@ namespace DigBuild.Render.Models.Json
     public class RawJsonModel : ICustomResource, IRawModel<IBlockModel>, IRawModel<IItemModel>
     {
         private readonly IReadOnlyList<(JsonModelRule Rule, IRawGeometry RawGeometry)> _variants;
+        private readonly bool _dynamic;
 
         public ResourceName Name { get; }
 
         private RawJsonModel(
             ResourceName name,
-            IReadOnlyList<(JsonModelRule Rule, IRawGeometry RawGeometry)> variants
+            IReadOnlyList<(JsonModelRule Rule, IRawGeometry RawGeometry)> variants,
+            bool dynamic
         )
         {
             Name = name;
             _variants = variants;
+            _dynamic = dynamic;
         }
 
         public void LoadTextures(MultiSpriteLoader loader)
@@ -34,7 +37,7 @@ namespace DigBuild.Render.Models.Json
             var geometry = new List<(JsonModelRule Rule, IGeometry Geometry)>();
             foreach (var (rule, rawGeometry) in _variants)
                 geometry.Add((rule, rawGeometry.Build()));
-            return new JsonModel(geometry);
+            return new JsonModel(geometry, _dynamic);
         }
 
         IBlockModel IRawModel<IBlockModel>.Build()
@@ -42,7 +45,7 @@ namespace DigBuild.Render.Models.Json
             var geometry = new List<(JsonModelRule Rule, IGeometry Geometry)>();
             foreach (var (rule, rawGeometry) in _variants)
                 geometry.Add((rule, rawGeometry.Build()));
-            return new JsonModel(geometry);
+            return new JsonModel(geometry, _dynamic);
         }
 
         public static RawJsonModel? Load(ResourceManager manager, ResourceName name)
@@ -94,7 +97,9 @@ namespace DigBuild.Render.Models.Json
                 variants.Add((rule, rawGeometry));
             }
 
-            return new RawJsonModel(name, variants);
+            var dynamic = modelJson.TryGetProperty("dynamic", out var dynamicJson) && dynamicJson.GetBoolean();
+
+            return new RawJsonModel(name, variants, dynamic);
         }
     }
 }

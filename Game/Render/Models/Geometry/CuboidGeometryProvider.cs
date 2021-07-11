@@ -20,16 +20,14 @@ namespace DigBuild.Render.Models.Geometry
             ResourceManager resourceManager, ResourceName currentFile
         )
         {
-            var fromArray = json.GetProperty<float[]>("from");
-            var toArray = json.GetProperty<float[]>("to");
-            var layerString = json.GetProperty<string>("layer", jsonOptions);
-            var texturesObj = json.GetProperty("textures");
-            
-            var from = new Vector3(fromArray[0], fromArray[1], fromArray[2]);
-            var to = new Vector3(toArray[0], toArray[1], toArray[2]);
-            var layer = ModelExpressionParser.Parse(layerString);
-            var textures = new Dictionary<Direction, IModelExpression>();
+            var from = json.GetProperty<Vector3>("from", jsonOptions);
+            var to = json.GetProperty<Vector3>("to", jsonOptions);
 
+            var layerString = json.GetProperty<string>("layer", jsonOptions);
+            var layer = ModelExpressionParser.Parse(layerString);
+
+            var texturesObj = json.GetProperty("textures");
+            var textures = new Dictionary<Direction, IModelExpression>();
             foreach (var direction in Directions.All)
                 if (texturesObj.TryGetProperty<string>(direction.GetName(), out var exp, jsonOptions))
                     textures[direction] = ModelExpressionParser.Parse(exp);

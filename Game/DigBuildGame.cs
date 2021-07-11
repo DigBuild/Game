@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using DigBuild.Audio;
@@ -47,24 +47,6 @@ namespace DigBuild
         
         internal DigBuildGame(EventBus eventBus)
         {
-            // var json = ResourceManager.Get<GeometryJson>(Domain, "models2/blocks/geometry/_cube_all_sides")!;
-            // var partialGeometry = json.Geometry.ApplySubstitutions(
-            //     new Dictionary<string, IModelExpression>()
-            //     {
-            //         ["texture"] = new LiteralModelExpression("digbuild:blocks/dirt")
-            //     }
-            // );
-            // var rawGeometry = partialGeometry.Prime();
-            //
-            // var stitcher = new TextureStitcher();
-            // var spriteLoader = new MultiSpriteLoader(ResourceManager, stitcher);
-            // rawGeometry.LoadTextures(spriteLoader);
-            // stitcher.Stitch(new ResourceName("beep", "boop"));
-            //
-            // var geometry = rawGeometry.Build();
-            //
-            // Console.WriteLine(geometry);
-
             foreach (var systemData in GameRegistries.ParticleSystems.Values)
                 systemData.InitializeRenderer(BufferPool, ResourceManager);
 

@@ -52,16 +52,24 @@ namespace DigBuild.Render.Models.Geometry
             var elements = new List<IPartialGeometry>();
             foreach (var element in geometryJson.GetProperty("elements").EnumerateArray())
             {
-                var type = element.GetProperty<string>("_type");
-                var typeName = ResourceName.Parse(type)!.Value;
-                var provider = GameRegistries.GeometryProviders.GetOrNull(typeName)!;
-
-                var rawGeometry = provider.Provide(element, jsonOptions, manager, name);
+                var rawGeometry = ParseElement(element, jsonOptions, manager, name);
                 elements.Add(rawGeometry);
             }
 
             var geometry = elements.Count == 1 ? elements.First() : new PartialMergedGeometry(elements);
             return new GeometryJson(name, geometry);
+        }
+
+        public static IPartialGeometry ParseElement(
+            JsonElement json, JsonSerializerOptions jsonOptions,
+            ResourceManager resourceManager, ResourceName name
+        )
+        {
+            var type = json.GetProperty<string>("_type");
+            var typeName = ResourceName.Parse(type)!.Value;
+            var provider = GameRegistries.GeometryProviders.GetOrNull(typeName)!;
+
+            return provider.Provide(json, jsonOptions, resourceManager, name);
         }
 
         private sealed class PartialMergedGeometry : IPartialGeometry

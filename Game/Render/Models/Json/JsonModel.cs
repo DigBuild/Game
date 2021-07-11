@@ -10,13 +10,15 @@ namespace DigBuild.Render.Models.Json
     public sealed class JsonModel : IBlockModel, IItemModel
     {
         private readonly IEnumerable<(JsonModelRule Rule, IGeometry Geometry)> _geometry;
+        private readonly bool _dynamic;
 
-        public JsonModel(IEnumerable<(JsonModelRule Rule, IGeometry Geometry)> geometry)
+        public JsonModel(IEnumerable<(JsonModelRule Rule, IGeometry Geometry)> geometry, bool dynamic)
         {
             _geometry = geometry;
+            _dynamic = dynamic;
         }
 
-        public void AddGeometry(IGeometryBuffer buffer, IReadOnlyModelData data, DirectionFlags faces)
+        private void Add(IGeometryBuffer buffer, IReadOnlyModelData data, DirectionFlags faces)
         {
             var jsonData = data.Get<JsonModelData>() ?? JsonModelData.Empty;
             foreach (var (rule, geometry) in _geometry)
@@ -28,11 +30,17 @@ namespace DigBuild.Render.Models.Json
             }
         }
 
-        public bool HasDynamicGeometry => false;
+        public void AddGeometry(IGeometryBuffer buffer, IReadOnlyModelData data, DirectionFlags visibleFaces)
+        {
+            if (!_dynamic)
+                Add(buffer, data, visibleFaces);
+        }
+
+        public bool HasDynamicGeometry => _dynamic;
 
         public void AddDynamicGeometry(IGeometryBuffer buffer, IReadOnlyModelData data, DirectionFlags visibleFaces, float partialTick)
         {
-            throw new InvalidOperationException();
+            Add(buffer, data, visibleFaces);
         }
 
         public void AddGeometry(IGeometryBuffer buffer, IReadOnlyModelData data, ItemModelTransform transform, float partialTick)
