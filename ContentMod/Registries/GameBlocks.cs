@@ -97,7 +97,7 @@ namespace DigBuild.Content.Registries
 
                     var horizontalDirection = builder.Add<HorizontalPlacementData>();
                     builder.Attach(new HorizontalPlacementBehavior(), horizontalDirection);
-                    builder.Attach(new CustomModelDataBehavior<HorizontalPlacementData, JsonModelData>((_, data, model) =>
+                    builder.Attach(new CustomBlockModelDataBehavior<HorizontalPlacementData, JsonModelData>((_, data, model) =>
                     {
                         model["direction"] = data.Direction.ToString().ToLowerInvariant();
                     }), horizontalDirection);
