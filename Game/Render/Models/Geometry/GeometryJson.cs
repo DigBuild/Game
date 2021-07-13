@@ -113,7 +113,7 @@ namespace DigBuild.Render.Models.Geometry
             public void LoadTextures(MultiSpriteLoader loader)
             {
                 foreach (var rawGeometry in _elements)
-                    rawGeometry.Build();
+                    rawGeometry.LoadTextures(loader);
             }
 
             public IGeometry Build()
