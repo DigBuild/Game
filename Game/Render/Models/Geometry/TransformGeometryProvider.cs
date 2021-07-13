@@ -57,9 +57,14 @@ namespace DigBuild.Render.Models.Geometry
                 _axis = axis;
                 _angle = angle;
                 _center = center;
+
+                var requiredVariables = new HashSet<string>(_partialGeometry.RequiredVariables);
+                foreach (var variable in angle.RequiredVariables)
+                    requiredVariables.Add(variable);
+                RequiredVariables = requiredVariables;
             }
 
-            public IEnumerable<string> RequiredVariables => _partialGeometry.RequiredVariables;
+            public IEnumerable<string> RequiredVariables { get; }
 
             public IPartialGeometry ApplySubstitutions(IReadOnlyDictionary<string, IModelExpression> variables)
             {
