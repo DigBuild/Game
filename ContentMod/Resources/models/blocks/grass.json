@@ -2,7 +2,7 @@
   "variants": [
     {
       "when": {},
-      "geometry": "digbuild:blocks/_cube",
+      "geometry": "digbuild:blocks/_cube_rotated_top",
       "variables": {
         "textures": {
           "neg_x": "digbuild:blocks/grass_side",

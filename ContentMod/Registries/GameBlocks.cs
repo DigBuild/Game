@@ -40,10 +40,22 @@ namespace DigBuild.Content.Registries
             Grass = registry.Create(DigBuildGame.Domain, "grass", builder =>
                 {
                     builder.Attach(new ReplaceOnFaceCoveredBehavior(Direction.PosY, () => Dirt));
+                    builder.Attach(new CustomBlockModelDataBehavior<JsonModelData>((ctx, data) =>
+                    {
+                        var angle = ctx.Pos.GetHashCode() & 3;
+                        data["angle"] = $"{angle}";
+                    }));
                 },
                 Drops(() => GameItems.Dirt)
             );
-            Sand = registry.Create(DigBuildGame.Domain, "sand",
+            Sand = registry.Create(DigBuildGame.Domain, "sand", builder =>
+                {
+                    builder.Attach(new CustomBlockModelDataBehavior<JsonModelData>((ctx, data) =>
+                    {
+                        var angle = ctx.Pos.GetHashCode() & 3;
+                        data["angle"] = $"{angle}";
+                    }));
+                },
                 Drops(() => GameItems.Sand)
             );
             Water = registry.Create(DigBuildGame.Domain, "water", builder =>
