@@ -107,6 +107,7 @@ namespace DigBuild.Controller
                 WorldRenderLayers,
                 UniformTypes,
                 Textures,
+                _game.EventBus,
                 _game.BufferPool
             );
             

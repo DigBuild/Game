@@ -1,9 +1,11 @@
 ﻿using System.Numerics;
 using DigBuild.Engine.BuiltIn.GeneratedUniforms;
+using DigBuild.Engine.Events;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Render.Worlds;
+using DigBuild.Events;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Resource;
 using DigBuild.Platform.Util;
@@ -15,6 +17,7 @@ namespace DigBuild.Render.Worlds
     public sealed class SelectionBoxRenderer
     {
         private readonly IGridAlignedRayCastingContext<WorldRayCastContext.Hit> _rayCastingContext;
+        private readonly EventBus _eventBus;
 
         private WorldRayCastContext.Hit? _hit;
         
@@ -27,9 +30,13 @@ namespace DigBuild.Render.Worlds
         private UniformBuffer<SimpleTransform> _uniformBuffer = null!;
         private UniformBinding<SimpleTransform> _uniformBinding = null!;
 
-        public SelectionBoxRenderer(IGridAlignedRayCastingContext<WorldRayCastContext.Hit> rayCastingContext)
+        public SelectionBoxRenderer(
+            IGridAlignedRayCastingContext<WorldRayCastContext.Hit> rayCastingContext,
+            EventBus eventBus
+        )
         {
             _rayCastingContext = rayCastingContext;
+            _eventBus = eventBus;
 
             _uniformNativeBuffer.Add(default(SimpleTransform));
         }
@@ -70,7 +77,12 @@ namespace DigBuild.Render.Worlds
                 return;
             
             _vertexNativeBuffer.Clear();
-            GenerateBoundingBoxGeometry(_vertexNativeBuffer, _hit.Bounds);
+
+            var vertexConsumer = new NativeBufferVertexConsumer<Vertex3>(_vertexNativeBuffer);
+            var evt = _eventBus.Post(new BlockHighlightEvent(vertexConsumer));
+            if (!evt.Handled)
+                GenerateBoundingBoxGeometry(vertexConsumer, _hit.Bounds);
+
             _vertexBufferWriter.Write(_vertexNativeBuffer);
                 
             _uniformNativeBuffer[0].ModelView = Matrix4x4.CreateTranslation(_hit.Position) * worldView.Camera.Transform;
@@ -87,7 +99,7 @@ namespace DigBuild.Render.Worlds
             cmd.Draw(_pipeline, _vertexBuffer); 
         }
 
-        private static void GenerateBoundingBoxGeometry(INativeBuffer<Vertex3> buffer, AABB aabb)
+        public static void GenerateBoundingBoxGeometry(IVertexConsumer<Vertex3> buffer, AABB aabb)
         {
             var offset = new Vector3(0.005f);
             var min = aabb.Min - offset;
@@ -102,7 +114,7 @@ namespace DigBuild.Render.Worlds
             var vPPN = new Vector3(max.X, max.Y, min.Z);
             var vPPP = new Vector3(max.X, max.Y, max.Z);
 
-            buffer.Add(
+            buffer.Accept(
                 new Vertex3(vNNN), new Vertex3(vNNP),
                 new Vertex3(vNNP), new Vertex3(vPNP),
                 new Vertex3(vPNP), new Vertex3(vPNN),

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Numerics;
+using DigBuild.Engine.Events;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Render;
@@ -39,6 +40,7 @@ namespace DigBuild.Render.Worlds
             IEnumerable<IRenderLayer> layers,
             IEnumerable<IRenderUniform> uniforms,
             IReadOnlyTextureSet textures,
+            EventBus eventBus,
             NativeBufferPool bufferPool
         )
         {
@@ -48,7 +50,7 @@ namespace DigBuild.Render.Worlds
 
             _skyRenderer = new SimpleSkyRenderer(world);
             _worldRenderers = rendererProvider(world);
-            _selectionBoxRenderer = new SelectionBoxRenderer(rayCastingContext);
+            _selectionBoxRenderer = new SelectionBoxRenderer(rayCastingContext, eventBus);
 
             _uniforms = new UniformBufferSet(uniforms, bufferPool);
         }
