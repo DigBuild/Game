@@ -73,26 +73,27 @@ namespace DigBuild.Render.Worlds
             }
 
             _hit = Raycast.Cast(_rayCastingContext, playerCamera.Ray);
-            if (_hit == null)
-                return;
             
             _vertexNativeBuffer.Clear();
 
             var vertexConsumer = new NativeBufferVertexConsumer<Vertex3>(_vertexNativeBuffer);
-            var evt = _eventBus.Post(new BlockHighlightEvent(vertexConsumer));
-            if (!evt.Handled)
-                GenerateBoundingBoxGeometry(vertexConsumer, _hit.Bounds);
+            var evt = _eventBus.Post(new BlockHighlightEvent(vertexConsumer, _hit));
+            if (!evt.Handled && _hit != null)
+                GenerateBoundingBoxGeometry(vertexConsumer, _hit.Bounds + _hit.Position);
+
+            if (_vertexNativeBuffer.Count == 0)
+                return;
 
             _vertexBufferWriter.Write(_vertexNativeBuffer);
                 
-            _uniformNativeBuffer[0].ModelView = Matrix4x4.CreateTranslation(_hit.Position) * worldView.Camera.Transform;
+            _uniformNativeBuffer[0].ModelView = worldView.Camera.Transform;
             _uniformNativeBuffer[0].Projection = worldView.Projection;
             _uniformBuffer.Write(_uniformNativeBuffer);
         }
         
         public void Record(RenderContext context, CommandBufferRecorder cmd)
         {
-            if (_hit == null)
+            if (_vertexNativeBuffer.Count == 0)
                 return;
 
             cmd.Using(_pipeline, _uniformBinding, 0); 
