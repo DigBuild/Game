@@ -50,7 +50,7 @@ namespace DigBuild.Render.Worlds
 
             _skyRenderer = new SimpleSkyRenderer(world);
             _worldRenderers = rendererProvider(world);
-            _selectionBoxRenderer = new SelectionBoxRenderer(rayCastingContext, eventBus);
+            _selectionBoxRenderer = new SelectionBoxRenderer(rayCastingContext, world, eventBus);
 
             _uniforms = new UniformBufferSet(uniforms, bufferPool);
         }

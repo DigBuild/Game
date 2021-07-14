@@ -5,6 +5,7 @@ using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Render.Worlds;
+using DigBuild.Engine.Worlds;
 using DigBuild.Events;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Resource;
@@ -17,6 +18,7 @@ namespace DigBuild.Render.Worlds
     public sealed class SelectionBoxRenderer
     {
         private readonly IGridAlignedRayCastingContext<WorldRayCastContext.Hit> _rayCastingContext;
+        private readonly IReadOnlyWorld _world;
         private readonly EventBus _eventBus;
 
         private WorldRayCastContext.Hit? _hit;
@@ -32,10 +34,12 @@ namespace DigBuild.Render.Worlds
 
         public SelectionBoxRenderer(
             IGridAlignedRayCastingContext<WorldRayCastContext.Hit> rayCastingContext,
+            IReadOnlyWorld world,
             EventBus eventBus
         )
         {
             _rayCastingContext = rayCastingContext;
+            _world = world;
             _eventBus = eventBus;
 
             _uniformNativeBuffer.Add(default(SimpleTransform));
@@ -77,7 +81,7 @@ namespace DigBuild.Render.Worlds
             _vertexNativeBuffer.Clear();
 
             var vertexConsumer = new NativeBufferVertexConsumer<Vertex3>(_vertexNativeBuffer);
-            var evt = _eventBus.Post(new BlockHighlightEvent(vertexConsumer, _hit));
+            var evt = _eventBus.Post(new BlockHighlightEvent(vertexConsumer, _world, _hit));
             if (!evt.Handled && _hit != null)
                 GenerateBoundingBoxGeometry(vertexConsumer, _hit.Bounds + _hit.Position);
 
