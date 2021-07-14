@@ -76,28 +76,55 @@ namespace DigBuild.Render.Models.Geometry
             {
                 var rawGeometry = _partialGeometry.Prime();
                 var angleGetter = _angle.CompileDouble();
-                return new RawTransformGeometry(rawGeometry, _axis, angleGetter, _center);
+
+                Func<IReadOnlyDictionary<string, string>, Matrix4x4> transformGetter;
+                if (_angle.RequiredVariables.Any())
+                {
+                    transformGetter = data => CreateRotation(data, angleGetter, _axis, _center);
+                }
+                else
+                {
+                    var mat = CreateRotation(ImmutableDictionary<string, string>.Empty, angleGetter, _axis, _center);
+                    transformGetter = _ => mat;
+                }
+
+                return new RawTransformGeometry(rawGeometry, transformGetter);
+            }
+
+            private static Matrix4x4 CreateRotation(
+                IReadOnlyDictionary<string, string> data,
+                Func<IReadOnlyDictionary<string, string>, double> angleGetter,
+                Axis axis,
+                Vector3 center
+            )
+            {
+                var angle = angleGetter(data);
+                if (angle == 0)
+                    return Matrix4x4.Identity;
+
+                var rad = (float)(2 * Math.PI * angle / 360);
+                return axis switch
+                {
+                    Axis.X => Matrix4x4.CreateRotationX(rad, center),
+                    Axis.Y => Matrix4x4.CreateRotationY(rad, center),
+                    Axis.Z => Matrix4x4.CreateRotationZ(rad, center),
+                    _ => throw new InvalidOperationException()
+                };
             }
         }
 
         private sealed class RawTransformGeometry : IRawGeometry
         {
             private readonly IRawGeometry _rawGeometry;
-            private readonly Axis _axis;
-            private readonly Func<IReadOnlyDictionary<string, string>, double> _angleGetter;
-            private readonly Vector3 _center;
+            private readonly Func<IReadOnlyDictionary<string, string>, Matrix4x4> _transformGetter;
 
             public RawTransformGeometry(
                 IRawGeometry rawGeometry,
-                Axis axis,
-                Func<IReadOnlyDictionary<string, string>, double> angleGetter,
-                Vector3 center
+                Func<IReadOnlyDictionary<string, string>, Matrix4x4> transformGetter
             )
             {
                 _rawGeometry = rawGeometry;
-                _axis = axis;
-                _angleGetter = angleGetter;
-                _center = center;
+                _transformGetter = transformGetter;
             }
 
             public void LoadTextures(MultiSpriteLoader loader)
@@ -108,45 +135,33 @@ namespace DigBuild.Render.Models.Geometry
             public IGeometry Build()
             {
                 var geometry = _rawGeometry.Build();
-                return new TransformGeometry(geometry, _axis, _angleGetter, _center);
+                return new TransformGeometry(geometry, _transformGetter);
             }
         }
 
         private sealed class TransformGeometry : IGeometry
         {
             private readonly IGeometry _geometry;
-            private readonly Axis _axis;
-            private readonly Func<IReadOnlyDictionary<string, string>, double> _angleGetter;
-            private readonly Vector3 _center;
+            private readonly Func<IReadOnlyDictionary<string, string>, Matrix4x4> _transformGetter;
 
-            public TransformGeometry(IGeometry geometry, Axis axis, Func<IReadOnlyDictionary<string, string>, double> angleGetter, Vector3 center)
+            public TransformGeometry(IGeometry geometry, Func<IReadOnlyDictionary<string, string>, Matrix4x4> transformGetter)
             {
                 _geometry = geometry;
-                _axis = axis;
-                _angleGetter = angleGetter;
-                _center = center;
+                _transformGetter = transformGetter;
             }
 
             public void Add(IGeometryBuffer buffer, IReadOnlyModelData data, DirectionFlags visibleFaces)
             {
                 var jsonData = data.Get<JsonModelData>();
                 
-                var angle = _angleGetter(jsonData?.Data ?? ImmutableDictionary<string, string>.Empty);
-                if (angle != 0)
-                {
-                    var rad = (float)(2 * Math.PI * angle / 360);
-                    var mat = _axis switch
-                    {
-                        Axis.X => Matrix4x4.CreateRotationX(rad, _center),
-                        Axis.Y => Matrix4x4.CreateRotationY(rad, _center),
-                        Axis.Z => Matrix4x4.CreateRotationZ(rad, _center),
-                        _ => throw new InvalidOperationException()
-                    };
-                
-                    buffer.Transform = mat * buffer.Transform;
-                }
+                var mat = _transformGetter(jsonData?.Data ?? ImmutableDictionary<string, string>.Empty);
+
+                var prevTransform = buffer.Transform;
+                buffer.Transform = mat * prevTransform;
 
                 _geometry.Add(buffer, data, visibleFaces);
+
+                buffer.Transform = prevTransform;
             }
         }
     }
