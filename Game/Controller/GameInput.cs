@@ -10,6 +10,7 @@ namespace DigBuild.Controller
         private bool _keyW, _keyA, _keyS, _keyD, _keySpace;
         private uint _cursorX, _cursorY, _prevCursorX, _prevCursorY;
         private bool _btnL, _btnR;
+        private double _accumulatedScroll;
 
         private bool _keyQ;
         public static bool ReRender;
@@ -61,6 +62,11 @@ namespace DigBuild.Controller
                 _btnR = action == MouseAction.Press;
         }
 
+        public void OnScrollEvent(double xOffset, double yOffset)
+        {
+            _accumulatedScroll += yOffset;
+        }
+
         public void Update()
         {
             Platform.Platform.InputContext.Update();
@@ -87,12 +93,19 @@ namespace DigBuild.Controller
             PrevSwapUp = SwapUp;
             PrevSwapDown = SwapDown;
             if (hasController)
+            {
                 (SwapUp, CycleRight, SwapDown, CycleLeft) = _controller!.Hats[0];
+            }
             else
-                SwapUp = CycleRight = SwapDown = CycleLeft = false;
+            {
+                SwapUp = SwapDown = false;
+                CycleRight = _accumulatedScroll > 0;
+                CycleLeft = _accumulatedScroll < 0;
+            }
 
             _prevCursorX = _cursorX;
             _prevCursorY = _cursorY;
+            _accumulatedScroll = 0;
         }
 
         private static float Bias(float value)

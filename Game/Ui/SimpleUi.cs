@@ -58,6 +58,12 @@ namespace DigBuild.Ui
             return !PassEventsThrough;
         }
 
+        public bool OnScrollEvent(double xOffset, double yOffset)
+        {
+            _root.OnScrollEvent(_context, xOffset, yOffset);
+            return !PassEventsThrough;
+        }
+
         public bool OnKeyboardEvent(uint code, KeyboardAction action)
         {
             if (_context.KeyboardEventDelegate != null)

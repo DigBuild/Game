@@ -173,6 +173,13 @@ namespace DigBuild.Ui
                     break;
         }
 
+        public void OnScrollEvent(double xOffset, double yOffset)
+        {
+            foreach (var ui in _uis)
+                if (ui.OnScrollEvent(xOffset, yOffset))
+                    break;
+        }
+
         public void OnKeyboardEvent(uint code, KeyboardAction action)
         {
             foreach (var ui in _uis)

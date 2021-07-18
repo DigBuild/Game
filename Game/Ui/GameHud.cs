@@ -184,6 +184,16 @@ namespace DigBuild.Ui
             return true;
         }
 
+        public bool OnScrollEvent(double xOffset, double yOffset)
+        {
+            if (!_isMouseFree && _isTop)
+                _controller.InputController.OnScrollEvent(xOffset, yOffset);
+            else
+                _ui.OnScrollEvent(_context, xOffset, yOffset);
+
+            return true;
+        }
+
         public bool OnKeyboardEvent(uint code, KeyboardAction action)
         {
             if (code == 56)

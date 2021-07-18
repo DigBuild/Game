@@ -16,6 +16,7 @@ namespace DigBuild.Ui
 
         bool OnCursorMoved(int x, int y);
         bool OnMouseEvent(uint button, MouseAction action);
+        bool OnScrollEvent(double xOffset, double yOffset);
         bool OnKeyboardEvent(uint code, KeyboardAction action);
 
         void OnLayerAdded();

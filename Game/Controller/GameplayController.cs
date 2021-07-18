@@ -171,6 +171,7 @@ namespace DigBuild.Controller
             {
                 surface.InputContext.ConsumeCursorEvents(OnCursorMoved);
                 surface.InputContext.ConsumeMouseEvents(OnMouseEvent);
+                surface.InputContext.ConsumeScrollEvents(OnScrollEvent);
                 surface.InputContext.ConsumeKeyboardEvents(OnKeyboardEvent);
             }
 
@@ -210,6 +211,11 @@ namespace DigBuild.Controller
         {
             UiManager.OnMouseEvent(button, action);
             // _inputController.OnMouseEvent(button, action);
+        }
+
+        private void OnScrollEvent(double xOffset, double yOffset)
+        {
+            UiManager.OnScrollEvent(xOffset, yOffset);
         }
 
         private void OnKeyboardEvent(uint code, KeyboardAction action)
