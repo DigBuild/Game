@@ -1,17 +1,40 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DigBuild.Content.Behaviors;
 using DigBuild.Engine.Items;
+using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
 using DigBuild.Recipes;
 
 namespace DigBuild.Content.Blocks
 {
-    internal sealed class CrafterBlockData : IData<CrafterBlockData>, IFindCraftingRecipeBehavior, ICraftingUiBehavior
+    internal sealed class CrafterBlockData : IData<CrafterBlockData>, IChangeNotifier, IFindCraftingRecipeBehavior, ICraftingUiBehavior
     {
-        public IReadOnlyList<InventorySlot> ShapedSlots { get; } = new InventorySlot[]{new(), new(), new(), new(), new(), new(), new()};
-        public IReadOnlyList<InventorySlot> ShapelessSlots { get; } = new InventorySlot[]{new(), new(), new(), new()};
+        private List<InventorySlot> _shapedSlots = new()
+        {
+            new InventorySlot(),
+            new InventorySlot(),
+            new InventorySlot(),
+            new InventorySlot(),
+            new InventorySlot(),
+            new InventorySlot(),
+            new InventorySlot(),
+        };
+        private List<InventorySlot> _shapelessSlots = new()
+        {
+            new InventorySlot(),
+            new InventorySlot(),
+            new InventorySlot(),
+            new InventorySlot(),
+        };
+        private InventorySlot _outputSlot = new();
+
+        public event Action? Changed;
+
+        public IReadOnlyList<InventorySlot> ShapedSlots => _shapedSlots;
+        public IReadOnlyList<InventorySlot> ShapelessSlots => _shapelessSlots;
         public InventorySlot CatalystSlot { get; } = new();
-        public InventorySlot OutputSlot { get; } = new();
+        public InventorySlot OutputSlot => _outputSlot;
 
         public ICraftingRecipe? ActiveRecipe
         {
@@ -31,5 +54,12 @@ namespace DigBuild.Content.Blocks
                 copy.ShapedSlots[i].TrySetItem(ShapedSlots[i].Item.Copy());
             return copy;
         }
+
+        public static ISerdes<CrafterBlockData> Serdes { get; } = new CompositeSerdes<CrafterBlockData>()
+        {
+            { 1u, data => data._shapedSlots, SimpleSerdes.OfList(InventorySlot.Serdes) },
+            { 2u, data => data._shapelessSlots, SimpleSerdes.OfList(InventorySlot.Serdes) },
+            { 3u, data => data._outputSlot, InventorySlot.Serdes },
+        };
     }
 }

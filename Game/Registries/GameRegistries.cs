@@ -163,7 +163,11 @@ namespace DigBuild.Registries
             
             var items = manager.CreateRegistryOf<Item>(new ResourceName(DigBuildGame.Domain, "items"));
             items.Building += reg => bus.Post(new RegistryBuildingEvent<Item>(reg));
-            items.Built += reg => Items = reg;
+            items.Built += reg =>
+            {
+                Items = reg;
+                BuiltInRegistries.Items = reg;
+            };
 
             
             var entityEvents = manager.CreateExtendedRegistryOfTypes<IEntityEvent, EntityEventInfo>(

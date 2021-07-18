@@ -125,6 +125,7 @@ namespace DigBuild.Controller
             inventory.Hotbar[5].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "log")!, 10));
             inventory.Hotbar[6].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "log")!, 15));
             inventory.Hotbar[7].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "log")!, 93));
+            inventory.Hotbar[8].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "crafter")!, 4));
         }
 
         public void Dispose()

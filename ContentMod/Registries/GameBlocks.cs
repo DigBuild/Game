@@ -7,6 +7,7 @@ using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Registries;
+using DigBuild.Platform.Resource;
 using DigBuild.Render.Models.Json;
 
 namespace DigBuild.Content.Registries
@@ -121,7 +122,10 @@ namespace DigBuild.Content.Registries
 
             Crafter = registry.Create(DigBuildGame.Domain, "crafter", builder =>
                 {
-                    var data = builder.Add<CrafterBlockData>();
+                    var data = builder.Add(
+                        new ResourceName(DigBuildGame.Domain, "crafter"),
+                        CrafterBlockData.Serdes
+                    );
                     builder.Attach(new FindCraftingRecipeBehavior(), data);
                     builder.Attach(new CraftingUiBehavior(), data);
 
