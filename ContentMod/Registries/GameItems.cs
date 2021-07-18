@@ -10,6 +10,7 @@ using DigBuild.Engine.Math;
 using DigBuild.Engine.Registries;
 using DigBuild.Items;
 using DigBuild.Platform.Resource;
+using DigBuild.Render.Models.Json;
 
 namespace DigBuild.Content.Registries
 {
@@ -39,10 +40,22 @@ namespace DigBuild.Content.Registries
             Dirt = registry.Create(new ResourceName(DigBuildGame.Domain, "dirt"),
                 BlockPlacement(() => GameBlocks.Dirt)
             );
-            Grass = registry.Create(new ResourceName(DigBuildGame.Domain, "grass"),
+            Grass = registry.Create(new ResourceName(DigBuildGame.Domain, "grass"), builder =>
+                {
+                    builder.Attach(new CustomItemModelDataBehavior<JsonModelData>((item, data) =>
+                    {
+                        data["angle"] = "0";
+                    }));
+                },
                 BlockPlacement(() => GameBlocks.Grass)
             );
-            Sand = registry.Create(new ResourceName(DigBuildGame.Domain, "sand"),
+            Sand = registry.Create(new ResourceName(DigBuildGame.Domain, "sand"), builder =>
+                {
+                    builder.Attach(new CustomItemModelDataBehavior<JsonModelData>((item, data) =>
+                    {
+                        data["angle"] = "0";
+                    }));
+                },
                 BlockPlacement(() => GameBlocks.Sand)
             );
             Stone = registry.Create(new ResourceName(DigBuildGame.Domain, "stone"),
