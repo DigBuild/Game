@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Items;
+using DigBuild.Engine.Math;
 using DigBuild.Engine.Particles;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Render;
@@ -83,8 +84,15 @@ namespace DigBuild.Controller
             
             var config = Config.Load("server/config.json");
 
+            Dictionary<ChunkPos, BlockChunkRenderer> blockChunkRenderers = new();
+            void NotifyChunkReRender(ChunkPos pos)
+            {
+                if (blockChunkRenderers.TryGetValue(pos, out var r))
+                    r.OnChanged();
+            }
+
             var generator = new WorldGenerator(game.TickSource, config.Worldgen.Features, 0);
-            _world = new World(game.TickSource, generator, pos => new RegionStorage(pos), _game.EventBus);
+            _world = new World(game.TickSource, generator, pos => new RegionStorage(pos), _game.EventBus, NotifyChunkReRender);
             RayCastContext = new WorldRayCastContext(World);
             
             _particleSystems = GameRegistries.ParticleSystems.Values.Select(d => d.System).ToImmutableList();
@@ -97,10 +105,14 @@ namespace DigBuild.Controller
                     new WorldTimeInjector(world),
                     new ChunkWorldRenderer(
                         world, _game.EventBus,
-                        chunk => ImmutableList.Create<IChunkRenderer>(
-                            new BlockChunkRenderer(world, chunk, _game.ModelManager.BlockModels, _game.BufferPool)
-                        )
-                    ),
+                        chunk =>
+                        {
+                            var bcr = new BlockChunkRenderer(world, chunk, _game.ModelManager.BlockModels, _game.BufferPool);
+                            blockChunkRenderers[chunk.Position] = bcr;
+                            return ImmutableList.Create<IChunkRenderer>(
+                                bcr
+                            );
+                        }),
                     new EntityWorldRenderer(_game.EventBus, _game.ModelManager.EntityModels, _game.BufferPool),
                     new ParticleWorldRenderer(_particleRenderers)
                 ),

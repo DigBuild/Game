@@ -6,14 +6,17 @@ using DigBuild.Engine.Events;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Ticking;
+using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Worlds
 {
     public sealed class World : WorldBase
     {
-        private readonly EventBus _eventBus;
         public const float GravityValue = 2.5f * TickSource.TickDurationSeconds;
         public const ulong DayDuration = 1000; // Ticks
+
+        private readonly EventBus _eventBus;
+        private readonly Action<ChunkPos> _notifyChunkReRender;
         
         private ulong _absoluteTime;
 
@@ -21,21 +24,27 @@ namespace DigBuild.Worlds
         public override float Gravity => GravityValue;
         public override Scheduler TickScheduler { get; }
         
-        public event Action<BlockPos>? BlockChanged;
-
         public World(
             IStableTickSource tickSource,
             IChunkProvider generator,
             Func<RegionPos, IRegionStorage> storageProvider,
-            EventBus eventBus
+            EventBus eventBus,
+            Action<ChunkPos> notifyChunkReRender
         ) : base(tickSource, generator, storageProvider, eventBus)
         {
             _eventBus = eventBus;
+            _notifyChunkReRender = notifyChunkReRender;
             TickScheduler = new Scheduler(tickSource);
             tickSource.Tick += () =>
             {
                 _absoluteTime++;
             };
+
+            _eventBus.Subscribe<BuiltInChunkEvent.Loaded>(evt =>
+            {
+                foreach (var direction in Directions.Horizontal)
+                    MarkChunkForReRender(evt.Chunk.Position.Offset(direction));
+            });
         }
 
         public override void OnBlockChanged(BlockPos pos)
@@ -46,7 +55,6 @@ namespace DigBuild.Worlds
                 var block = this.GetBlock(offset);
                 block?.OnNeighborChanged(this, offset, face.GetOpposite());
             }
-            BlockChanged?.Invoke(pos);
         }
 
         public override void OnEntityAdded(EntityInstance entity)
@@ -57,6 +65,27 @@ namespace DigBuild.Worlds
         public override void OnEntityRemoving(EntityInstance entity)
         {
             _eventBus.Post(new BuiltInEntityEvent.LeavingWorld(entity));
+        }
+
+        public override void MarkChunkForReRender(ChunkPos pos)
+        {
+            _notifyChunkReRender(pos);
+        }
+
+        public override void MarkBlockForReRender(BlockPos pos)
+        {
+            var (chunkPos, (subX, _, subZ)) = pos;
+            MarkChunkForReRender(chunkPos);
+
+            if (subX == 0)
+                MarkChunkForReRender(chunkPos.Offset(Direction.NegX));
+            else if (subX == WorldDimensions.ChunkSize - 1)
+                MarkChunkForReRender(chunkPos.Offset(Direction.PosX));
+
+            if (subZ == 0)
+                MarkChunkForReRender(chunkPos.Offset(Direction.NegZ));
+            else if (subZ == WorldDimensions.ChunkSize - 1)
+                MarkChunkForReRender(chunkPos.Offset(Direction.PosZ));
         }
     }
 }
