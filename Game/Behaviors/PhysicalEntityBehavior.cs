@@ -175,8 +175,8 @@ namespace DigBuild.Behaviors
             {
                 PrevPitch = Pitch;
                 PrevYaw = Yaw;
-                AngularVelocityPitch = pitchDelta * pitchDelta * MathF.Sign(pitchDelta) * _behavior._rotationSpeed;
-                AngularVelocityYaw = yawDelta * yawDelta * MathF.Sign(yawDelta) * _behavior._rotationSpeed;
+                AngularVelocityPitch = pitchDelta * _behavior._rotationSpeed;
+                AngularVelocityYaw = yawDelta * _behavior._rotationSpeed;
 
                 Pitch = MathF.Max(
                     -MathF.PI / 2,
