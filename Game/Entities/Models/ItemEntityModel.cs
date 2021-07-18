@@ -39,7 +39,8 @@ namespace DigBuild.Entities.Models
                 return;
             
             buffer.Transform = GetTransform(itemInfo.JoinWorldTime, position) * buffer.Transform;
-            model.AddGeometry(buffer, data, ItemModelTransform.None, partialTick);
+            var itemData = itemInfo.Item.Get(ModelData.ItemAttribute);
+            model.AddGeometry(buffer, itemData, ItemModelTransform.None, partialTick);
         }
     }
 }
