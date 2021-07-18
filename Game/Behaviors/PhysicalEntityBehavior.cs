@@ -72,7 +72,7 @@ namespace DigBuild.Behaviors
             modelData.CreateOrExtend<PhysicalEntityModelData>(d =>
             {
                 d.Position = data.Position;
-                d.Velocity = data.Velocity;
+                d.Velocity = data.Capability!.PrevVelocity;
             });
             return modelData;
         }
