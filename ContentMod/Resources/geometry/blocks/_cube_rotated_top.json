@@ -11,7 +11,7 @@
         "neg_z": "${textures/neg_z}",
         "pos_z": "${textures/pos_z}"
       },
-      "layer": "digbuild:solid"
+      "layer": "${layer|digbuild:solid}"
     },
     {
       "_type": "digbuild:transform",
@@ -23,7 +23,7 @@
         "textures": {
           "pos_y": "${textures/pos_y}"
         },
-        "layer": "digbuild:solid"
+        "layer": "${layer|digbuild:solid}"
       }
     }
   ]

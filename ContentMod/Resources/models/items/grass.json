@@ -1,0 +1,19 @@
+{
+  "variants": [
+    {
+      "when": {},
+      "geometry": "digbuild:blocks/_cube_rotated_top",
+      "variables": {
+        "textures": {
+          "neg_x": "digbuild:blocks/grass_side",
+          "pos_x": "digbuild:blocks/grass_side",
+          "neg_y": "digbuild:blocks/dirt",
+          "pos_y": "digbuild:blocks/grass",
+          "neg_z": "digbuild:blocks/grass_side",
+          "pos_z": "digbuild:blocks/grass_side"
+        },
+        "angle": "0"
+      }
+    }
+  ]
+}

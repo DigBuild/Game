@@ -40,22 +40,10 @@ namespace DigBuild.Content.Registries
             Dirt = registry.Create(new ResourceName(DigBuildGame.Domain, "dirt"),
                 BlockPlacement(() => GameBlocks.Dirt)
             );
-            Grass = registry.Create(new ResourceName(DigBuildGame.Domain, "grass"), builder =>
-                {
-                    builder.Attach(new CustomItemModelDataBehavior<JsonModelData>((item, data) =>
-                    {
-                        data["angle"] = "0";
-                    }));
-                },
+            Grass = registry.Create(new ResourceName(DigBuildGame.Domain, "grass"),
                 BlockPlacement(() => GameBlocks.Grass)
             );
-            Sand = registry.Create(new ResourceName(DigBuildGame.Domain, "sand"), builder =>
-                {
-                    builder.Attach(new CustomItemModelDataBehavior<JsonModelData>((item, data) =>
-                    {
-                        data["angle"] = "0";
-                    }));
-                },
+            Sand = registry.Create(new ResourceName(DigBuildGame.Domain, "sand"),
                 BlockPlacement(() => GameBlocks.Sand)
             );
             Stone = registry.Create(new ResourceName(DigBuildGame.Domain, "stone"),

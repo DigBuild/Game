@@ -55,6 +55,13 @@ namespace DigBuild.Render
         {
             foreach (var item in GameRegistries.Items.Values)
             {
+                var rawJsonModel = resourceManager.Get<RawJsonModel>(item.Name.Domain, $"items/{item.Name.Path}");
+                if (rawJsonModel != null)
+                {
+                    _rawItemModels[item] = rawJsonModel;
+                    continue;
+                }
+
                 if (GameRegistries.Blocks.TryGet(item.Name, out var block))
                 {
                     if (_rawBlockModels.TryGetValue(block, out var rawModel) && rawModel is IRawModel<IItemModel> rawItemModel)
@@ -64,13 +71,6 @@ namespace DigBuild.Render
                     }
 
                     _rawItemModels[item] = missingModel;
-                    continue;
-                }
-
-                var rawJsonModel = resourceManager.Get<RawJsonModel>(item.Name.Domain, $"items/{item.Name.Path}");
-                if (rawJsonModel != null)
-                {
-                    _rawItemModels[item] = rawJsonModel;
                     continue;
                 }
 
