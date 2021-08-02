@@ -12,7 +12,7 @@ namespace DigBuild.Ui
         private Context _context = null!;
 
         public bool PassEventsThrough { get; set; } = true;
-        
+
         public Action<IRenderTarget>? Resized = null;
         public Action? Closed = null;
 
@@ -20,6 +20,7 @@ namespace DigBuild.Ui
         public Action? LayerRemoved = null;
 
         public CursorMode CursorMode { get; set; } = CursorMode.Normal;
+        public bool Pause { get; set; } = false;
 
         public SimpleUi(IUiElement root)
         {

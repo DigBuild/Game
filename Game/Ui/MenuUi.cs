@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using DigBuild.Engine.Ui;
 using DigBuild.Engine.Ui.Elements;
 using DigBuild.Render;
 
@@ -21,7 +20,8 @@ namespace DigBuild.Ui
                         null, new Vector4(0.0f, 0.0f, 0.0f, 0.95f)
                     ));
                 },
-                PassEventsThrough = false
+                PassEventsThrough = false,
+                Pause = true
             };
         }
     }

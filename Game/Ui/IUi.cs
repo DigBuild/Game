@@ -7,6 +7,7 @@ namespace DigBuild.Ui
     public interface IUi
     {
         CursorMode CursorMode { get; }
+        bool Pause { get; }
 
         void OnOpened(UiManager manager);
         void OnResized(IRenderTarget target);

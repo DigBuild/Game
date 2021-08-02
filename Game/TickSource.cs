@@ -10,6 +10,7 @@ namespace DigBuild
         public const float TickDurationSeconds = 1f / TicksPerSecond;
         public const float TickDurationMilliseconds = 1000f / TicksPerSecond;
         private const long SystemTicksPerGameTick = TimeSpan.TicksPerSecond / TicksPerSecond;
+        private static readonly TimeSpan TickTimeSpan = new(SystemTicksPerGameTick);
 
         private Thread? _thread;
         private Interpolator _interpolator;
@@ -18,6 +19,8 @@ namespace DigBuild
         public event Action? Tick;
         public IInterpolator CurrentTick => _interpolator;
         public bool Running => _thread != null;
+
+        public bool Paused { get; set; }
 
         public void Start()
         {
@@ -29,6 +32,9 @@ namespace DigBuild
             {
                 while (!_shouldStop)
                 {
+                    while (Paused)
+                        Thread.Sleep(TickTimeSpan);
+
                     long elapsed;
                     lock (this)
                     {

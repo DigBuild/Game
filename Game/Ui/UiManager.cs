@@ -59,6 +59,11 @@ namespace DigBuild.Ui
             Open(MenuUi.Create());
         }
 
+        private void UpdatePauseState()
+        {
+            Controller.Game.TickSource.Paused = _uis.Any(ui => ui.Pause);
+        }
+
         public void Open(IUi ui)
         {
             var hasTop = _uis.TryPeek(out var top);
@@ -71,6 +76,8 @@ namespace DigBuild.Ui
 
             if (hasTop)
                 top!.OnLayerAdded();
+
+            UpdatePauseState();
         }
 
         public void Close(IUi ui)
@@ -83,6 +90,8 @@ namespace DigBuild.Ui
 
             if (_uis.TryPeek(out var top2))
                 top2.OnLayerRemoved();
+
+            UpdatePauseState();
         }
 
         public void Setup(RenderContext context, ResourceManager resourceManager, RenderStage renderStage)

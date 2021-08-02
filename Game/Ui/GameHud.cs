@@ -53,6 +53,7 @@ namespace DigBuild.Ui
         private bool _isMouseFree;
 
         public CursorMode CursorMode => _isMouseFree ? CursorMode.Normal : CursorMode.Raw;
+        public bool Pause => false;
 
         public GameHud(GameplayController controller)
         {
