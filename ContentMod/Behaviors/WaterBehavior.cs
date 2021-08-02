@@ -1,9 +1,9 @@
 ﻿using System;
 using DigBuild.Content.Blocks.Models;
 using DigBuild.Engine.Blocks;
-using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render.Models;
+using DigBuild.Engine.Worlds.Impl;
 
 namespace DigBuild.Content.Behaviors
 {

@@ -3,10 +3,10 @@ using DigBuild.Blocks;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Events;
-using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Worlds;
+using DigBuild.Engine.Worlds.Impl;
 
 namespace DigBuild.Worlds
 {

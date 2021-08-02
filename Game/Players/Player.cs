@@ -3,8 +3,8 @@ using System.Numerics;
 using DigBuild.Behaviors;
 using DigBuild.Controller;
 using DigBuild.Engine.Entities;
-using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
+using DigBuild.Engine.Worlds.Impl;
 using DigBuild.Platform.Resource;
 using DigBuild.Registries;
 

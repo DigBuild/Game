@@ -2,10 +2,10 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using DigBuild.Engine.Collections;
-using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Storage;
 using DigBuild.Engine.Worlds;
+using DigBuild.Engine.Worlds.Impl;
 
 namespace DigBuild.Worlds
 {

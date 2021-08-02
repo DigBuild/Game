@@ -4,7 +4,6 @@ using System.Numerics;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
-using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Render.Models;
@@ -12,6 +11,7 @@ using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
 using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Worlds;
+using DigBuild.Engine.Worlds.Impl;
 using DigBuild.Registries;
 
 namespace DigBuild.Behaviors
