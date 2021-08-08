@@ -27,7 +27,7 @@ namespace DigBuild.Worlds
         public World(
             IStableTickSource tickSource,
             IChunkProvider generator,
-            Func<RegionPos, IRegionStorage> storageProvider,
+            Func<IWorld, RegionPos, IRegionStorage> storageProvider,
             EventBus eventBus,
             Action<ChunkPos> notifyChunkReRender
         ) : base(tickSource, generator, storageProvider, eventBus)

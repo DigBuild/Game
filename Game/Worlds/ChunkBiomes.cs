@@ -62,7 +62,7 @@ namespace DigBuild.Worlds
                     bw.Write(registryName.ToString());
                 }
             },
-            stream =>
+            (stream, _) =>
             {
                 var br = new BinaryReader(stream);
                 var biomes = new ChunkBiomes();

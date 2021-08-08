@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using DigBuild.Engine.Collections;
 using DigBuild.Engine.Math;
+using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
 using DigBuild.Engine.Worlds;
 using DigBuild.Engine.Worlds.Impl;
@@ -11,12 +12,14 @@ namespace DigBuild.Worlds
 {
     public sealed class RegionStorage : IRegionStorage
     {
+        private readonly IWorld _world;
         private readonly LockStore<RegionChunkPos> _locks = new();
 
         public RegionPos Position { get; }
 
-        public RegionStorage(RegionPos position)
+        public RegionStorage(IWorld world, RegionPos position)
         {
+            _world = world;
             Position = position;
         }
 
@@ -35,7 +38,10 @@ namespace DigBuild.Worlds
                 }
 
                 var stream = File.OpenRead(path);
-                chunk = Chunk.Serdes.Deserialize(stream);
+                chunk = Chunk.Serdes.Deserialize(stream, new SimpleDeserializationContext()
+                {
+                    _world
+                });
                 stream.Close();
 
                 return true;

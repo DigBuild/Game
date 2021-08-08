@@ -92,7 +92,7 @@ namespace DigBuild.Controller
             }
 
             var generator = new WorldGenerator(game.TickSource, config.Worldgen.Features, 0);
-            _world = new World(game.TickSource, generator, pos => new RegionStorage(pos), _game.EventBus, NotifyChunkReRender);
+            _world = new World(game.TickSource, generator, (world, pos) => new RegionStorage(world, pos), _game.EventBus, NotifyChunkReRender);
             RayCastContext = new WorldRayCastContext(World);
             
             _particleSystems = GameRegistries.ParticleSystems.Values.Select(d => d.System).ToImmutableList();

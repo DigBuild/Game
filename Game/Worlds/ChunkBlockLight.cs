@@ -113,7 +113,7 @@ namespace DigBuild.Worlds
 
         public static ISerdes<IChunkBlockLight> Serdes { get; } = new SimpleSerdes<IChunkBlockLight>(
             (stream, light) => { },
-            stream => new ChunkBlockLight()
+            (stream, context) => new ChunkBlockLight()
         );
     }
 }
