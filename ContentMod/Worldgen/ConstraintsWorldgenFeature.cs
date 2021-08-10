@@ -10,35 +10,31 @@ namespace DigBuild.Content.Worldgen
     public sealed class ConstraintsWorldgenFeature : IWorldgenFeature
     {
         private const uint ChunkSize = 16;
-
-        private readonly FastNoiseLite _inlandnessNoise = new();
+        
+        
+        private readonly SimplexNoise _inlandnessNoise = new(12315612135, 0.005f, 3, gain: 0.5f);
+        private readonly SimplexNoise _temperatureNoise = new(522318133, 0.004f, 2, gain: 0.7f);
 
         public IImmutableSet<IWorldgenAttribute> InputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>();
         public IImmutableSet<IWorldgenAttribute> OutputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>();
-
-        public ConstraintsWorldgenFeature()
-        {
-            _inlandnessNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
-            _inlandnessNoise.SetFrequency(0.005f);
-            _inlandnessNoise.SetFractalType(FastNoiseLite.FractalType.FBm);
-            _inlandnessNoise.SetFractalOctaves(3);
-            _inlandnessNoise.SetFractalLacunarity(2.0f);
-            _inlandnessNoise.SetFractalGain(0.5f);
-        }
-
+        
         public void Describe(ChunkDescriptionContext context)
         {
             var inlandness = Grid<float>.Builder(ChunkSize);
+            var temperature = Grid<float>.Builder(ChunkSize);
             
-            _inlandnessNoise.SetSeed((int) context.Seed);
+            _inlandnessNoise.Seed = context.Seed;
+            _temperatureNoise.Seed = context.Seed;
             for (var x = 0; x < ChunkSize; x++)
             for (var z = 0; z < ChunkSize; z++)
             {
                 var (nx, nz) = (context.Position.X * ChunkSize + x, context.Position.Z * ChunkSize + z);
-                inlandness[x, z] = _inlandnessNoise.GetNoise(nx, nz) * 0.5f + 0.5f;
+                inlandness[x, z] = _inlandnessNoise[nx, nz] * 0.5f + 0.5f;
+                temperature[x, z] = _temperatureNoise[nx, nz] * 0.5f + 0.5f;
             }
 
             context.Submit(WorldgenAttributes.Inlandness, inlandness.Build());
+            context.Submit(WorldgenAttributes.Temperature, temperature.Build());
         }
 
         public void Populate(ChunkDescriptor descriptor, IChunk chunk)

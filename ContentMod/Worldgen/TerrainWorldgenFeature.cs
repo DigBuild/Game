@@ -63,20 +63,17 @@ namespace DigBuild.Content.Worldgen
             var height = descriptor.Get(WorldgenAttributes.TerrainHeight);
             var inBiome = descriptor.Get(WorldgenAttributes.Biome);
             for (var x = 0; x < ChunkSize; x++)
+            for (var z = 0; z < ChunkSize; z++)
             {
-                for (var z = 0; z < ChunkSize; z++)
-                {
-                    var relativeHeight = height[x, z];
-                    if (relativeHeight <= 0)
-                        continue;
-                    var localHeight = Math.Min(relativeHeight, ChunkSize);
-                    var biome = inBiome[x, z];
-                    var surfaceBlock = biome.Get(BiomeAttributes.SurfaceBlock, _surfaceBlock);
-                    for (var y = 0; y < localHeight - 1; y++)
-                        chunk.SetBlock(new ChunkBlockPos(x, y, z), _terrainBlock);
-                    
-                    chunk.SetBlock(new ChunkBlockPos(x, (int) (localHeight - 1), z), localHeight == relativeHeight ? surfaceBlock : _terrainBlock);
-                }
+                var relativeHeight = height[x, z];
+                if (relativeHeight <= 0)
+                    continue;
+                var biome = inBiome[x, z];
+                var surfaceBlock = biome.Get(BiomeAttributes.SurfaceBlock, _surfaceBlock);
+                for (var y = 0; y < relativeHeight - 1; y++)
+                    chunk.SetBlock(new ChunkBlockPos(x, y, z), _terrainBlock);
+
+                chunk.SetBlock(new ChunkBlockPos(x, (int)(relativeHeight - 1), z), surfaceBlock);
             }
         }
     }

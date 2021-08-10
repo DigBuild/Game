@@ -10,8 +10,9 @@ namespace DigBuild.Content.Registries
     public static class WorldgenAttributes
     {
         // Environment constraints
-
+        
         public static WorldgenAttribute<Grid<float>> Inlandness { get; private set; } = null!;
+        public static WorldgenAttribute<Grid<float>> Temperature { get; private set; } = null!;
         public static WorldgenAttribute<Grid<float>> Lushness { get; private set; } = null!;
 
 
@@ -23,11 +24,15 @@ namespace DigBuild.Content.Registries
         public static WorldgenAttribute<Grid<TerrainType>> TerrainType { get; private set; } = null!;
         
         public static WorldgenAttribute<Grid<ushort>> Tree { get; private set; } = null!;
+        
+        public static WorldgenAttribute<Grid<bool>> TallGrass { get; private set; } = null!;
+        public static WorldgenAttribute<Grid<bool>> Barley { get; private set; } = null!;
 
         internal static void Register(RegistryBuilder<IWorldgenAttribute> builder)
         {
             // Environment constraints
             Inlandness = builder.Create<Grid<float>>(new ResourceName(DigBuildGame.Domain, "inlandness"));
+            Temperature = builder.Create<Grid<float>>(new ResourceName(DigBuildGame.Domain, "temperature"));
             Lushness = builder.Create<Grid<float>>(new ResourceName(DigBuildGame.Domain, "lushness"));
             
             // Generation attributes
@@ -38,6 +43,9 @@ namespace DigBuild.Content.Registries
             TerrainType = builder.Create<Grid<TerrainType>>(new ResourceName(DigBuildGame.Domain, "terrain_type"));
             
             Tree = builder.Create<Grid<ushort>>(new ResourceName(DigBuildGame.Domain, "tree"));
+            
+            TallGrass = builder.Create<Grid<bool>>(new ResourceName(DigBuildGame.Domain, "tall_grass"));
+            Barley = builder.Create<Grid<bool>>(new ResourceName(DigBuildGame.Domain, "barley"));
         }
     }
 }

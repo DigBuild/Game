@@ -1,0 +1,11 @@
+{
+  "variants": [
+    {
+      "when": {},
+      "geometry": "digbuild:blocks/_cube_all_sides",
+      "variables": {
+        "texture": "digbuild:blocks/gravel"
+      }
+    }
+  ]
+}

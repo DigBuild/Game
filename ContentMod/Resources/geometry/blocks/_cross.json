@@ -1,0 +1,32 @@
+{
+  "elements": [
+    {
+      "_type": "digbuild:transform",
+      "rotation": { "y": "45" },
+      "element": {
+        "_type": "digbuild:cuboid",
+        "from": [ 0, 0, 0.5 ],
+        "to": [ 1, 1, 0.5 ],
+        "textures": {
+          "neg_z": "${texture}",
+          "pos_z": "${texture}"
+        },
+        "layer": "${layer|digbuild:solid}"
+      }
+    },
+    {
+      "_type": "digbuild:transform",
+      "rotation": { "y": "45" },
+      "element": {
+        "_type": "digbuild:cuboid",
+        "from": [ 0.5, 0, 0 ],
+        "to": [ 0.5, 1, 1 ],
+        "textures": {
+          "neg_x": "${texture}",
+          "pos_x": "${texture}"
+        },
+        "layer": "${layer|digbuild:solid}"
+      }
+    }
+  ]
+}

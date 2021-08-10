@@ -15,8 +15,9 @@ namespace DigBuild.Content.Worldgen
     {
         private const uint ChunkSize = 16;
         private const ushort Threshold = 12;
-
+        
         private readonly Block _waterBlock;
+        private readonly Block _iceBlock;
 
         public IImmutableSet<IWorldgenAttribute> InputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
             WorldgenAttributes.TerrainHeight
@@ -25,9 +26,10 @@ namespace DigBuild.Content.Worldgen
         public IImmutableSet<IWorldgenAttribute> OutputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
         );
 
-        public WaterWorldgenFeature(Block waterBlock)
+        public WaterWorldgenFeature(Block waterBlock, Block iceBlock)
         {
             _waterBlock = waterBlock;
+            _iceBlock = iceBlock;
         }
 
         public void Describe(ChunkDescriptionContext context)
@@ -37,6 +39,7 @@ namespace DigBuild.Content.Worldgen
         public void Populate(ChunkDescriptor descriptor, IChunk chunk)
         {
             var height = descriptor.Get(WorldgenAttributes.TerrainHeight);
+            var temperature = descriptor.Get(WorldgenAttributes.Temperature);
 
             for (var x = 0; x < ChunkSize; x++)
             for (var z = 0; z < ChunkSize; z++)
@@ -47,9 +50,11 @@ namespace DigBuild.Content.Worldgen
                 var localHeight = Math.Min(Threshold, ChunkSize);
                 for (var y = 0; y <= localHeight - 1; y++)
                 {
+                    var block = temperature[x, z] < 0.4f ? _iceBlock : _waterBlock;
+
                     var pos = new ChunkBlockPos(x, y, z);
                     if (chunk.GetBlock(pos) == null)
-                        chunk.SetBlock(pos, _waterBlock);
+                        chunk.SetBlock(pos, block);
                 }
             }
         }

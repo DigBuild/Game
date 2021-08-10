@@ -24,14 +24,17 @@ namespace DigBuild.Content.Registries
         public static Block Sand { get; private set; } = null!;
         public static Block Water { get; private set; } = null!;
         public static Block Stone { get; private set; } = null!;
+        public static Block Gravel { get; private set; } = null!;
+        public static Block Ice { get; private set; } = null!;
+        public static Block Snow { get; private set; } = null!;
         public static Block Log { get; private set; } = null!;
         public static Block LogSmall { get; private set; } = null!;
         public static Block Leaves { get; private set; } = null!;
         public static Block StoneStairs { get; private set; } = null!;
         public static Block Crafter { get; private set; } = null!;
         public static Block Campfire { get; private set; } = null!;
-        
-        public static Block Multiblock { get; private set; } = null!;
+        public static Block Tallgrass { get; private set; } = null!;
+        public static Block Barley { get; private set; } = null!;
         
         internal static void Register(RegistryBuilder<Block> registry)
         {
@@ -70,6 +73,15 @@ namespace DigBuild.Content.Registries
             );
             Stone = registry.Create(DigBuildGame.Domain, "stone",
                 Drops(() => GameItems.Stone)
+            );
+            Gravel = registry.Create(DigBuildGame.Domain, "gravel",
+                Drops(() => GameItems.Gravel)
+            );
+            Ice = registry.Create(DigBuildGame.Domain, "ice",
+                Drops(() => GameItems.Ice)
+            );
+            Snow = registry.Create(DigBuildGame.Domain, "snow",
+                Drops(() => GameItems.Snow)
             );
             Log = registry.Create(DigBuildGame.Domain, "log", builder =>
             {
@@ -148,11 +160,17 @@ namespace DigBuild.Content.Registries
                 Drops(() => GameItems.Campfire)
             );
             
-
-            Multiblock = registry.Create(DigBuildGame.Domain, "multiblock", builder =>
+            Tallgrass = registry.Create(DigBuildGame.Domain, "tallgrass", builder =>
             {
-                var data = builder.Add<MultiblockData>();
-                builder.Attach(new MultiblockBehavior(), data);
+                builder.Attach(new ColliderBehavior(ICollider.None));
+                builder.Attach(new RayColliderBehavior(new VoxelRayCollider(new AABB(0.125f, 0, 0.125f, 0.875f, 0.5f, 0.875f))));
+                builder.Attach(new NonSolidBehavior());
+            });
+            Barley = registry.Create(DigBuildGame.Domain, "barley", builder =>
+            {
+                builder.Attach(new ColliderBehavior(ICollider.None));
+                builder.Attach(new RayColliderBehavior(new VoxelRayCollider(new AABB(0.125f, 0, 0.125f, 0.875f, 0.5f, 0.875f))));
+                builder.Attach(new NonSolidBehavior());
             });
         }
 

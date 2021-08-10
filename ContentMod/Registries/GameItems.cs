@@ -20,6 +20,9 @@ namespace DigBuild.Content.Registries
         public static Item Grass { get; private set; } = null!;
         public static Item Sand { get; private set; } = null!;
         public static Item Stone { get; private set; } = null!;
+        public static Item Gravel { get; private set; } = null!;
+        public static Item Ice { get; private set; } = null!;
+        public static Item Snow { get; private set; } = null!;
         public static Item Log { get; private set; } = null!;
         public static Item LogSmall { get; private set; } = null!;
         public static Item Leaves { get; private set; } = null!;
@@ -31,7 +34,8 @@ namespace DigBuild.Content.Registries
         public static Item Sapling { get; private set; } = null!;
         public static Item Twig { get; private set; } = null!;
 
-        public static Item Multiblock { get; private set; } = null!;
+        public static Item Tallgrass { get; private set; } = null!;
+        public static Item Barley { get; private set; } = null!;
 
         public static Item Pouch { get; private set; } = null!;
 
@@ -48,6 +52,15 @@ namespace DigBuild.Content.Registries
             );
             Stone = registry.Create(new ResourceName(DigBuildGame.Domain, "stone"),
                 BlockPlacement(() => GameBlocks.Stone)
+            );
+            Gravel = registry.Create(new ResourceName(DigBuildGame.Domain, "gravel"),
+                BlockPlacement(() => GameBlocks.Gravel)
+            );
+            Ice = registry.Create(new ResourceName(DigBuildGame.Domain, "ice"),
+                BlockPlacement(() => GameBlocks.Ice)
+            );
+            Snow = registry.Create(new ResourceName(DigBuildGame.Domain, "snow"),
+                BlockPlacement(() => GameBlocks.Snow)
             );
             Log = registry.Create(new ResourceName(DigBuildGame.Domain, "log"),
                 BlockPlacement(() => GameBlocks.Log)
@@ -75,15 +88,12 @@ namespace DigBuild.Content.Registries
             });
             Twig = registry.Create(new ResourceName(DigBuildGame.Domain, "twig"));
             
-            Multiblock = registry.Create(new ResourceName(DigBuildGame.Domain, "multiblock"), builder =>
-            {
-                builder.Attach(new PlaceMultiblockBehavior(() => new Dictionary<Vector3I, Block>()
-                {
-                    [new Vector3I(0, 0, 0)] = GameBlocks.Multiblock,
-                    [new Vector3I(0, 0, 1)] = GameBlocks.Multiblock,
-                    [new Vector3I(0, 1, 1)] = GameBlocks.Multiblock,
-                }));
-            });
+            Tallgrass = registry.Create(new ResourceName(DigBuildGame.Domain, "tallgrass"), 
+                BlockPlacement(() => GameBlocks.Tallgrass)
+            );
+            Barley = registry.Create(new ResourceName(DigBuildGame.Domain, "barley"), 
+                BlockPlacement(() => GameBlocks.Barley)
+            );
             
             Pouch = registry.Create(new ResourceName(DigBuildGame.Domain, "pouch"), builder =>
             {

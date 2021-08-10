@@ -1,0 +1,11 @@
+{
+  "variants": [
+    {
+      "when": {},
+      "geometry": "digbuild:blocks/_cross",
+      "variables": {
+        "texture": "digbuild:blocks/barley"
+      }
+    }
+  ]
+}

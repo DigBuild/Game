@@ -30,17 +30,20 @@ namespace DigBuild.Worlds
 
         private void Tick()
         {
-            foreach (var chunk in _savedChunks)
+            lock (_savedChunks)
             {
-                using var lck = _locks.Lock(chunk.Position.RegionChunkPos);
+                foreach (var chunk in _savedChunks)
+                {
+                    using var lck = _locks.Lock(chunk.Position.RegionChunkPos);
 
-                var stream = File.Create(GetPath(chunk.Position.RegionChunkPos));
-                Chunk.Serdes.Serialize(stream, chunk);
-                stream.Flush();
-                stream.Close();
+                    var stream = File.Create(GetPath(chunk.Position.RegionChunkPos));
+                    Chunk.Serdes.Serialize(stream, chunk);
+                    stream.Flush();
+                    stream.Close();
+                }
+
+                _savedChunks.Clear();   
             }
-
-            _savedChunks.Clear();
         }
 
         public bool TryLoad(RegionChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
@@ -76,7 +79,8 @@ namespace DigBuild.Worlds
 
         public void Save(Chunk chunk)
         {
-            _savedChunks.Add(chunk);
+            lock (_savedChunks)
+                _savedChunks.Add(chunk);
         }
 
         private string GetPath(RegionChunkPos pos)
