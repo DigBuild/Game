@@ -30,10 +30,13 @@ namespace DigBuild
             _shouldStop = false;
             _thread = new Thread(() =>
             {
-                while (!_shouldStop)
+                while (true)
                 {
-                    while (Paused)
+                    while (Paused && !_shouldStop)
                         Thread.Sleep(TickTimeSpan);
+                    
+                    if (_shouldStop)
+                        break;
 
                     long elapsed;
                     lock (this)
