@@ -204,7 +204,11 @@ namespace DigBuild.Registries
             var entities = manager.CreateRegistryOf<Entity>(new ResourceName(DigBuildGame.Domain, "entities"));
             entities.Building += GameEntities.Register;
             entities.Building += reg => bus.Post(new RegistryBuildingEvent<Entity>(reg));
-            entities.Built += reg => Entities = reg;
+            entities.Built += reg =>
+            {
+                Entities = reg;
+                BuiltInRegistries.Entities = reg;
+            };
 
 
             var worldgenAttributes = manager.CreateRegistryOf<IWorldgenAttribute>(new ResourceName(DigBuildGame.Domain, "worldgen_attributes"));

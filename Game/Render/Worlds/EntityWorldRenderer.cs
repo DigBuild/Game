@@ -7,6 +7,8 @@ using DigBuild.Engine.Events;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Render.Models;
 using DigBuild.Engine.Render.Worlds;
+using DigBuild.Engine.Worlds;
+using DigBuild.Engine.Worlds.Impl;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Util;
 
@@ -53,7 +55,7 @@ namespace DigBuild.Render.Worlds
             lock (_removedEntities)
                 _removedEntities.Add(evt.Entity);
         }
-
+        
         public void Update(RenderContext context, WorldView worldView, float partialTick)
         {
             lock (_addedEntities)

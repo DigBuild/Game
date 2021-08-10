@@ -79,7 +79,9 @@ namespace DigBuild.Behaviors
 
         private void OnJoinedWorld(BuiltInEntityEvent.JoinedWorld evt, IPhysicalEntityBehavior data, Action next)
         {
-            data.Capability = new PhysicalEntity(evt.Entity.World, _bounds, data, this);
+            evt.Entity.World.GetChunk(new BlockPos(data.Position).ChunkPos)?.Get(ChunkEntities.Type).Add(evt.Entity);
+
+            data.Capability = new PhysicalEntity(evt.Entity, _bounds, data, this);
             data.InWorld = true;
             evt.Entity.World.TickScheduler.After(1).Enqueue(GameJobs.PhysicalEntityMove, data.Capability);
             next();
@@ -87,6 +89,8 @@ namespace DigBuild.Behaviors
 
         private void OnLeavingWorld(BuiltInEntityEvent.LeavingWorld evt, IPhysicalEntityBehavior data, Action next)
         {
+            evt.Entity.World.GetChunk(new BlockPos(data.Position).ChunkPos)?.Get(ChunkEntities.Type).Remove(evt.Entity);
+
             data.InWorld = false;
             next();
         }
@@ -102,18 +106,19 @@ namespace DigBuild.Behaviors
 
         private sealed class PhysicalEntity : IPhysicalEntity
         {
-            private readonly IWorld _world;
+            private readonly EntityInstance _entity;
             private readonly IPhysicalEntityBehavior _data;
             private readonly PhysicalEntityBehavior _behavior;
             
             private IChunkClaim? _chunkLoadingTicket;
 
             public PhysicalEntity(
-                IWorld world, AABB bounds, IPhysicalEntityBehavior data,
-                PhysicalEntityBehavior behavior
-            )
+                EntityInstance entity,
+                AABB bounds,
+                IPhysicalEntityBehavior data,
+                PhysicalEntityBehavior behavior)
             {
-                _world = world;
+                _entity = entity;
                 Bounds = bounds;
                 _data = data;
                 _behavior = behavior;
@@ -133,7 +138,18 @@ namespace DigBuild.Behaviors
             public Vector3 Position
             {
                 get => _data.Position;
-                set => _data.Position = value;
+                set
+                {
+                    var currentChunk = new BlockPos(_data.Position).ChunkPos;
+                    var newChunk = new BlockPos(value).ChunkPos;
+                    if (currentChunk != newChunk)
+                    {
+                        _entity.World.GetChunk(currentChunk)?.Get(ChunkEntities.Type).Remove(_entity);
+                        _entity.World.GetChunk(newChunk)!.Get(ChunkEntities.Type).Add(_entity);
+                    }
+
+                    _data.Position = value;
+                }
             }
 
             public Vector3 Velocity
@@ -211,9 +227,10 @@ namespace DigBuild.Behaviors
 
             public void Move()
             {
+                var world = _entity.World;
+
                 OnGround = false;
-                
-                Velocity += -Vector3.UnitY * _world.Gravity;
+                Velocity += -Vector3.UnitY * world.Gravity;
                 
                 var vel = Velocity;
 
@@ -222,11 +239,11 @@ namespace DigBuild.Behaviors
                 var extendedBounds = translatedBounds + vel; //AABB.Containing(translatedBounds, translatedBounds + vel);
                 foreach (var pos in extendedBounds.GetIntersectedBlockPositions())
                 {
-                    var block = _world.GetBlock(pos);
+                    var block = world.GetBlock(pos);
                     if (block == null)
                         continue;
 
-                    var collider = block.Get(new BlockContext(_world, pos, block), BlockAttributes.Collider);
+                    var collider = block.Get(new BlockContext(world, pos, block), BlockAttributes.Collider);
                     var relativeBounds = translatedBounds - (Vector3) pos;
 
                     if (collider.Collide(relativeBounds, vel, out var intersection))
@@ -282,7 +299,7 @@ namespace DigBuild.Behaviors
                     chunksToLoad.Add(new ChunkPos(chunkPos.X + x, chunkPos.Z + z));
 
                 var prevTicket = _chunkLoadingTicket;
-                if (!_world.ChunkManager.TryLoad(chunksToLoad, false, out _chunkLoadingTicket))
+                if (!_entity.World.ChunkManager.TryLoad(chunksToLoad, false, out _chunkLoadingTicket))
                 {
                     throw new Exception("What.");
                 }
@@ -291,12 +308,20 @@ namespace DigBuild.Behaviors
         }
     }
 
-    public sealed class PhysicalEntityData : IData<PhysicalEntityData>, IPhysicalEntityBehavior
+    public sealed class PhysicalEntityData : IData<PhysicalEntityData>, IChangeNotifier, IPhysicalEntityBehavior
     {
+        private Vector3 _position;
+
+        public event Action? Changed;
+
         public bool InWorld { get; set; }
         public bool OnGround { get; set; }
 
-        public Vector3 Position { get; set; }
+        public Vector3 Position
+        {
+            get => _position;
+            set { _position = value; Changed?.Invoke(); }
+        }
         public Vector3 Velocity { get; set; }
         public float Pitch { get; set; }
         public float Yaw { get; set; }

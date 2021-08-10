@@ -92,8 +92,11 @@ namespace DigBuild.Controller
             }
 
             var generator = new WorldGenerator(game.TickSource, config.Worldgen.Features, 0);
-            _world = new World(game.TickSource, generator, (world, pos) => new RegionStorage(world, pos), _game.EventBus, NotifyChunkReRender);
+            _world = new World(game.TickSource, generator, (world, pos) => new RegionStorage(world, pos, game.TickSource), _game.EventBus, NotifyChunkReRender);
             RayCastContext = new WorldRayCastContext(World);
+            
+            _game.EventBus.Subscribe<BuiltInChunkEvent.Loaded>(WorldEntities.OnChunkLoaded);
+            _game.EventBus.Subscribe<BuiltInChunkEvent.Unloaded>(WorldEntities.OnChunkUnloaded);
             
             _particleSystems = GameRegistries.ParticleSystems.Values.Select(d => d.System).ToImmutableList();
             _particleRenderers = GameRegistries.ParticleSystems.Values.Select(d => d.Renderer).ToImmutableList();
@@ -125,8 +128,11 @@ namespace DigBuild.Controller
             
             UiManager = new UiManager(this, UiRenderLayers, UniformTypes, _game.BufferPool);
             game.EventBus.Subscribe<UiTextureStitchingEvent>(GameHud.OnUiTextureStitching);
+
+            var playerEntity = World.GetEntity(Guid.Empty);
+            playerEntity ??= World.AddEntity(GameEntities.Player, Guid.Empty).WithPosition(new Vector3(0, 30, 0));
             
-            Player = new Player(this, World.AddEntity(GameEntities.Player).WithPosition(new Vector3(0, 30, 0)));
+            Player = new Player(this, playerEntity);
             _playerController = new PlayerController(Player);
 
             var inventory = Player.Inventory;

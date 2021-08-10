@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using DigBuild.Engine.Collections;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
+using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Worlds;
 using DigBuild.Engine.Worlds.Impl;
 
@@ -15,12 +17,30 @@ namespace DigBuild.Worlds
         private readonly IWorld _world;
         private readonly LockStore<RegionChunkPos> _locks = new();
 
+        private readonly HashSet<Chunk> _savedChunks = new();
+
         public RegionPos Position { get; }
 
-        public RegionStorage(IWorld world, RegionPos position)
+        public RegionStorage(IWorld world, RegionPos position, ITickSource tickSource)
         {
             _world = world;
             Position = position;
+            tickSource.Tick += Tick;
+        }
+
+        private void Tick()
+        {
+            foreach (var chunk in _savedChunks)
+            {
+                using var lck = _locks.Lock(chunk.Position.RegionChunkPos);
+
+                var stream = File.Create(GetPath(chunk.Position.RegionChunkPos));
+                Chunk.Serdes.Serialize(stream, chunk);
+                stream.Flush();
+                stream.Close();
+            }
+
+            _savedChunks.Clear();
         }
 
         public bool TryLoad(RegionChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
@@ -56,12 +76,7 @@ namespace DigBuild.Worlds
 
         public void Save(Chunk chunk)
         {
-            using var lck = _locks.Lock(chunk.Position.RegionChunkPos);
-
-            var stream = File.Create(GetPath(chunk.Position.RegionChunkPos));
-            Chunk.Serdes.Serialize(stream, chunk);
-            stream.Flush();
-            stream.Close();
+            _savedChunks.Add(chunk);
         }
 
         private string GetPath(RegionChunkPos pos)

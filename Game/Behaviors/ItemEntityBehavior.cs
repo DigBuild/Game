@@ -71,9 +71,22 @@ namespace DigBuild.Behaviors
             }
         }
     }
-    internal sealed class ItemEntityData : IData<ItemEntityData>, IItemEntityBehavior
+    internal sealed class ItemEntityData : IData<ItemEntityData>, IChangeNotifier, IItemEntityBehavior
     {
-        public ItemInstance Item { get; set; } = ItemInstance.Empty;
+        private ItemInstance _item = ItemInstance.Empty;
+
+        public event Action? Changed;
+
+        public ItemInstance Item
+        {
+            get => _item;
+            set
+            {
+                _item = value;
+                Changed?.Invoke();
+            }
+        }
+
         public long JoinWorldTime { get; set; }
         IItemEntity? IItemEntityBehavior.Capability { get; set; }
 
