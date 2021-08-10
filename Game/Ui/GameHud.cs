@@ -4,6 +4,7 @@ using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Textures;
+using DigBuild.Engine.Ui;
 using DigBuild.Engine.Ui.Elements;
 using DigBuild.Engine.Worlds.Impl;
 using DigBuild.Events;
@@ -44,10 +45,10 @@ namespace DigBuild.Ui
         private SimpleUi.Context _context = null!;
         private UiManager _manager = null!;
 
-        private UiLabel _positionLabel = null!;
-        private UiLabel _lookLabel = null!;
-        private UiLabel _lightLabel = null!;
-        private UiLabel _handLabel = null!;
+        private readonly UiLabel _positionLabel = new();
+        private readonly UiLabel _lookLabel = new();
+        private readonly UiLabel _lightLabel = new();
+        private readonly UiLabel _handLabel = new();
 
         private bool _isTop;
         private bool _isMouseFree;
@@ -71,10 +72,15 @@ namespace DigBuild.Ui
         {
             _ui.Clear();
 
-            _ui.Add(20, 20, _positionLabel = new UiLabel(""));
-            _ui.Add(20, 50, _lookLabel = new UiLabel(""));
-            _ui.Add(20, 80, _lightLabel = new UiLabel(""));
-            _ui.Add(20, 110, _handLabel = new UiLabel(""));
+            // _ui.Add(20, 20, _positionLabel);
+            // _ui.Add(20, 50, _lookLabel);
+            // _ui.Add(20, 80, _lightLabel);
+            // _ui.Add(20, 110, _handLabel);
+            
+            _ui.Add(20, 20, new UiLabel("DISCLAIMER:", yellow: true));
+            _ui.Add(20, 50, new UiLabel("This is not a complete game.", yellow: true));
+            _ui.Add(20, 80, new UiLabel("It is only a tech demo of the capabilities of the engine.", yellow: true));
+            _ui.Add(20, 110, new UiLabel("Do not expect deep, extensive or bug-free gameplay.", yellow: true));
 
             const int slotSize = (int)UiInventorySlot.Scale;
 
