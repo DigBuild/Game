@@ -139,7 +139,7 @@ namespace DigBuild.Registries
             itemEvents.Built += reg =>
             {
                 ItemEvents = reg;
-                ItemRegistryBuilderExtensions.EventRegistry = reg;
+                BuiltInRegistries.ItemEvents = reg;
             };
             
             var itemAttributes = manager.CreateRegistryOf<IItemAttribute>(new ResourceName(DigBuildGame.Domain, "item_attributes"));
@@ -149,7 +149,7 @@ namespace DigBuild.Registries
             itemAttributes.Built += reg =>
             {
                 ItemAttributes = reg;
-                ItemRegistryBuilderExtensions.ItemAttributes = reg;
+                BuiltInRegistries.ItemAttributes = reg;
             };
             
             var itemCapabilities = manager.CreateRegistryOf<IItemCapability>(new ResourceName(DigBuildGame.Domain, "item_capabilities"));
@@ -158,7 +158,7 @@ namespace DigBuild.Registries
             itemCapabilities.Built += reg =>
             {
                 ItemCapabilities = reg;
-                ItemRegistryBuilderExtensions.ItemCapabilities = reg;
+                BuiltInRegistries.ItemCapabilities = reg;
             };
             
             var items = manager.CreateRegistryOf<Item>(new ResourceName(DigBuildGame.Domain, "items"));
@@ -179,7 +179,7 @@ namespace DigBuild.Registries
             entityEvents.Built += reg =>
             {
                 EntityEvents = reg;
-                EntityRegistryBuilderExtensions.EventRegistry = reg;
+                BuiltInRegistries.EntityEvents = reg;
             };
             
             var entityAttributes = manager.CreateRegistryOf<IEntityAttribute>(new ResourceName(DigBuildGame.Domain, "entity_attributes"));
@@ -189,7 +189,7 @@ namespace DigBuild.Registries
             entityAttributes.Built += reg =>
             {
                 EntityAttributes = reg;
-                EntityRegistryBuilderExtensions.EntityAttributes = reg;
+                BuiltInRegistries.EntityAttributes = reg;
             };
             
             var entityCapabilities = manager.CreateRegistryOf<IEntityCapability>(new ResourceName(DigBuildGame.Domain, "entity_capabilities"));
@@ -198,7 +198,7 @@ namespace DigBuild.Registries
             entityCapabilities.Built += reg =>
             {
                 EntityCapabilities = reg;
-                EntityRegistryBuilderExtensions.EntityCapabilities = reg;
+                BuiltInRegistries.EntityCapabilities = reg;
             };
             
             var entities = manager.CreateRegistryOf<Entity>(new ResourceName(DigBuildGame.Domain, "entities"));

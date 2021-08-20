@@ -1,4 +1,5 @@
-﻿using DigBuild.Engine.Events;
+﻿using DigBuild.Engine;
+using DigBuild.Engine.Events;
 using DigBuild.Modding;
 using DigBuild.Registries;
 
@@ -9,6 +10,8 @@ namespace DigBuild
         public static void Main()
         {
             var eventBus = new EventBus();
+            DigBuildEngine.EventBus = eventBus;
+            
             ModLoader.Instance.LoadMods(eventBus);
             GameRegistries.Initialize(eventBus);
 
