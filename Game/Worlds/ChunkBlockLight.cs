@@ -1,5 +1,6 @@
 ﻿using System;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Collections;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
