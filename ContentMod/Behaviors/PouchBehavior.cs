@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using DigBuild.Content.Registries;
 using DigBuild.Content.Ui;
 using DigBuild.Engine.Items;
+using DigBuild.Engine.Items.Inventories;
 using DigBuild.Items;
 using DigBuild.Players;
 using DigBuild.Registries;
@@ -62,7 +62,7 @@ namespace DigBuild.Content.Behaviors
 
             public InventoryExtension(IPouch pouch)
             {
-                Inventory = new SimpleInventory(pouch.Slots);
+                Inventory = InventoryHelper.CreateInventory(pouch.Slots);
             }
         }
     }

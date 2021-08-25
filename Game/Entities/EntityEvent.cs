@@ -5,7 +5,7 @@ namespace DigBuild.Entities
 {
     public static class EntityEvent
     {
-        public static void Register(ExtendedTypeRegistryBuilder<IEntityEvent, EntityEventInfo> registry)
+        public static void Register(TypeRegistryBuilder<IEntityEvent, EntityEventInfo> registry)
         {
         }
     }

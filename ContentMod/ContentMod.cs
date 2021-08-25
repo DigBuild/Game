@@ -4,6 +4,7 @@ using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Events;
 using DigBuild.Engine.Items;
+using DigBuild.Engine.Registries;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Events;
 using DigBuild.Modding;
@@ -18,6 +19,7 @@ namespace DigBuild.Content
     {
         public void Setup(EventBus bus)
         {
+            bus.Subscribe<RegistryBuildingEvent<IBlockCapability>>(evt => BlockCapabilities.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<Block>>(evt => GameBlocks.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<Entity>>(evt => GameEntities.Register(evt.Registry));
             bus.Subscribe<RegistryBuildingEvent<Item>>(evt => GameItems.Register(evt.Registry));

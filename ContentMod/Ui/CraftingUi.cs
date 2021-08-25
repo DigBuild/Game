@@ -1,4 +1,5 @@
 ﻿using DigBuild.Engine.Items;
+using DigBuild.Engine.Items.Inventories;
 using DigBuild.Engine.Ui;
 using DigBuild.Engine.Ui.Elements;
 using DigBuild.Render;

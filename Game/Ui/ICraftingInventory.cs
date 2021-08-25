@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using DigBuild.Engine.Items;
+using DigBuild.Engine.Items.Inventories;
 
 namespace DigBuild.Ui
 {

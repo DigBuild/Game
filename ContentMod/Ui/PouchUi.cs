@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using DigBuild.Content.Behaviors;
 using DigBuild.Engine.Items;
+using DigBuild.Engine.Items.Inventories;
 using DigBuild.Engine.Ui.Elements;
 using DigBuild.Render;
 using DigBuild.Ui;

@@ -1,4 +1,5 @@
-﻿using DigBuild.Items;
+﻿using DigBuild.Engine.Items.Inventories;
+using DigBuild.Items;
 
 namespace DigBuild.Players
 {

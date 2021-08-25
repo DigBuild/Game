@@ -2,6 +2,7 @@
 using System.Numerics;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
+using DigBuild.Engine.Items.Inventories;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worlds.Impl;
 using DigBuild.Items;

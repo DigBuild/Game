@@ -10,7 +10,7 @@ namespace DigBuild
         public static void Main()
         {
             var eventBus = new EventBus();
-            DigBuildEngine.EventBus = eventBus;
+            DigBuildEngine.Initialize(eventBus);
             
             ModLoader.Instance.LoadMods(eventBus);
             GameRegistries.Initialize(eventBus);

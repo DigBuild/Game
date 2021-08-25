@@ -1,5 +1,6 @@
 ﻿using DigBuild.Content.Particles;
 using DigBuild.Engine.Particles;
+using DigBuild.Engine.Registries;
 using DigBuild.Events;
 using DigBuild.Platform.Resource;
 using DigBuild.Registries;

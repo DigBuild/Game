@@ -1,8 +1,7 @@
-﻿using DigBuild.Audio;
+﻿using System;
+using DigBuild.Audio;
 using DigBuild.Blocks;
-using DigBuild.Engine;
 using DigBuild.Engine.Blocks;
-using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Events;
 using DigBuild.Engine.Items;
@@ -12,9 +11,7 @@ using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
 using DigBuild.Entities;
-using DigBuild.Events;
 using DigBuild.Items;
-using DigBuild.Platform.Resource;
 using DigBuild.Recipes;
 using DigBuild.Render.Models.Geometry;
 using DigBuild.Worldgen.Biomes;
@@ -28,17 +25,17 @@ namespace DigBuild.Registries
 
         public static Registry<IJobHandle> Jobs { get; private set; } = null!;
 
-        public static ExtendedTypeRegistry<IBlockEvent, BlockEventInfo> BlockEvents { get; private set; } = null!;
+        public static TypeRegistry<IBlockEvent, BlockEventInfo> BlockEvents { get; private set; } = null!;
         public static Registry<IBlockAttribute> BlockAttributes { get; private set; } = null!;
         public static Registry<IBlockCapability> BlockCapabilities { get; private set; } = null!;
         public static Registry<Block> Blocks { get; private set; } = null!;
 
-        public static ExtendedTypeRegistry<IItemEvent, ItemEventInfo> ItemEvents { get; private set; } = null!;
+        public static TypeRegistry<IItemEvent, ItemEventInfo> ItemEvents { get; private set; } = null!;
         public static Registry<IItemAttribute> ItemAttributes { get; private set; } = null!;
         public static Registry<IItemCapability> ItemCapabilities { get; private set; } = null!;
         public static Registry<Item> Items { get; private set; } = null!;
 
-        public static ExtendedTypeRegistry<IEntityEvent, EntityEventInfo> EntityEvents { get; private set; } = null!;
+        public static TypeRegistry<IEntityEvent, EntityEventInfo> EntityEvents { get; private set; } = null!;
         public static Registry<IEntityAttribute> EntityAttributes { get; private set; } = null!;
         public static Registry<IEntityCapability> EntityCapabilities { get; private set; } = null!;
         public static Registry<Entity> Entities { get; private set; } = null!;
@@ -54,197 +51,141 @@ namespace DigBuild.Registries
         public static Registry<Sound> Sounds { get; private set; } = null!;
         public static Registry<IGeometryProvider> GeometryProviders { get; private set; } = null!;
 
-        internal static void Initialize(EventBus bus)
+        internal static void Initialize(EventBus eventBus)
         {
-            var manager = new RegistryManager();
-
-            var worldStorageTypes = manager.CreateRegistryOf<IDataHandle<IWorld>>(
-                new ResourceName(DigBuildGame.Domain, "world_storage_type")
+            var manager = new RegistryManager(eventBus);
+            
+            void MakeRegistry<T>(string name, Action<Registry<T>> assigner, Action<RegistryBuilder<T>>? builder = null)
+                where T : notnull
+            {
+                manager.CreateRegistryOf<T>(DigBuildGame.Domain, name);
+                eventBus.Subscribe<RegistryBuiltEvent<T>>(evt => assigner(evt.Registry));
+                if (builder != null)
+                    eventBus.Subscribe<RegistryBuildingEvent<T>>(evt => builder(evt.Registry));
+            }
+            void MakeTypeRegistry<T, TValue>(string name, Action<TypeRegistry<T, TValue>> assigner, Action<TypeRegistryBuilder<T, TValue>>? builder = null)
+                where T : notnull
+            {
+                manager.CreateTypeRegistryOf<T, TValue>(DigBuildGame.Domain, name);
+                eventBus.Subscribe<TypeRegistryBuiltEvent<T, TValue>>(evt => assigner(evt.Registry));
+                if (builder != null)
+                    eventBus.Subscribe<TypeRegistryBuildingEvent<T, TValue>>(evt => builder(evt.Registry));
+            }
+            
+            MakeRegistry<IDataHandle<IWorld>>(
+                "world_storage_type",
+                reg => WorldStorageTypes = reg,
+                GameWorldStorages.Register
             );
-            worldStorageTypes.Building += DigBuildEngine.Register;
-            worldStorageTypes.Building += GameWorldStorages.Register;
-            worldStorageTypes.Building += reg => bus.Post(new RegistryBuildingEvent<IDataHandle<IWorld>>(reg));
-            worldStorageTypes.Built += reg =>
-            {
-                BuiltInRegistries.WorldStorageTypes = reg;
-                DataContainer<IWorld>.Registry = reg;
-                WorldStorageTypes = reg;
-            };
-
-            var chunkStorageTypes = manager.CreateRegistryOf<IDataHandle<IChunk>>(
-                new ResourceName(DigBuildGame.Domain, "chunk_storage_type")
+            MakeRegistry<IDataHandle<IChunk>>(
+                "chunk_storage_type",
+                reg => ChunkStorageTypes = reg,
+                GameChunkStorages.Register
             );
-            chunkStorageTypes.Building += DigBuildEngine.Register;
-            chunkStorageTypes.Building += GameChunkStorages.Register;
-            chunkStorageTypes.Building += reg => bus.Post(new RegistryBuildingEvent<IDataHandle<IChunk>>(reg));
-            chunkStorageTypes.Built += reg =>
-            {
-                BuiltInRegistries.ChunkStorageTypes = reg;
-                DataContainer<IChunk>.Registry = reg;
-                ChunkStorageTypes = reg;
-            };
-            
-            var jobs = manager.CreateRegistryOf<IJobHandle>(
-                new ResourceName(DigBuildGame.Domain, "jobs")
+
+            MakeRegistry<IJobHandle>(
+                "jobs",
+                reg => Jobs = reg,
+                GameJobs.Register
             );
-            jobs.Building += GameJobs.Register;
-            jobs.Building += reg => bus.Post(new RegistryBuildingEvent<IJobHandle>(reg));
-            jobs.Built += reg => Jobs = reg;
-            
-            var blockEvents = manager.CreateExtendedRegistryOfTypes<IBlockEvent, BlockEventInfo>(
-                new ResourceName(DigBuildGame.Domain, "block_events"), _ => true
+
+            MakeTypeRegistry<IBlockEvent, BlockEventInfo>(
+                "block_events",
+                reg => BlockEvents = reg,
+                BlockEvent.Register
             );
-            blockEvents.Building += DigBuildEngine.Register;
-            blockEvents.Building += BlockEvent.Register;
-            // blockEvents.Building += reg => bus.Post(new ExtendedTypeRegistryBuildingEvent<IBlockEvent, BlockEventInfo>(reg));
-            blockEvents.Built += reg =>
-            {
-                BuiltInRegistries.BlockEvents = reg;
-                BlockEvents = reg;
-            };
-            
-            var blockAttributes = manager.CreateRegistryOf<IBlockAttribute>(new ResourceName(DigBuildGame.Domain, "block_attributes"));
-            blockAttributes.Building += DigBuildEngine.Register;
-            blockAttributes.Building += Registries.BlockAttributes.Register;
-            blockAttributes.Building += reg => bus.Post(new RegistryBuildingEvent<IBlockAttribute>(reg));
-            blockAttributes.Built += reg =>
-            {
-                BuiltInRegistries.BlockAttributes = reg;
-                BlockAttributes = reg;
-            };
-            
-            var blockCapabilities = manager.CreateRegistryOf<IBlockCapability>(new ResourceName(DigBuildGame.Domain, "block_capabilities"));
-            blockCapabilities.Building += Registries.BlockCapabilities.Register;
-            blockCapabilities.Building += reg => bus.Post(new RegistryBuildingEvent<IBlockCapability>(reg));
-            blockCapabilities.Built += reg =>
-            {
-                BuiltInRegistries.BlockCapabilities = reg;
-                BlockCapabilities = reg;
-            };
-            
-            var blocks = manager.CreateRegistryOf<Block>(new ResourceName(DigBuildGame.Domain, "blocks"));
-            blocks.Building += reg => bus.Post(new RegistryBuildingEvent<Block>(reg));
-            blocks.Built += reg =>
-            {
-                BuiltInRegistries.Blocks = reg;
-                Blocks = reg;
-            };
-            
-            
-            var itemEvents = manager.CreateExtendedRegistryOfTypes<IItemEvent, ItemEventInfo>(
-                new ResourceName(DigBuildGame.Domain, "item_events"), _ => true
+            MakeRegistry<IBlockAttribute>(
+                "block_attributes",
+                reg => BlockAttributes = reg,
+                Registries.BlockAttributes.Register
             );
-            itemEvents.Building += ItemEvent.Register;
-            // itemEvents.Building += reg => bus.Post(new ExtendedTypeRegistryBuildingEvent<IItemEvent, ItemEventInfo>(reg));
-            itemEvents.Built += reg =>
-            {
-                ItemEvents = reg;
-                BuiltInRegistries.ItemEvents = reg;
-            };
-            
-            var itemAttributes = manager.CreateRegistryOf<IItemAttribute>(new ResourceName(DigBuildGame.Domain, "item_attributes"));
-            itemAttributes.Building += DigBuildEngine.Register;
-            itemAttributes.Building += Registries.ItemAttributes.Register;
-            itemAttributes.Building += reg => bus.Post(new RegistryBuildingEvent<IItemAttribute>(reg));
-            itemAttributes.Built += reg =>
-            {
-                ItemAttributes = reg;
-                BuiltInRegistries.ItemAttributes = reg;
-            };
-            
-            var itemCapabilities = manager.CreateRegistryOf<IItemCapability>(new ResourceName(DigBuildGame.Domain, "item_capabilities"));
-            itemCapabilities.Building += Registries.ItemCapabilities.Register;
-            itemCapabilities.Building += reg => bus.Post(new RegistryBuildingEvent<IItemCapability>(reg));
-            itemCapabilities.Built += reg =>
-            {
-                ItemCapabilities = reg;
-                BuiltInRegistries.ItemCapabilities = reg;
-            };
-            
-            var items = manager.CreateRegistryOf<Item>(new ResourceName(DigBuildGame.Domain, "items"));
-            items.Building += reg => bus.Post(new RegistryBuildingEvent<Item>(reg));
-            items.Built += reg =>
-            {
-                Items = reg;
-                BuiltInRegistries.Items = reg;
-            };
-
-            
-            var entityEvents = manager.CreateExtendedRegistryOfTypes<IEntityEvent, EntityEventInfo>(
-                new ResourceName(DigBuildGame.Domain, "entity_events"), _ => true
+            MakeRegistry<IBlockCapability>(
+                "block_capabilities",
+                reg => BlockCapabilities = reg
             );
-            entityEvents.Building += DigBuildEngine.Register;
-            entityEvents.Building += EntityEvent.Register;
-            // entityEvents.Building += reg => bus.Post(new ExtendedTypeRegistryBuildingEvent<IEntityEvent, EntityEventInfo>(reg));
-            entityEvents.Built += reg =>
-            {
-                EntityEvents = reg;
-                BuiltInRegistries.EntityEvents = reg;
-            };
+            MakeRegistry<Block>(
+                "blocks",
+                reg => Blocks = reg
+            );
             
-            var entityAttributes = manager.CreateRegistryOf<IEntityAttribute>(new ResourceName(DigBuildGame.Domain, "entity_attributes"));
-            entityAttributes.Building += DigBuildEngine.Register;
-            entityAttributes.Building += Registries.EntityAttributes.Register;
-            entityAttributes.Building += reg => bus.Post(new RegistryBuildingEvent<IEntityAttribute>(reg));
-            entityAttributes.Built += reg =>
-            {
-                EntityAttributes = reg;
-                BuiltInRegistries.EntityAttributes = reg;
-            };
+            MakeTypeRegistry<IItemEvent, ItemEventInfo>(
+                "item_events",
+                reg => ItemEvents = reg,
+                ItemEvent.Register
+            );
+            MakeRegistry<IItemAttribute>(
+                "item_attributes",
+                reg => ItemAttributes = reg,
+                Registries.ItemAttributes.Register
+            );
+            MakeRegistry<IItemCapability>(
+                "item_capabilities",
+                reg => ItemCapabilities = reg,
+                Registries.ItemCapabilities.Register
+            );
+            MakeRegistry<Item>(
+                "items",
+                reg => Items = reg
+            );
             
-            var entityCapabilities = manager.CreateRegistryOf<IEntityCapability>(new ResourceName(DigBuildGame.Domain, "entity_capabilities"));
-            entityCapabilities.Building += Registries.EntityCapabilities.Register;
-            entityCapabilities.Building += reg => bus.Post(new RegistryBuildingEvent<IEntityCapability>(reg));
-            entityCapabilities.Built += reg =>
-            {
-                EntityCapabilities = reg;
-                BuiltInRegistries.EntityCapabilities = reg;
-            };
+            MakeTypeRegistry<IEntityEvent, EntityEventInfo>(
+                "entity_events",
+                reg => EntityEvents = reg,
+                EntityEvent.Register
+            );
+            MakeRegistry<IEntityAttribute>(
+                "entity_attributes",
+                reg => EntityAttributes = reg,
+                Registries.EntityAttributes.Register
+            );
+            MakeRegistry<IEntityCapability>(
+                "entity_capabilities",
+                reg => EntityCapabilities = reg,
+                Registries.EntityCapabilities.Register
+            );
+            MakeRegistry<Entity>(
+                "entities",
+                reg => Entities = reg,
+                GameEntities.Register
+            );
             
-            var entities = manager.CreateRegistryOf<Entity>(new ResourceName(DigBuildGame.Domain, "entities"));
-            entities.Building += GameEntities.Register;
-            entities.Building += reg => bus.Post(new RegistryBuildingEvent<Entity>(reg));
-            entities.Built += reg =>
-            {
-                Entities = reg;
-                BuiltInRegistries.Entities = reg;
-            };
+            MakeRegistry<IWorldgenAttribute>(
+                "worldgen_attributes",
+                reg => WorldgenAttributes = reg
+            );
+            MakeRegistry<IWorldgenFeature>(
+                "worldgen_features",
+                reg => WorldgenFeatures = reg
+            );
 
+            MakeRegistry<IBiomeAttribute>(
+                "biome_attributes",
+                reg => BiomeAttributes = reg
+            );
+            MakeRegistry<IBiome>(
+                "biomes",
+                reg => Biomes = reg
+            );
 
-            var worldgenAttributes = manager.CreateRegistryOf<IWorldgenAttribute>(new ResourceName(DigBuildGame.Domain, "worldgen_attributes"));
-            worldgenAttributes.Building += reg => bus.Post(new RegistryBuildingEvent<IWorldgenAttribute>(reg));
-            worldgenAttributes.Built += reg => WorldgenAttributes = reg;
+            MakeRegistry<ICraftingRecipe>(
+                "crafting_recipes",
+                reg => CraftingRecipes = reg
+            );
+            MakeRegistry<IParticleSystemData>(
+                "particle_systems",
+                reg => ParticleSystems = reg
+            );
+            MakeRegistry<Sound>(
+                "sounds",
+                reg => Sounds = reg,
+                GameSounds.Register
+            );
+            MakeRegistry<IGeometryProvider>(
+                "geometry_providers",
+                reg => GeometryProviders = reg,
+                GameGeometryProviders.Register
+            );
 
-            var worldgenFeatures = manager.CreateRegistryOf<IWorldgenFeature>(new ResourceName(DigBuildGame.Domain, "worldgen_features"));
-            worldgenFeatures.Building += reg => bus.Post(new RegistryBuildingEvent<IWorldgenFeature>(reg));
-            worldgenFeatures.Built += reg => WorldgenFeatures = reg;
-
-            var biomeAttributes = manager.CreateRegistryOf<IBiomeAttribute>(new ResourceName(DigBuildGame.Domain, "biome_attributes"));
-            biomeAttributes.Building += reg => bus.Post(new RegistryBuildingEvent<IBiomeAttribute>(reg));
-            biomeAttributes.Built += reg => BiomeAttributes = reg;
-
-            var biomes = manager.CreateRegistryOf<IBiome>(new ResourceName(DigBuildGame.Domain, "biomes"));
-            biomes.Building += reg => bus.Post(new RegistryBuildingEvent<IBiome>(reg));
-            biomes.Built += reg => Biomes = reg;
-
-            var craftingRecipes = manager.CreateRegistryOf<ICraftingRecipe>(new ResourceName(DigBuildGame.Domain, "crafting_recipes"));
-            craftingRecipes.Building += reg => bus.Post(new RegistryBuildingEvent<ICraftingRecipe>(reg));
-            craftingRecipes.Built += reg => CraftingRecipes = reg;
-
-            var particleSystems = manager.CreateRegistryOf<IParticleSystemData>(new ResourceName(DigBuildGame.Domain, "particle_systems"));
-            particleSystems.Building += reg => bus.Post(new RegistryBuildingEvent<IParticleSystemData>(reg));
-            particleSystems.Built += reg => ParticleSystems = reg;
-
-            var sounds = manager.CreateRegistryOf<Sound>(new ResourceName(DigBuildGame.Domain, "sounds"));
-            sounds.Building += GameSounds.Register;
-            sounds.Building += reg => bus.Post(new RegistryBuildingEvent<Sound>(reg));
-            sounds.Built += reg => Sounds = reg;
-
-            var geometryProviders = manager.CreateRegistryOf<IGeometryProvider>(new ResourceName(DigBuildGame.Domain, "geometry_providers"));
-            geometryProviders.Building += GameGeometryProviders.Register;
-            geometryProviders.Building += reg => bus.Post(new RegistryBuildingEvent<IGeometryProvider>(reg));
-            geometryProviders.Built += reg => GeometryProviders = reg;
-            
             manager.BuildAll();
         }
     }

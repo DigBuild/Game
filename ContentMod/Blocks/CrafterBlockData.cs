@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DigBuild.Content.Behaviors;
 using DigBuild.Engine.Items;
+using DigBuild.Engine.Items.Inventories;
 using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
 using DigBuild.Recipes;

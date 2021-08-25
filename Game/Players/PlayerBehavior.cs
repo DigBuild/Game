@@ -1,5 +1,6 @@
 ﻿using DigBuild.Behaviors;
 using DigBuild.Engine.Entities;
+using DigBuild.Engine.Items.Inventories;
 using DigBuild.Engine.Storage;
 using DigBuild.Items;
 using DigBuild.Registries;
@@ -32,7 +33,7 @@ namespace DigBuild.Players
                             return inventoryExtension.Inventory;
                     }
                 }
-                return new SimpleInventory(Inventory.Hotbar);
+                return InventoryHelper.CreateInventory(Inventory.Hotbar);
             }
         }
 

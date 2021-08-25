@@ -7,7 +7,7 @@ namespace DigBuild.Items
 {
     public static class ItemEvent
     {
-        public static void Register(ExtendedTypeRegistryBuilder<IItemEvent, ItemEventInfo> registry)
+        public static void Register(TypeRegistryBuilder<IItemEvent, ItemEventInfo> registry)
         {
             registry.Register((Activate _) => Activate.Result.Fail);
             registry.Register((Punch _) => Punch.Result.Fail);

@@ -12,7 +12,7 @@ namespace DigBuild.Blocks
 {
     public static class BlockEvent
     {
-        public static void Register(ExtendedTypeRegistryBuilder<IBlockEvent, BlockEventInfo> registry)
+        public static void Register(TypeRegistryBuilder<IBlockEvent, BlockEventInfo> registry)
         {
             registry.Register((Activate evt) => Activate.Result.Fail);
             registry.Register((Punch evt) =>
