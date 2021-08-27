@@ -17,6 +17,8 @@ namespace DigBuild.Content
 {
     public sealed class ContentMod : IMod
     {
+        public string Domain => DigBuildGame.Domain;
+
         public void Setup(EventBus bus)
         {
             bus.Subscribe<RegistryBuildingEvent<IBlockCapability>>(evt => BlockCapabilities.Register(evt.Registry));

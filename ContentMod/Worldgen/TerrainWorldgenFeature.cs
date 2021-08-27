@@ -19,13 +19,7 @@ namespace DigBuild.Content.Worldgen
         private readonly SimplexNoise _noise = new(152351234, 0.001f, 4, 2.4f, 0.4f);
 
         private readonly Block _terrainBlock, _surfaceBlock;
-
-        public IImmutableSet<IWorldgenAttribute> InputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>();
-
-        public IImmutableSet<IWorldgenAttribute> OutputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
-            WorldgenAttributes.TerrainHeight, WorldgenAttributes.TerrainType
-        );
-
+        
         public TerrainWorldgenFeature(Block terrainBlock, Block surfaceBlock)
         {
             _terrainBlock = terrainBlock;

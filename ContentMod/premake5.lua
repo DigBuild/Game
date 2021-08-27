@@ -8,7 +8,7 @@ project "DigBuild.Content"
     noframeworktag(true)
     targetdir "../bin/%{cfg.buildcfg}"
     objdir "../bin-int/%{cfg.buildcfg}"
-    -- resourcesdir "Resources"
+    resourcesdir "Resources"
 
     dependson {
 		"DigBuild"

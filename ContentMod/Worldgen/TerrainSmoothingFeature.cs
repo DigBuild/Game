@@ -21,10 +21,7 @@ namespace DigBuild.Content.Worldgen
             0.07130343198685299f,
         };
         private static readonly int BlurStart = -(BlurKernel.Length - 1) / 2;
-
-        public IImmutableSet<IWorldgenAttribute> InputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>();
-        public IImmutableSet<IWorldgenAttribute> OutputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>();
-
+        
         public void Describe(ChunkDescriptionContext context)
         {
             var inTerrainHeight = context.GetExtendedGrid(WorldgenAttributes.TerrainHeight);

@@ -11,9 +11,6 @@ namespace DigBuild.Content.Worldgen
 {
     public class BiomeWorldgenFeature : IWorldgenFeature
     {
-        public IImmutableSet<IWorldgenAttribute> InputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>();
-        public IImmutableSet<IWorldgenAttribute> OutputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>();
-
         public void Describe(ChunkDescriptionContext context)
         {
             var biomes = Grid<IBiome>.Builder(WorldDimensions.ChunkSize, GameBiomes.Grassland);

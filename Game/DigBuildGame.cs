@@ -1,18 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Linq;
 using DigBuild.Audio;
 using DigBuild.Controller;
 using DigBuild.Engine.Events;
-using DigBuild.Engine.Textures;
 using DigBuild.Entities.Models;
 using DigBuild.Events;
+using DigBuild.Modding;
 using DigBuild.Platform.Resource;
 using DigBuild.Platform.Util;
 using DigBuild.Registries;
 using DigBuild.Render;
-using DigBuild.Render.Models.Expressions;
-using DigBuild.Render.Models.Geometry;
 using GameWindow = DigBuild.Render.GameWindow;
 
 namespace DigBuild
@@ -24,16 +22,7 @@ namespace DigBuild
 
         public static DigBuildGame Instance { get; internal set; } = null!;
         
-        public ResourceManager ResourceManager { get; } = new(
-            new ShaderCompiler("shader_out"),
-            new FileSystemResourceProvider(
-                new Dictionary<string, string>
-                {
-                    [Domain] = "../../ContentMod/Resources"
-                },
-                true
-            )
-        );
+        public ResourceManager ResourceManager { get; }
 
         public NativeBufferPool BufferPool { get; } = new();
         public EventBus EventBus { get; }
@@ -41,12 +30,22 @@ namespace DigBuild
         public AudioManager AudioManager { get; }
         public ModelManager ModelManager { get; } = new();
 
-        public IGameController Controller { get; private set; } = null!;
+        public IGameController Controller { get; private set; }
         public TickSource TickSource { get; } = new();
         public GameWindow Window { get; }
         
         internal DigBuildGame(EventBus eventBus)
         {
+            var modResources = ModLoader.Instance.Mods.Select(mod => mod.Resources);
+            
+            var resourceProviders = new List<IResourceProvider>
+            {
+                new ShaderCompiler("shader_out")
+            };
+            resourceProviders.AddRange(modResources);
+
+            ResourceManager = new ResourceManager(resourceProviders);
+
             foreach (var systemData in GameRegistries.ParticleSystems.Values)
                 systemData.InitializeRenderer(BufferPool, ResourceManager);
 
@@ -57,27 +56,14 @@ namespace DigBuild
 
             TickSource.Tick += () => Controller.Tick();
             Window = new GameWindow(this);
-            //OpenMainMenu();
-            OpenWorld();
+            Controller = new GameplayController(this);
         }
 
         public void Dispose()
         {
             Controller.Dispose();
         }
-
-        public void OpenMainMenu()
-        {
-            Controller?.Dispose();
-            Controller = new MainMenuController(this);
-        }
-
-        public void OpenWorld()
-        {
-            Controller?.Dispose();
-            Controller = new GameplayController(this);
-        }
-
+        
         public void Start()
         {
             if (TickSource.Running)

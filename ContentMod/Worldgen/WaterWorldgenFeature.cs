@@ -18,14 +18,7 @@ namespace DigBuild.Content.Worldgen
         
         private readonly Block _waterBlock;
         private readonly Block _iceBlock;
-
-        public IImmutableSet<IWorldgenAttribute> InputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
-            WorldgenAttributes.TerrainHeight
-        );
-
-        public IImmutableSet<IWorldgenAttribute> OutputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
-        );
-
+        
         public WaterWorldgenFeature(Block waterBlock, Block iceBlock)
         {
             _waterBlock = waterBlock;

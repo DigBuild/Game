@@ -17,17 +17,7 @@ namespace DigBuild.Content.Worldgen
         
         private readonly IWorldgenStructure _structure;
         private readonly Vector3I _min, _max;
-
-        public IImmutableSet<IWorldgenAttribute> InputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
-            WorldgenAttributes.TerrainType,
-            WorldgenAttributes.TerrainHeight,
-            WorldgenAttributes.Lushness
-        );
-
-        public IImmutableSet<IWorldgenAttribute> OutputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
-            WorldgenAttributes.Tree
-        );
-
+        
         public TreeWorldgenFeature(IWorldgenStructure structure)
         {
             _structure = structure;

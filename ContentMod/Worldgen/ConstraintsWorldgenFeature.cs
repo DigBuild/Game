@@ -14,9 +14,6 @@ namespace DigBuild.Content.Worldgen
         private readonly SimplexNoise _inlandnessNoise = new(12315612135, 0.005f, 3, gain: 0.5f);
         private readonly SimplexNoise _temperatureNoise = new(522318133, 0.004f, 2, gain: 0.7f);
         private readonly SimplexNoise _lushnessNoise = new(34123413, 0.005f, 2);
-
-        public IImmutableSet<IWorldgenAttribute> InputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>();
-        public IImmutableSet<IWorldgenAttribute> OutputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>();
         
         public void Describe(ChunkDescriptionContext context)
         {

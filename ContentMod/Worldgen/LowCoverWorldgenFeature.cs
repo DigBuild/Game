@@ -16,16 +16,7 @@ namespace DigBuild.Content.Worldgen
         private const uint ChunkSize = 16;
 
         private readonly SimplexNoise _noise;
-
-        public IImmutableSet<IWorldgenAttribute> InputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
-            WorldgenAttributes.TerrainType,
-            WorldgenAttributes.TerrainHeight,
-            WorldgenAttributes.Lushness
-        );
-
-        public IImmutableSet<IWorldgenAttribute> OutputAttributes => ImmutableHashSet.Create<IWorldgenAttribute>(
-        );
-
+        
         private readonly Block _block;
         private readonly WorldgenAttribute<Grid<bool>> _attribute;
         private readonly float _threshold;
