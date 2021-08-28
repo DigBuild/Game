@@ -97,7 +97,7 @@ namespace DigBuild.Ui
                 {
                     var i1 = i;
                     _ui.Add(off, (int) target.Height - 60, new UiInventorySlot(
-                        slot, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, 
+                        slot, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, 
                         InventorySlotSprite,
                         () => player.Inventory.ActiveHotbarSlot == i1)
                     );
@@ -110,7 +110,7 @@ namespace DigBuild.Ui
                 }
             }
 
-            var equipmentButton = new UiButton(slotSize * 2, slotSize * 2, UiRenderLayer.Ui,
+            var equipmentButton = new UiButton(slotSize * 2, slotSize * 2, UiRenderLayers.Ui,
                 EquipmentButtonSprite, EquipmentButtonSprite2, EquipmentButtonSprite3);
             _ui.Add(target.Width / 2 - slotSize, target.Height - 60 - slotSize, equipmentButton);
 
@@ -118,29 +118,29 @@ namespace DigBuild.Ui
             {
                 const int distance = slotSize * 2 + 10;
                 equipmentContainer.Add(0, -50 - 0 * distance, new UiInventorySlot(
-                    player.Inventory.Equipment.Boots, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.Boots, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
                 );
                 equipmentContainer.Add(0, -50 - 1 * distance, new UiInventorySlot(
-                    player.Inventory.Equipment.Leggings, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.Leggings, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
                 );
                 equipmentContainer.Add(0, -50 - 2 * distance, new UiInventorySlot(
-                    player.Inventory.Equipment.Chestplate, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.Chestplate, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
                 );
                 equipmentContainer.Add(0, -50 - 3 * distance, new UiInventorySlot(
-                    player.Inventory.Equipment.Helmet, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.Helmet, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
                 );
                 
                 equipmentContainer.Add(-slotSize * 2, -50 - (int) (2.5 * distance), new UiInventorySlot(
-                    player.Inventory.Equipment.EquipTopLeft, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.EquipTopLeft, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
                 );
                 equipmentContainer.Add(slotSize * 2, -50 - (int) (2.5 * distance), new UiInventorySlot(
-                    player.Inventory.Equipment.EquipTopRight, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.EquipTopRight, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
                 );
                 equipmentContainer.Add(-slotSize * 2, -50 - (int) (1.5 * distance), new UiInventorySlot(
-                    player.Inventory.Equipment.EquipBottomLeft, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.EquipBottomLeft, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
                 );
                 equipmentContainer.Add(slotSize * 2, -50 - (int) (1.5 * distance), new UiInventorySlot(
-                    player.Inventory.Equipment.EquipBottomRight, player.Inventory.PickedItem, itemModels, UiRenderLayer.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.EquipBottomRight, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
                 );
             }
             _ui.Add(target.Width / 2, target.Height - 60 - slotSize, equipmentContainer);

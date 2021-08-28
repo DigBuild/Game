@@ -38,12 +38,12 @@ namespace DigBuild.Controller
             Render.Worlds.WorldRenderLayers.Water,
         };
         private static readonly List<IRenderLayer> UiRenderLayers = new(){
-            UiRenderLayer.Ui,
+            Render.UiRenderLayers.Ui,
             Render.Worlds.WorldRenderLayers.Opaque,
             Render.Worlds.WorldRenderLayers.Cutout,
             Render.Worlds.WorldRenderLayers.Water,
-            UiRenderLayer.Text,
-            UiRenderLayer.UiOverlay
+            Render.UiRenderLayers.Text,
+            Render.UiRenderLayers.UiOverlay
         };
 
         private static readonly ImmutableList<IRenderUniform> UniformTypes = ImmutableList.Create<IRenderUniform>(

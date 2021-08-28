@@ -243,7 +243,7 @@ namespace DigBuild.Behaviors
                     if (block == null)
                         continue;
 
-                    var collider = block.Get(new BlockContext(world, pos, block), BlockAttributes.Collider);
+                    var collider = block.Get(world, pos, BlockAttributes.Collider);
                     var relativeBounds = translatedBounds - (Vector3) pos;
 
                     if (collider.Collide(relativeBounds, vel, out var intersection))

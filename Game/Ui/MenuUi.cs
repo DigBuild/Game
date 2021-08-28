@@ -16,7 +16,7 @@ namespace DigBuild.Ui
                     container.Clear();
 
                     container.Add(0, 0, new UiRectangle(
-                        target.Width, target.Height, UiRenderLayer.UiOverlay,
+                        target.Width, target.Height, UiRenderLayers.UiOverlay,
                         null, new Vector4(0.0f, 0.0f, 0.0f, 0.95f)
                     ));
                 },

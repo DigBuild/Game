@@ -1,5 +1,4 @@
 ﻿using System;
-using DigBuild.Behaviors;
 using DigBuild.Content.Behaviors;
 using DigBuild.Content.Blocks;
 using DigBuild.Engine.Blocks;
@@ -64,8 +63,7 @@ namespace DigBuild.Content.Registries
             );
             Water = registry.Create(DigBuildGame.Domain, "water", builder =>
                 {
-                    builder.Attach(new ColliderBehavior(ICollider.None));
-                    builder.Attach(new RayColliderBehavior(IRayCollider<VoxelRayCollider.Hit>.None));
+                    builder.Attach(new BoundsBehavior(null));
                     builder.Attach(new NoPunchBehavior());
                     builder.Attach(new NonSolidBehavior());
                     builder.Attach(new WaterBehavior());
@@ -92,8 +90,7 @@ namespace DigBuild.Content.Registries
             LogSmall = registry.Create(DigBuildGame.Domain, "log_small", builder =>
                 {
                     var aabb = new AABB(0.25f, 0, 0.25f, 0.75f, 1, 0.75f);
-                    builder.Attach(new ColliderBehavior(new VoxelCollider(aabb)));
-                    builder.Attach(new RayColliderBehavior(new VoxelRayCollider(aabb)));
+                    builder.Attach(new BoundsBehavior(aabb));
                     
                     builder.Attach(new VerticalSupportBehavior());
                     builder.Attach(new NonSolidBehavior());
@@ -151,6 +148,7 @@ namespace DigBuild.Content.Registries
                 {
                     builder.Attach(new ColliderBehavior(ICollider.None));
                     builder.Attach(new RayColliderBehavior(new VoxelRayCollider(new AABB(0.125f, 0, 0.125f, 0.875f, 0.5f, 0.875f))));
+                    builder.Attach(new BoundsBehavior(null));
 
                     builder.Attach(new LightEmittingBehavior(0x8));
                     builder.Attach(new NonSolidBehavior());
@@ -164,12 +162,14 @@ namespace DigBuild.Content.Registries
             {
                 builder.Attach(new ColliderBehavior(ICollider.None));
                 builder.Attach(new RayColliderBehavior(new VoxelRayCollider(new AABB(0.125f, 0, 0.125f, 0.875f, 0.5f, 0.875f))));
+                builder.Attach(new BoundsBehavior(null));
                 builder.Attach(new NonSolidBehavior());
             });
             Barley = registry.Create(DigBuildGame.Domain, "barley", builder =>
             {
                 builder.Attach(new ColliderBehavior(ICollider.None));
                 builder.Attach(new RayColliderBehavior(new VoxelRayCollider(new AABB(0.125f, 0, 0.125f, 0.875f, 0.5f, 0.875f))));
+                builder.Attach(new BoundsBehavior(null));
                 builder.Attach(new NonSolidBehavior());
             });
         }

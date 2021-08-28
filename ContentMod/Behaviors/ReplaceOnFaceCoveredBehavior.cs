@@ -29,7 +29,7 @@ namespace DigBuild.Content.Behaviors
                 var pos = evt.Pos.Offset(_face);
                 var block = evt.World.GetBlock(pos);
                 if (block != null && block
-                    .Get(new ReadOnlyBlockContext(evt.World, pos, block), BlockFaceSolidity.Attribute).Solid
+                    .Get(evt.World, pos, BlockFaceSolidity.Attribute).Solid
                     .Has(_face.GetOpposite()))
                 {
                     evt.World.SetBlock(evt.Pos, _replacementSupplier());

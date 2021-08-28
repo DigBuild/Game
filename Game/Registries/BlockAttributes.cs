@@ -9,6 +9,7 @@ namespace DigBuild.Registries
 {
     public class BlockAttributes
     {
+        public static BlockAttribute<AABB?> Bounds { get; private set; } = null!;
         public static BlockAttribute<ICollider> Collider { get; private set; } = null!;
         public static BlockAttribute<IRayCollider<VoxelRayCollider.Hit>> RayCollider { get; private set; } = null!;
 
@@ -19,13 +20,25 @@ namespace DigBuild.Registries
 
         internal static void Register(RegistryBuilder<IBlockAttribute> registry)
         {
-            Collider = registry.Register<ICollider>(
-                new ResourceName(DigBuildGame.Domain, "collider"),
-                new VoxelCollider(AABB.FullBlock)
+            Bounds = registry.Register<AABB?>(
+                new ResourceName(DigBuildGame.Domain, "bounds"),
+                AABB.FullBlock
             );
-            RayCollider = registry.Register<IRayCollider<VoxelRayCollider.Hit>>(
+            Collider = registry.Register(
+                new ResourceName(DigBuildGame.Domain, "collider"),
+                ctx =>
+                {
+                    var bounds = ctx.Block.Get(ctx, Bounds);
+                    return bounds.HasValue ? new VoxelCollider(bounds.Value) : ICollider.None;
+                }
+            );
+            RayCollider = registry.Register(
                 new ResourceName(DigBuildGame.Domain, "ray_collider"),
-                new VoxelRayCollider(AABB.FullBlock)
+                ctx =>
+                {
+                    var bounds = ctx.Block.Get(ctx, Bounds);
+                    return bounds.HasValue ? new VoxelRayCollider(bounds.Value) : IRayCollider<VoxelRayCollider.Hit>.None;
+                }
             );
             
             LightEmission = registry.Register(

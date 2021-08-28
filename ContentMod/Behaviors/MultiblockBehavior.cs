@@ -35,7 +35,7 @@ namespace DigBuild.Content.Behaviors
         {
             var masterPos = evt.Pos + data.Master;
             var masterBlock = evt.World.GetBlock(masterPos);
-            if (masterBlock?.Get(new BlockContext(evt.World, masterPos, masterBlock), BlockCapabilities.InternalMultiblock) is not InternalMultiblock multiblock)
+            if (masterBlock?.Get(evt.World, masterPos, BlockCapabilities.InternalMultiblock) is not InternalMultiblock multiblock)
             {
                 next();
                 return;
@@ -51,7 +51,7 @@ namespace DigBuild.Content.Behaviors
         public static void InitSlave(IWorld world, BlockPos pos, BlockPos masterPos)
         {
             var block = world.GetBlock(pos);
-            if (block?.Get(new BlockContext(world, pos, block), BlockCapabilities.InternalMultiblock) is not InternalMultiblock multiblock)
+            if (block?.Get(world, pos, BlockCapabilities.InternalMultiblock) is not InternalMultiblock multiblock)
                 return;
 
             multiblock.Master = new Vector3I(masterPos - pos);
@@ -60,7 +60,7 @@ namespace DigBuild.Content.Behaviors
         public static void InitMaster(IWorld world, BlockPos pos, HashSet<Vector3I> blocks)
         {
             var block = world.GetBlock(pos);
-            if (block?.Get(new BlockContext(world, pos, block), BlockCapabilities.InternalMultiblock) is not InternalMultiblock multiblock)
+            if (block?.Get(world, pos, BlockCapabilities.InternalMultiblock) is not InternalMultiblock multiblock)
                 return;
 
             multiblock.MasterInfo = new MultiblockMasterInfo(blocks);

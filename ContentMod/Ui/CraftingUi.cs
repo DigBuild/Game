@@ -25,7 +25,7 @@ namespace DigBuild.Content.Ui
                     for (var i = 0; i < shapedSlots.Length; i++)
                     {
                         container.Add(x, y, new UiInventorySlot(
-                            inventory.ShapedSlots[i], pickedItemSlot, itemModels, UiRenderLayer.Ui, GameHud.InventorySlotSprite
+                            inventory.ShapedSlots[i], pickedItemSlot, itemModels, UiRenderLayers.Ui, GameHud.InventorySlotSprite
                         ));
                         if (i is 1 or 4)
                         {
@@ -39,7 +39,7 @@ namespace DigBuild.Content.Ui
                     }
 
                     container.Add(120 + 90 * 3, 120 + 76, new UiInventorySlot(
-                        inventory.OutputSlot, pickedItemSlot, itemModels, UiRenderLayer.Ui, GameHud.InventorySlotSprite
+                        inventory.OutputSlot, pickedItemSlot, itemModels, UiRenderLayers.Ui, GameHud.InventorySlotSprite
                     ));
                 }
             };

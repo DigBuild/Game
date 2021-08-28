@@ -27,13 +27,13 @@ namespace DigBuild.Content.Ui
                     var x = (target.Width - 330) / 2 + 30;
                     var y = (target.Height - 170) / 2 + 32;
 
-                    container.Add(x - 60 - 30, y - 65 - 32, new UiRectangle(512, 512, UiRenderLayer.Ui, GameHud.PouchBackgroundSprite, Vector4.One));
+                    container.Add(x - 60 - 30, y - 65 - 32, new UiRectangle(512, 512, UiRenderLayers.Ui, GameHud.PouchBackgroundSprite, Vector4.One));
 
                     var slots = new UiInventorySlot[pouch.Slots.Length];
                     for (var i = 0; i < slots.Length; i++)
                     {
                         container.Add(x, y, new UiInventorySlot(
-                            pouch.Slots[i], pickedItemSlot, itemModels, UiRenderLayer.Ui, GameHud.InventorySlotSprite
+                            pouch.Slots[i], pickedItemSlot, itemModels, UiRenderLayers.Ui, GameHud.InventorySlotSprite
                         ));
                         x += 60;
                         if (i % 5 == 4)

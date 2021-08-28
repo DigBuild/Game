@@ -62,7 +62,7 @@ namespace DigBuild.Worlds
             if (block == null)
                 return GetCurrent(world, offset);
 
-            return block.Get(new ReadOnlyBlockContext(world, offset, block), BlockAttributes.LightEmission).Get(direction.GetOpposite());
+            return block.Get(world, offset, BlockAttributes.LightEmission).Get(direction.GetOpposite());
 
         }
         
@@ -71,7 +71,7 @@ namespace DigBuild.Worlds
             var block = world.GetBlock(pos);
             // TODO: Implement light absorption
             if (block != null)
-                return block.Get(new ReadOnlyBlockContext(world, pos, block), BlockAttributes.LightEmission).Local;
+                return block.Get(world, pos, BlockAttributes.LightEmission).Local;
             
             var negX = Get(world, pos, Direction.NegX);
             var posX = Get(world, pos, Direction.PosX);

@@ -29,7 +29,7 @@ namespace DigBuild.Worlds
                 return false;
             }
 
-            var rayCollider = block.Get(new BlockContext(_world, pos, block), BlockAttributes.RayCollider);
+            var rayCollider = block.Get(_world, pos, BlockAttributes.RayCollider);
             if (!rayCollider.TryCollide(ray - (Vector3) gridPosition, out var colliderHit))
             {
                 hit = null;

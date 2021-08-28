@@ -20,7 +20,7 @@ namespace DigBuild.Modding
             Assembly = assembly;
 
             var resourcePrefix = assembly.GetName().Name + ".Resources";
-
+            
             var modFileStream = assembly.GetManifestResourceStream($"{resourcePrefix}.digbuild-mod.txt");
             if (modFileStream == null)
                 throw new Exception($"Could not find digbuild-mod.txt in {assembly.FullName}");
