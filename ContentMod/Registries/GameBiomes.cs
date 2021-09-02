@@ -30,7 +30,7 @@ namespace DigBuild.Content.Registries
             {
                 Constraints = new WorldgenRangeSet
                 {
-                    { WorldgenAttributes.Inlandness, 0.5f, 1.0f },
+                    { WorldgenAttributes.Inlandness, 0.5f, 0.8f },
                     { WorldgenAttributes.Temperature, 0.4f, 1.0f }
                 },
                 Attributes = new BiomeAttributeSet

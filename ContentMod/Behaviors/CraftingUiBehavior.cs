@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DigBuild.Blocks;
 using DigBuild.Content.Ui;
+using DigBuild.Crafting;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Items.Inventories;

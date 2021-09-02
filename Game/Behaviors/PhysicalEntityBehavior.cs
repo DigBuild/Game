@@ -182,10 +182,10 @@ namespace DigBuild.Behaviors
                 set => _data.AngularVelocityYaw = value;
             }
             
-            public Vector3 PrevPosition { get; private set; }
-            public Vector3 PrevVelocity { get; private set; }
-            public float PrevPitch { get; private set; }
-            public float PrevYaw { get; private set; }
+            public Vector3 PrevPosition { get; set; }
+            public Vector3 PrevVelocity { get; set; }
+            public float PrevPitch { get; set; }
+            public float PrevYaw { get; set; }
 
             public void Rotate(float pitchDelta, float yawDelta)
             {
@@ -332,7 +332,7 @@ namespace DigBuild.Behaviors
 
         public PhysicalEntityData Copy()
         {
-            return new()
+            return new PhysicalEntityData
             {
                 InWorld = false,
                 OnGround = OnGround,
@@ -371,10 +371,10 @@ namespace DigBuild.Behaviors
         public float AngularVelocityPitch { get; set; }
         public float AngularVelocityYaw { get; set; }
         
-        public Vector3 PrevPosition { get; }
-        public Vector3 PrevVelocity { get; }
-        public float PrevPitch { get; }
-        public float PrevYaw { get; }
+        public Vector3 PrevPosition { get; set; }
+        public Vector3 PrevVelocity { get; set; }
+        public float PrevPitch { get; set; }
+        public float PrevYaw { get; set; }
 
         public void Rotate(float pitchDelta, float yawDelta);
         public void ApplyMotion(float forwardMotion, float sidewaysMotion);

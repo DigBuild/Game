@@ -1,6 +1,6 @@
 ﻿using System;
 using DigBuild.Content.Behaviors;
-using DigBuild.Content.Blocks;
+using DigBuild.Content.Data;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Math;

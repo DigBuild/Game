@@ -1,5 +1,6 @@
-﻿using DigBuild.Content.Blocks.Models;
+﻿using DigBuild.Content.Models.Blocks;
 using DigBuild.Content.Registries;
+using DigBuild.Crafting;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Events;
@@ -8,7 +9,6 @@ using DigBuild.Engine.Registries;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Events;
 using DigBuild.Modding;
-using DigBuild.Recipes;
 using DigBuild.Registries;
 using DigBuild.Worldgen.Biomes;
 using GameEntities = DigBuild.Content.Registries.GameEntities;

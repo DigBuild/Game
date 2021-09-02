@@ -41,9 +41,10 @@ namespace DigBuild.Content.Worldgen
                     continue;
 
                 var localHeight = Math.Min(Threshold, ChunkSize);
-                for (var y = 0; y <= localHeight - 1; y++)
+                var surface = localHeight - 1;
+                for (var y = 0; y <= surface; y++)
                 {
-                    var block = temperature[x, z] < 0.4f ? _iceBlock : _waterBlock;
+                    var block = temperature[x, z] < 0.4f && y == surface ? _iceBlock : _waterBlock;
 
                     var pos = new ChunkBlockPos(x, y, z);
                     if (chunk.GetBlock(pos) == null)

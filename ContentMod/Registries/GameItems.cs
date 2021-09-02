@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using DigBuild.Behaviors;
 using DigBuild.Content.Behaviors;
-using DigBuild.Content.Items;
+using DigBuild.Content.Data;
 using DigBuild.Content.Worldgen.Structure;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;

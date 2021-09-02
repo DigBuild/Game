@@ -11,7 +11,7 @@ namespace DigBuild.Players
         IPlayerEquipment Equipment { get; }
 
         uint ActiveHotbarSlot { get; set; }
-        ref IInventorySlot Hand { get; }
+        IInventorySlot Hand { get; }
         IInventorySlot PickedItem { get; }
 
         void CycleHotbar(int amount);
@@ -27,7 +27,7 @@ namespace DigBuild.Players
         public IPlayerEquipment Equipment { get; } = new PlayerEquipment();
 
         public uint ActiveHotbarSlot { get; set; }
-        public ref IInventorySlot Hand => ref _hotbar[ActiveHotbarSlot];
+        public IInventorySlot Hand => _hotbar[ActiveHotbarSlot];
         public IInventorySlot PickedItem { get; } = new InventorySlot();
 
         public PlayerInventory()

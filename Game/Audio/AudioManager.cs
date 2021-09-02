@@ -9,6 +9,8 @@ namespace DigBuild.Audio
 {
     public class AudioManager
     {
+        private readonly ResourceManager _resourceManager;
+
         private AudioSystem _audioSystem = null!;
         private bool _shouldStop;
 
@@ -19,42 +21,45 @@ namespace DigBuild.Audio
 
         public AudioManager(ResourceManager resourceManager)
         {
-            new Thread(() =>
-            {
-                _audioSystem = Platform.Platform.AudioSystem;
+            _resourceManager = resourceManager;
 
-                foreach (var sound in GameRegistries.Sounds.Values)
-                {
-                    sound.Load(resourceManager, _audioSystem);
-                }
-
-                while (!_shouldStop)
-                {
-                    while (_queuedSounds.TryDequeue(out var sound))
-                    {
-                        if (!_availablePlayers.TryDequeue(out var player))
-                            player = _audioSystem.CreatePlayer();
-
-                        sound.Setup(player);
-                        _playingSounds.Add(sound);
-                    }
-
-                    _playingSounds.RemoveWhere(sound =>
-                    {
-                        var playing = sound.Tick();
-                        if (playing) return false;
-                        _availablePlayers.Enqueue(sound.Player);
-                        return true;
-                    });
-
-                    Thread.Sleep(1000 / 50);
-                }
-
-                _audioSystem.Dispose();
-            })
+            new Thread(Run)
             {
                 Name = "Audio Subsystem"
             }.Start();
+        }
+
+        private void Run()
+        {
+            _audioSystem = Platform.Platform.AudioSystem;
+
+            foreach (var sound in GameRegistries.Sounds.Values)
+            {
+                sound.Load(_resourceManager, _audioSystem);
+            }
+
+            while (!_shouldStop)
+            {
+                while (_queuedSounds.TryDequeue(out var sound))
+                {
+                    if (!_availablePlayers.TryDequeue(out var player)) player = _audioSystem.CreatePlayer();
+
+                    sound.Setup(player);
+                    _playingSounds.Add(sound);
+                }
+
+                _playingSounds.RemoveWhere(sound =>
+                {
+                    var playing = sound.Tick();
+                    if (playing) return false;
+                    _availablePlayers.Enqueue(sound.Player);
+                    return true;
+                });
+
+                Thread.Sleep(1000 / 20);
+            }
+
+            _audioSystem.Dispose();
         }
 
         public void Stop()

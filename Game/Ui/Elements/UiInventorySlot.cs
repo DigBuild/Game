@@ -29,13 +29,14 @@ namespace DigBuild.Ui.Elements
         private readonly Func<bool>? _isActive;
         private readonly TextRenderer _textRenderer;
         private bool _hovered;
-
-        private readonly UiVertex[] _vertices = new UiVertex[3 * 2];
+        
+        private readonly UiVertex[] _vertices, _verticesActive;
 
         public UiInventorySlot(
             IInventorySlot slot, IInventorySlot pickedSlot,
             IReadOnlyDictionary<Item, IItemModel> models,
-            IRenderLayer<UiVertex> layer, ISprite? background,
+            IRenderLayer<UiVertex> layer,
+            ISprite? background, ISprite? backgroundActive = null,
             Func<bool>? isActive = null, TextRenderer textRenderer = null!
         )
         {
@@ -45,42 +46,14 @@ namespace DigBuild.Ui.Elements
             _layer = layer;
             _isActive = isActive;
             _textRenderer = textRenderer ?? IUiElement.GlobalTextRenderer;
-
-            var v1 = new UiVertex(
-                new Vector2(-Scale, -Scale),
-                background?.GetInterpolatedUV(0, 0) ?? Vector2.Zero,
-                Vector4.One
-            );
-            var v2 = new UiVertex(
-                new Vector2(Scale, -Scale),
-                background?.GetInterpolatedUV(1, 0) ?? Vector2.Zero,
-                Vector4.One
-            );
-            var v3 = new UiVertex(
-                new Vector2(Scale, Scale),
-                background?.GetInterpolatedUV(1, 1) ?? Vector2.Zero,
-                Vector4.One
-            );
-            var v4 = new UiVertex(
-                new Vector2(-Scale, Scale),
-                background?.GetInterpolatedUV(0, 1) ?? Vector2.Zero,
-                Vector4.One
-            );
-
-            _vertices[0 * 3 + 0] = v1;
-            _vertices[0 * 3 + 1] = v2;
-            _vertices[0 * 3 + 2] = v3;
-
-            _vertices[1 * 3 + 0] = v3;
-            _vertices[1 * 3 + 1] = v4;
-            _vertices[1 * 3 + 2] = v1;
+            
+            _vertices = GenerateVertices(background);
+            _verticesActive = GenerateVertices(backgroundActive);
         }
 
         public void Draw(RenderContext context, IGeometryBuffer buffer, float partialTick)
         {
-            buffer.Get(_layer).Accept(_vertices);
-            // if (_isActive != null && _isActive())
-            //     buffer.Get(_layer).Accept(MarkerVertices);
+            buffer.Get(_layer).Accept(_isActive != null && _isActive() ? _verticesActive : _vertices);
 
             var locked = _slot is ILockableInventorySlot { IsLocked: true };
             if (
@@ -203,13 +176,48 @@ namespace DigBuild.Ui.Elements
 
         private static bool IsInsideHexagon(Vector2 pos, Vector2 center, float radius)
         {
-            var _hori = radius * MathF.Cos(MathF.PI / 6);
-            var _vert = radius / 2;
+            var hor = radius * MathF.Cos(MathF.PI / 6);
+            var vert = radius / 2;
 
-            var q2x = MathF.Abs(pos.X - center.X);
-            var q2y = MathF.Abs(pos.Y - center.Y);
-            if (q2x > _hori || q2y > _vert * 2) return false;
-            return 2 * _vert * _hori - _vert * q2x - _hori * q2y >= 0;
+            var q2X = MathF.Abs(pos.X - center.X);
+            var q2Y = MathF.Abs(pos.Y - center.Y);
+            return !(q2X > hor) && !(q2Y > vert * 2) && 2 * vert * hor - vert * q2X - hor * q2Y >= 0;
+        }
+
+        private static UiVertex[] GenerateVertices(ISprite? background)
+        {
+            var v1 = new UiVertex(
+                new Vector2(-Scale, -Scale),
+                background?.GetInterpolatedUV(0, 0) ?? Vector2.Zero,
+                Vector4.One
+            );
+            var v2 = new UiVertex(
+                new Vector2(Scale, -Scale),
+                background?.GetInterpolatedUV(1, 0) ?? Vector2.Zero,
+                Vector4.One
+            );
+            var v3 = new UiVertex(
+                new Vector2(Scale, Scale),
+                background?.GetInterpolatedUV(1, 1) ?? Vector2.Zero,
+                Vector4.One
+            );
+            var v4 = new UiVertex(
+                new Vector2(-Scale, Scale),
+                background?.GetInterpolatedUV(0, 1) ?? Vector2.Zero,
+                Vector4.One
+            );
+
+            var vertices = new UiVertex[3 * 2];
+
+            vertices[0 * 3 + 0] = v1;
+            vertices[0 * 3 + 1] = v2;
+            vertices[0 * 3 + 2] = v3;
+
+            vertices[1 * 3 + 0] = v3;
+            vertices[1 * 3 + 1] = v4;
+            vertices[1 * 3 + 2] = v1;
+
+            return vertices;
         }
     }
 }

@@ -42,7 +42,7 @@ namespace DigBuild.Players
         public bool UpdateInteraction(GameInput input, WorldRayCastContext.Hit? hit)
         {
             var world = _player.Entity.World;
-            ref var hand = ref _player.Inventory.Hand;
+            var hand = _player.Inventory.Hand;
             
             if (!input.PrevActivate && input.Activate)
             {

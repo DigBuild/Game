@@ -5,7 +5,6 @@ using DigBuild.Controller;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worlds.Impl;
-using DigBuild.Platform.Resource;
 using DigBuild.Registries;
 
 namespace DigBuild.Players
@@ -53,7 +52,7 @@ namespace DigBuild.Players
             var blockPos = new BlockPos(eyePosition);
             var eyeBlock = Entity.World.GetBlock(blockPos);
 
-            var underwater = eyeBlock != null && eyeBlock.Name.Equals(new ResourceName(DigBuildGame.Domain, "water"));
+            var underwater = eyeBlock != null && eyeBlock.Get(Entity.World, blockPos, BlockAttributes.Water);
 
             return new PlayerCamera(
                 eyePosition,

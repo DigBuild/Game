@@ -28,32 +28,32 @@ namespace DigBuild
                 throw new InvalidOperationException("Tick source is already running.");
 
             _shouldStop = false;
-            _thread = new Thread(() =>
-            {
-                while (true)
-                {
-                    while (Paused && !_shouldStop)
-                        Thread.Sleep(TickTimeSpan);
-                    
-                    if (_shouldStop)
-                        break;
+            _thread = new Thread(Run) { Name = "Ticking Thread" };
+            _thread.Start();
+        }
 
-                    long elapsed;
-                    lock (this)
-                    {
-                        var start = DateTime.Now.Ticks;
-                        _interpolator = new Interpolator(start);
-                        Tick?.Invoke();
-                        elapsed = DateTime.Now.Ticks - start;
-                    }
-                    var remainder = SystemTicksPerGameTick - elapsed;
-                    if (remainder > 0)
-                        Thread.Sleep(new TimeSpan(remainder));
+        private void Run()
+        {
+            while (true)
+            {
+                while (Paused && !_shouldStop) Thread.Sleep(TickTimeSpan);
+
+                if (_shouldStop) break;
+
+                long elapsed;
+                lock (this)
+                {
+                    var start = DateTime.Now.Ticks;
+                    _interpolator = new Interpolator(start);
+                    Tick?.Invoke();
+                    elapsed = DateTime.Now.Ticks - start;
                 }
 
-                _thread = null;
-            }) { Name = "Ticking Thread" };
-            _thread.Start();
+                var remainder = SystemTicksPerGameTick - elapsed;
+                if (remainder > 0) Thread.Sleep(new TimeSpan(remainder));
+            }
+
+            _thread = null;
         }
 
         public void Stop()

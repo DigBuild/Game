@@ -42,6 +42,9 @@ namespace DigBuild.Registries
             if (physicalEntity == null)
                 throw new ArgumentException("Cannot set position on a non-physical entity.");
             physicalEntity.Position = position;
+            // Prevent teleportation jitter
+            physicalEntity.PrevPosition = position;
+            physicalEntity.PrevVelocity = Vector3.Zero;
             return entity;
         }
         public static EntityInstance WithItem(this EntityInstance entity, ItemInstance item)

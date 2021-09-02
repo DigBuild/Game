@@ -99,8 +99,8 @@ namespace DigBuild.Controller
             else
             {
                 SwapUp = SwapDown = false;
-                CycleRight = _accumulatedScroll > 0;
-                CycleLeft = _accumulatedScroll < 0;
+                CycleRight = _accumulatedScroll < 0;
+                CycleLeft = _accumulatedScroll > 0;
             }
 
             _prevCursorX = _cursorX;

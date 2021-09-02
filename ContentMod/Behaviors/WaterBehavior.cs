@@ -1,9 +1,10 @@
 ﻿using System;
-using DigBuild.Content.Blocks.Models;
+using DigBuild.Content.Models.Blocks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render.Models;
 using DigBuild.Engine.Worlds.Impl;
+using DigBuild.Registries;
 
 namespace DigBuild.Content.Behaviors
 {
@@ -12,6 +13,7 @@ namespace DigBuild.Content.Behaviors
         public void Build(BlockBehaviorBuilder<object, object> block)
         {
             block.Add(ModelData.BlockAttribute, GetModelData);
+            block.Add(BlockAttributes.Water, (_, _, _) => true);
         }
 
         private static ModelData GetModelData(IReadOnlyBlockContext context, object _, Func<ModelData> next)

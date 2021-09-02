@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
+using DigBuild.Crafting;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Items.Inventories;
-using DigBuild.Recipes;
 
 namespace DigBuild.Content.Behaviors
 {

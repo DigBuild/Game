@@ -1,7 +1,7 @@
-﻿using DigBuild.Engine.Items;
+﻿using DigBuild.Crafting;
+using DigBuild.Engine.Items;
 using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
-using DigBuild.Recipes;
 
 namespace DigBuild.Content.Registries
 {

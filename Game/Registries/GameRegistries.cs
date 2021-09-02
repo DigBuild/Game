@@ -1,6 +1,7 @@
 ﻿using System;
 using DigBuild.Audio;
 using DigBuild.Blocks;
+using DigBuild.Crafting;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Events;
@@ -12,7 +13,6 @@ using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
 using DigBuild.Entities;
 using DigBuild.Items;
-using DigBuild.Recipes;
 using DigBuild.Render.Models.Geometry;
 using DigBuild.Worldgen.Biomes;
 

@@ -13,9 +13,11 @@ namespace DigBuild
     {
         [JsonIgnore]
         private string _path = null!;
-        
+
+        public long Seed { get; set; } = RandomLong();
+
         public WorldgenT Worldgen { get; set; } = new();
-        
+
         public sealed class WorldgenT
         {
             public List<IWorldgenFeature> Features { get; set; } = new()
@@ -39,7 +41,9 @@ namespace DigBuild
                     new JsonStringRegistryEntryConverter<IWorldgenFeature>(GameRegistries.WorldgenFeatures)
                 }
             });
-            Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
+            var parentDir = Path.GetDirectoryName(_path) ?? string.Empty;
+            if (parentDir.Length > 0)
+                Directory.CreateDirectory(parentDir);
             File.WriteAllText(_path, fileContents);
         }
 
@@ -76,6 +80,12 @@ namespace DigBuild
             cfg.Save();
 
             return cfg;
+        }
+
+        private static long RandomLong()
+        {
+            var rnd = new Random();
+            return ((long)rnd.Next() << 32) | (uint)rnd.Next();
         }
     }
 }

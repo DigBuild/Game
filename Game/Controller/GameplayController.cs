@@ -73,7 +73,7 @@ namespace DigBuild.Controller
         
         public GameInput InputController { get; } = new();
 
-        public WorldRenderer WorldRenderer { get; }
+        public WorldRenderManager WorldRenderManager { get; }
         public UiManager UiManager { get; }
 
         public IReadOnlyTextureSet Textures => _textures;
@@ -83,7 +83,7 @@ namespace DigBuild.Controller
             _game = game;
             _textures = new TextureSet(this);
             
-            var config = Config.Load("server/config.json");
+            var config = Config.Load("config.json");
 
             Dictionary<ChunkPos, BlockChunkRenderer> blockChunkRenderers = new();
             void NotifyChunkReRender(ChunkPos pos)
@@ -92,7 +92,7 @@ namespace DigBuild.Controller
                     r.OnChanged();
             }
 
-            var generator = new WorldGenerator(game.TickSource, config.Worldgen.Features, 0);
+            var generator = new WorldGenerator(game.TickSource, config.Worldgen.Features, config.Seed);
             _world = new World(game.TickSource, generator, (world, pos) => new RegionStorage(world, pos, game.TickSource), _game.EventBus, NotifyChunkReRender);
             RayCastContext = new WorldRayCastContext(World);
             
@@ -102,7 +102,7 @@ namespace DigBuild.Controller
             _particleSystems = GameRegistries.ParticleSystems.Values.Select(d => d.System).ToImmutableList();
             _particleRenderers = GameRegistries.ParticleSystems.Values.Select(d => d.Renderer).ToImmutableList();
             
-            WorldRenderer = new WorldRenderer(
+            WorldRenderManager = new WorldRenderManager(
                 World,
                 RayCastContext,
                 world => ImmutableList.Create<IWorldRenderer>(
@@ -128,10 +128,20 @@ namespace DigBuild.Controller
             );
             
             UiManager = new UiManager(this, UiRenderLayers, UniformTypes, _game.BufferPool);
-            game.EventBus.Subscribe<UiTextureStitchingEvent>(GameHud.OnUiTextureStitching);
+            game.EventBus.Subscribe<TextureStitchingEvent>(GameHud.OnTextureStitching);
+
+            var top = (int) WorldDimensions.ChunkHeight - 1;
+            for (; top > 0; top--)
+            {
+                if (World.GetBlock(new BlockPos(0, top, 0)) == null)
+                    continue;
+
+                top += 1;
+                break;
+            }
 
             var playerEntity = World.GetEntity(Guid.Empty);
-            playerEntity ??= World.AddEntity(GameEntities.Player, Guid.Empty).WithPosition(new Vector3(0, 30, 0));
+            playerEntity ??= World.AddEntity(GameEntities.Player, Guid.Empty).WithPosition(new Vector3(0.5f, top + 2, 0.5f));
             
             Player = new Player(this, playerEntity);
             _playerController = new PlayerController(Player);
@@ -148,7 +158,7 @@ namespace DigBuild.Controller
         public void Dispose()
         {
             _world.Dispose();
-            WorldRenderer.Dispose();
+            WorldRenderManager.Dispose();
         }
 
         public void Boop()
@@ -205,11 +215,11 @@ namespace DigBuild.Controller
                 //     surface.InputContext.CenterCursor();
                 
                 var partialTick = _game.TickSource.CurrentTick.Value;
-                WorldRenderer.UpdateAndRender(context, Player.GetCamera(partialTick), partialTick);
+                WorldRenderManager.UpdateAndRender(context, Player.GetCamera(partialTick), partialTick);
                 UiManager.UpdateAndRender(context, partialTick);
 
                 var playerCamera = Player.GetCamera(_game.TickSource.CurrentTick.Value);
-                var projMat = WorldRenderer.GetProjectionMatrix(playerCamera);
+                var projMat = WorldRenderManager.GetProjectionMatrix(playerCamera);
                 var worldTime = World.AbsoluteTime;
                 var underwater = playerCamera.IsUnderwater;
 
@@ -245,7 +255,7 @@ namespace DigBuild.Controller
         private void SetupResources(RenderContext context, RenderSurfaceContext surface)
         {
             _renderResources = new RenderResources(context, surface, _game.ResourceManager);
-            WorldRenderer.Setup(context, _game.ResourceManager, _renderResources.RenderStage);
+            WorldRenderManager.Setup(context, _game.ResourceManager, _renderResources.RenderStage);
             UiManager.Setup(context, _game.ResourceManager, _renderResources.RenderStage);
 
             _game.ModelManager.Load(_game.ResourceManager);
@@ -253,6 +263,7 @@ namespace DigBuild.Controller
             var stitcher = new TextureStitcher();
             var loader = new MultiSpriteLoader(_game.ResourceManager, stitcher);
             _game.ModelManager.LoadTextures(loader);
+            _game.EventBus.Post(new TextureStitchingEvent(RenderTextures.Main, stitcher, _game.ResourceManager));
             var spriteSheet = stitcher.Stitch(new ResourceName(DigBuildGame.Domain, "texturemap"));
             _textures.TextureSheet = context.CreateTexture(spriteSheet.Bitmap);
 
@@ -265,7 +276,7 @@ namespace DigBuild.Controller
 
             foreach (var layer in allRenderLayers)
                 layer.InitResources(context, _game.ResourceManager, _renderResources.RenderStage);
-            WorldRenderer.InitLayerBindings(context);
+            WorldRenderManager.InitLayerBindings(context);
             UiManager.InitLayerBindings(context);
 
             foreach (var particleRenderer in _particleRenderers)
@@ -274,9 +285,9 @@ namespace DigBuild.Controller
 
         private void SetupSurfaceResources(RenderContext context, RenderSurfaceContext surface)
         {
-            var worldFB = WorldRenderer.UpdateFramebuffer(context, _renderResources.Format, surface.Width, surface.Height);
+            var worldFB = WorldRenderManager.UpdateFramebuffer(context, _renderResources.Format, surface.Width, surface.Height);
             var uiFB = UiManager.UpdateFramebuffer(context, _renderResources.Format, surface.Width, surface.Height);
-            var projMat = WorldRenderer.GetProjectionMatrix(Player.GetCamera(0));
+            var projMat = WorldRenderManager.GetProjectionMatrix(Player.GetCamera(0));
             _surfaceResources = new SurfaceResources(context, surface, _game.ResourceManager, _renderResources, _game.BufferPool, worldFB, uiFB, projMat);
         }
 
@@ -374,7 +385,7 @@ namespace DigBuild.Controller
 
         private sealed class SurfaceResources
         {
-            public readonly Framebuffer WorldFramebuffer; // Managed by WorldRenderer
+            public readonly Framebuffer WorldFramebuffer; // Managed by WorldRenderManager
             public readonly Framebuffer UiFramebuffer; // Managed by UiManager
             
             public readonly Framebuffer WorldCompFramebuffer;

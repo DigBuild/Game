@@ -105,7 +105,7 @@ namespace DigBuild.Ui
 
             var uiStitcher = new TextureStitcher();
             uiStitcher.Add(resourceManager.GetResource(DigBuildGame.Domain, "textures/ui/white.png")!);
-            Controller.Game.EventBus.Post(new UiTextureStitchingEvent(uiStitcher, resourceManager));
+            Controller.Game.EventBus.Post(new TextureStitchingEvent(RenderTextures.UiMain, uiStitcher, resourceManager));
             _textureSet.UiTexture = context.CreateTexture(uiStitcher.Stitch(new ResourceName(DigBuildGame.Domain, "ui_texturemap")).Bitmap);
 
             IUiElement.GlobalTextRenderer = new TextRenderer(UiRenderLayers.Text);

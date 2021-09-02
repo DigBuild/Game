@@ -17,6 +17,8 @@ namespace DigBuild.Registries
 
         public static BlockAttribute<Direction?> Direction { get; private set; } = null!;
         public static BlockAttribute<Direction?> HorizontalDirection { get; private set; } = null!;
+        
+        public static BlockAttribute<bool> Water { get; private set; } = null!;
 
         internal static void Register(RegistryBuilder<IBlockAttribute> registry)
         {
@@ -53,6 +55,11 @@ namespace DigBuild.Registries
             HorizontalDirection = registry.Register(
                 new ResourceName(DigBuildGame.Domain, "horizontal_direction"),
                 (Direction?) null
+            );
+            
+            Water = registry.Register(
+                new ResourceName(DigBuildGame.Domain, "water"),
+                false
             );
         }
     }

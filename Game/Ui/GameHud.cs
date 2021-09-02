@@ -4,14 +4,12 @@ using DigBuild.Engine.Math;
 using DigBuild.Engine.Physics;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Textures;
-using DigBuild.Engine.Ui;
 using DigBuild.Engine.Ui.Elements;
 using DigBuild.Engine.Worlds.Impl;
 using DigBuild.Events;
 using DigBuild.Items;
 using DigBuild.Platform.Input;
 using DigBuild.Platform.Render;
-using DigBuild.Registries;
 using DigBuild.Render;
 using DigBuild.Ui.Elements;
 using DigBuild.Worlds;
@@ -25,10 +23,14 @@ namespace DigBuild.Ui
         private static ISprite EquipmentButtonSprite3 { get; set; } = null!;
         
         public static ISprite InventorySlotSprite { get; set; } = null!;
+        public static ISprite InventorySlotActiveSprite { get; set; } = null!;
         public static ISprite PouchBackgroundSprite { get; set; } = null!;
 
-        public static void OnUiTextureStitching(UiTextureStitchingEvent evt)
+        public static void OnTextureStitching(TextureStitchingEvent evt)
         {
+            if (evt.Texture != RenderTextures.UiMain)
+                return;
+
             var stitcher = evt.Stitcher;
             var resourceManager = evt.ResourceManager;
             
@@ -36,6 +38,7 @@ namespace DigBuild.Ui
             EquipmentButtonSprite2 = stitcher.Add(resourceManager.Get<BitmapTexture>(DigBuildGame.Domain, "textures/ui/button_hovered.png")!);
             EquipmentButtonSprite3 = stitcher.Add(resourceManager.Get<BitmapTexture>(DigBuildGame.Domain, "textures/ui/button_clicked.png")!);
             InventorySlotSprite = stitcher.Add(resourceManager.Get<BitmapTexture>(DigBuildGame.Domain, "textures/ui/inventory_slot.png")!);
+            InventorySlotActiveSprite = stitcher.Add(resourceManager.Get<BitmapTexture>(DigBuildGame.Domain, "textures/ui/inventory_slot_active.png")!);
             PouchBackgroundSprite = stitcher.Add(resourceManager.Get<BitmapTexture>(DigBuildGame.Domain, "textures/ui/pouch_background.png")!);
         }
 
@@ -45,10 +48,8 @@ namespace DigBuild.Ui
         private SimpleUi.Context _context = null!;
         private UiManager _manager = null!;
 
-        private readonly UiLabel _positionLabel = new();
-        private readonly UiLabel _lookLabel = new();
-        private readonly UiLabel _lightLabel = new();
-        private readonly UiLabel _handLabel = new();
+        private UiLabel _positionLabel = null!;
+        private UiLabel _lookLabel = null!;
 
         private bool _isTop;
         private bool _isMouseFree;
@@ -71,16 +72,11 @@ namespace DigBuild.Ui
         public void OnResized(IRenderTarget target)
         {
             _ui.Clear();
-
-            // _ui.Add(20, 20, _positionLabel);
-            // _ui.Add(20, 50, _lookLabel);
-            // _ui.Add(20, 80, _lightLabel);
-            // _ui.Add(20, 110, _handLabel);
             
-            _ui.Add(20, 20, new UiLabel("DISCLAIMER:", yellow: true));
-            _ui.Add(20, 50, new UiLabel("This is not a complete game.", yellow: true));
-            _ui.Add(20, 80, new UiLabel("It is only a tech demo of the capabilities of the engine.", yellow: true));
-            _ui.Add(20, 110, new UiLabel("Do not expect deep, extensive or bug-free gameplay.", yellow: true));
+            _ui.Add(20, 20, new UiLabel("DISCLAIMER: This is only a tech demo.", yellow: true));
+            _ui.Add(20, 50, new UiLabel("Do not expect deep, extensive or bug-free gameplay.", yellow: true));
+            _ui.Add(20, 80, _positionLabel = new UiLabel());
+            _ui.Add(20, 110, _lookLabel = new UiLabel());
 
             const int slotSize = (int)UiInventorySlot.Scale;
 
@@ -98,7 +94,7 @@ namespace DigBuild.Ui
                     var i1 = i;
                     _ui.Add(off, (int) target.Height - 60, new UiInventorySlot(
                         slot, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, 
-                        InventorySlotSprite,
+                        InventorySlotSprite, InventorySlotActiveSprite,
                         () => player.Inventory.ActiveHotbarSlot == i1)
                     );
                     off += slotSize * 2;
@@ -118,29 +114,29 @@ namespace DigBuild.Ui
             {
                 const int distance = slotSize * 2 + 10;
                 equipmentContainer.Add(0, -50 - 0 * distance, new UiInventorySlot(
-                    player.Inventory.Equipment.Boots, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.Boots, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite)
                 );
                 equipmentContainer.Add(0, -50 - 1 * distance, new UiInventorySlot(
-                    player.Inventory.Equipment.Leggings, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.Leggings, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite)
                 );
                 equipmentContainer.Add(0, -50 - 2 * distance, new UiInventorySlot(
-                    player.Inventory.Equipment.Chestplate, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.Chestplate, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite)
                 );
                 equipmentContainer.Add(0, -50 - 3 * distance, new UiInventorySlot(
-                    player.Inventory.Equipment.Helmet, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.Helmet, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite)
                 );
                 
                 equipmentContainer.Add(-slotSize * 2, -50 - (int) (2.5 * distance), new UiInventorySlot(
-                    player.Inventory.Equipment.EquipTopLeft, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.EquipTopLeft, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite)
                 );
                 equipmentContainer.Add(slotSize * 2, -50 - (int) (2.5 * distance), new UiInventorySlot(
-                    player.Inventory.Equipment.EquipTopRight, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.EquipTopRight, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite)
                 );
                 equipmentContainer.Add(-slotSize * 2, -50 - (int) (1.5 * distance), new UiInventorySlot(
-                    player.Inventory.Equipment.EquipBottomLeft, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.EquipBottomLeft, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite)
                 );
                 equipmentContainer.Add(slotSize * 2, -50 - (int) (1.5 * distance), new UiInventorySlot(
-                    player.Inventory.Equipment.EquipBottomRight, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite, () => false)
+                    player.Inventory.Equipment.EquipBottomRight, player.Inventory.PickedItem, itemModels, UiRenderLayers.Ui, InventorySlotSprite)
                 );
             }
             _ui.Add(target.Width / 2, target.Height - 60 - slotSize, equipmentContainer);
@@ -165,8 +161,6 @@ namespace DigBuild.Ui
 
             _positionLabel.Text = $"Position: {blockPos}";
             _lookLabel.Text = $"Look: {hit?.Position} {(hit != null ? player.Entity.World.GetBlock(hit.BlockPos) : null)}";
-            _lightLabel.Text = $"Biome: {GameRegistries.Biomes.GetNameOrNull(biome)}";
-            _handLabel.Text = $"Hand: {player.Inventory.Hand.Item}";
 
             _ui.Draw(context, buffer, partialTick);
         }

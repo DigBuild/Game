@@ -15,7 +15,7 @@ namespace DigBuild.Modding
 
         public IResourceProvider Resources { get; }
 
-        public ModContainer(Assembly assembly)
+        private ModContainer(Assembly assembly)
         {
             Assembly = assembly;
 
@@ -90,6 +90,11 @@ namespace DigBuild.Modding
 
                 }
             }
+        }
+
+        public static ModContainer FromFile(string path)
+        {
+            return new ModContainer(Assembly.LoadFile(Path.GetFullPath(path)));
         }
     }
 }

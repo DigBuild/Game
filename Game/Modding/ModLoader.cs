@@ -22,7 +22,7 @@ namespace DigBuild.Modding
             _loaded = true;
             
             // Content assembly
-            _mods.Add(new ModContainer(Assembly.LoadFile(Path.GetFullPath("DigBuild.Content.dll"))));
+            _mods.Add(ModContainer.FromFile("DigBuild.Content.dll"));
 
             // Mods
             if (Directory.Exists("mods"))
@@ -34,7 +34,7 @@ namespace DigBuild.Modding
                         continue;
                     try
                     {
-                        _mods.Add(new ModContainer(Assembly.LoadFile(Path.GetFullPath(candidate))));
+                        _mods.Add(ModContainer.FromFile(candidate));
                     }
                     catch (Exception ex)
                     {

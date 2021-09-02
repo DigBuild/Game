@@ -29,7 +29,6 @@ namespace DigBuild.Behaviors
         public void Build(EntityBehaviorBuilder<IItemEntityBehavior, IItemEntityBehavior> entity)
         {
             entity.Add(EntityAttributes.Item, (_, data, _) => data.Item);
-            entity.Add(EntityAttributes.ItemJoinWorldTime, (_, data, _) => data.JoinWorldTime);
             entity.Add(EntityCapabilities.ItemEntity, (_, data, _) => data.Capability);
             entity.Add(ModelData.EntityAttribute, GetModelData);
             entity.Subscribe(OnJoinedWorld);

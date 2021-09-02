@@ -58,7 +58,7 @@ namespace DigBuild.Behaviors
 
                 if (PickupBounds.Contains(relPos))
                 {
-                    var item = itemEntity.Get(EntityAttributes.Item)!;
+                    var item = itemEntity.Get(EntityAttributes.Item)!.Copy();
                     
                     var t = data.PickupTarget.BeginTransaction();
                     if (t.Insert(item).Count == 0)
