@@ -107,7 +107,7 @@ namespace DigBuild.Controller
             }
 
             PrevCloseUi = CloseUi;
-            CloseUi = _controller != null && _controller.Buttons[7];
+            CloseUi = hasController && _controller!.Buttons[7];
             if (CloseUi && !PrevCloseUi)
             {
                 if (uiManager.Uis.Count() > 1)
