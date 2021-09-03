@@ -101,6 +101,7 @@ namespace DigBuild.Content.Registries
                 builder.Attach(new PouchBehavior(), data);
 
                 builder.Attach(new EquippableBehavior(EquippableFlags.Equipment));
+                builder.Attach(MaxStackSizeBehavior.One);
             });
         }
 
