@@ -17,6 +17,8 @@ namespace DigBuild
         private bool _shouldStop;
 
         public event Action? Tick;
+        public event Action? HighPriorityTick;
+
         public IInterpolator CurrentTick => _interpolator;
         public bool Running => _thread != null;
 
@@ -34,18 +36,16 @@ namespace DigBuild
 
         private void Run()
         {
-            while (true)
+            while (!_shouldStop)
             {
-                while (Paused && !_shouldStop) Thread.Sleep(TickTimeSpan);
-
-                if (_shouldStop) break;
-
                 long elapsed;
                 lock (this)
                 {
                     var start = DateTime.Now.Ticks;
                     _interpolator = new Interpolator(start);
-                    Tick?.Invoke();
+                    HighPriorityTick?.Invoke();
+                    if (!Paused)
+                        Tick?.Invoke();
                     elapsed = DateTime.Now.Ticks - start;
                 }
 

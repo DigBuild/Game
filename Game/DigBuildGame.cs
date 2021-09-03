@@ -53,7 +53,8 @@ namespace DigBuild
             EventBus.Subscribe<ModelsBakedEvent>(OnModelsBaked);
 
             AudioManager = new AudioManager(ResourceManager);
-
+            
+            TickSource.HighPriorityTick += () => Controller.SystemTick();
             TickSource.Tick += () => Controller.Tick();
             Window = new GameWindow(this);
             Controller = new GameplayController(this);

@@ -147,12 +147,13 @@ namespace DigBuild.Controller
             _playerController = new PlayerController(Player);
 
             var inventory = Player.Inventory;
-            inventory.Hand.TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "pouch")!, 64));
             
-            inventory.Hotbar[3].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "campfire")!, 64));
-            inventory.Hotbar[4].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "stone")!, 6));
+            inventory.Hotbar[2].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "campfire")!, 1));
+            inventory.Hotbar[3].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "stone")!, 50));
             inventory.Hotbar[7].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "barley")!, 93));
             inventory.Hotbar[8].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "tallgrass")!, 4));
+            
+            inventory.Equipment.EquipTopLeft.TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "pouch")!, 1));
         }
 
         public void Dispose()
@@ -166,9 +167,13 @@ namespace DigBuild.Controller
             _game.AudioManager.Play(GameSounds.Boop, pitch: 0.8f - (float) (new Random().NextDouble() * 0.05), gain: 0.1f);
         }
 
+        public void SystemTick()
+        {
+            InputController.Update(UiManager);
+        }
+
         public void Tick()
         {
-            InputController.Update();
             _playerController.UpdateMovement(InputController);
             _playerController.UpdateHotbar(InputController);
             var hit = Raycast.Cast(RayCastContext, Player.GetCamera(0).Ray);

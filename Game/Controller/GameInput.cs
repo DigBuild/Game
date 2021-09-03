@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using DigBuild.Platform.Input;
+using DigBuild.Ui;
 
 namespace DigBuild.Controller
 {
@@ -26,6 +27,8 @@ namespace DigBuild.Controller
 
         public bool PrevSwapUp, SwapUp;
         public bool PrevSwapDown, SwapDown;
+
+        public bool CloseUi, PrevCloseUi;
 
         public void OnKeyboardEvent(uint code, KeyboardAction action)
         {
@@ -67,7 +70,7 @@ namespace DigBuild.Controller
             _accumulatedScroll += yOffset;
         }
 
-        public void Update()
+        public void Update(UiManager uiManager)
         {
             Platform.Platform.InputContext.Update();
             _controller ??= Platform.Platform.InputContext.Controllers.FirstOrDefault();
@@ -76,8 +79,8 @@ namespace DigBuild.Controller
             var cursorDeltaY = (int) (_cursorY - _prevCursorY) * 0.0125f;
 
             var hasController = _controller is { Connected: true };
-            YawDelta = Bias(hasController ? _controller!.Joysticks[2] : 0) + cursorDeltaX;
-            PitchDelta = -Bias(hasController ? _controller!.Joysticks[3] : 0) - cursorDeltaY;
+            YawDelta = Bias(hasController ? _controller!.Joysticks[2] : 0, true) + cursorDeltaX;
+            PitchDelta = -Bias(hasController ? _controller!.Joysticks[3] : 0, true) - cursorDeltaY;
             ForwardDelta = _keyS ? -1 : _keyW ? 1 : -Bias(hasController ? _controller!.Joysticks[1] : 0);
             SidewaysDelta = _keyA ? -1 : _keyD ? 1 : Bias(hasController ? _controller!.Joysticks[0] : 0);
             Jump = _keySpace || (hasController && _controller!.Buttons[5]);
@@ -103,15 +106,25 @@ namespace DigBuild.Controller
                 CycleLeft = _accumulatedScroll > 0;
             }
 
+            PrevCloseUi = CloseUi;
+            CloseUi = _controller != null && _controller.Buttons[7];
+            if (CloseUi && !PrevCloseUi)
+            {
+                if (uiManager.Uis.Count() > 1)
+                    uiManager.CloseTop();
+                else
+                    uiManager.Open(MenuUi.Create());
+            }
+
             _prevCursorX = _cursorX;
             _prevCursorY = _cursorY;
             _accumulatedScroll = 0;
         }
 
-        private static float Bias(float value)
+        private static float Bias(float value, bool scale = false)
         {
             if (Math.Abs(value) < 0.1F) return 0;
-            return value;
+            return scale ? MathF.CopySign(value * value, value) : value;
         }
     }
 }

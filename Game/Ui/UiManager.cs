@@ -94,6 +94,12 @@ namespace DigBuild.Ui
             UpdatePauseState();
         }
 
+        public void CloseTop()
+        {
+            if (_uis.Count > 1)
+                Close(_uis.First());
+        }
+
         public void Setup(RenderContext context, ResourceManager resourceManager, RenderStage renderStage)
         {
             _commandBuffer = context.CreateCommandBuffer();
