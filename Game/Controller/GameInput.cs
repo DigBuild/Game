@@ -12,10 +12,7 @@ namespace DigBuild.Controller
         private uint _cursorX, _cursorY, _prevCursorX, _prevCursorY;
         private bool _btnL, _btnR;
         private double _accumulatedScroll;
-
-        private bool _keyQ;
-        public static bool ReRender;
-
+        
         public float PitchDelta, YawDelta, ForwardDelta, SidewaysDelta;
         public bool Jump;
         
@@ -42,13 +39,6 @@ namespace DigBuild.Controller
                 _keyD = action == KeyboardAction.Press || (action != KeyboardAction.Release && _keyD);
             if (code == 57)
                 _keySpace = action == KeyboardAction.Press || (action != KeyboardAction.Release && _keySpace);
-
-            if (code == 16)
-            {
-                var wasPressed = _keyQ;
-                _keyQ = action == KeyboardAction.Press || (action != KeyboardAction.Release && _keyQ);
-                ReRender = !wasPressed && _keyQ;
-            }
         }
 
         public void OnCursorMoved(uint x, uint y)

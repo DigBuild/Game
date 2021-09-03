@@ -42,7 +42,8 @@ namespace DigBuild
                 lock (this)
                 {
                     var start = DateTime.Now.Ticks;
-                    _interpolator = new Interpolator(start);
+                    if (!Paused)
+                        _interpolator = new Interpolator(start);
                     HighPriorityTick?.Invoke();
                     if (!Paused)
                         Tick?.Invoke();
