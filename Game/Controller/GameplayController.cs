@@ -148,10 +148,8 @@ namespace DigBuild.Controller
 
             var inventory = Player.Inventory;
             
-            inventory.Hotbar[2].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "campfire")!, 1));
-            inventory.Hotbar[3].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "stone")!, 50));
-            inventory.Hotbar[7].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "barley")!, 93));
-            inventory.Hotbar[8].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "tallgrass")!, 4));
+            inventory.Hotbar[1].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "campfire")!, 1));
+            inventory.Hotbar[2].TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "stone")!, 20));
             
             inventory.Equipment.EquipTopLeft.TrySetItem(new ItemInstance(GameRegistries.Items.GetOrNull(DigBuildGame.Domain, "pouch")!, 1));
         }
