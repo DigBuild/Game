@@ -84,6 +84,7 @@ namespace DigBuild.Behaviors
             data.Capability = new PhysicalEntity(evt.Entity, _bounds, data, this);
             data.InWorld = true;
             evt.Entity.World.TickScheduler.After(1).Enqueue(GameJobs.PhysicalEntityMove, data.Capability);
+            ((PhysicalEntity)data.Capability).LoadSurroundingChunks();
             next();
         }
 
@@ -234,7 +235,7 @@ namespace DigBuild.Behaviors
                 
                 var vel = Velocity;
 
-                List<(ICollider Collider, AABB RelativeBounds, Vector3 Intersection)> colliders = new(), colliders2 = new();
+                List<(ICollider Collider, AABB RelativeBounds, float Delta, Vector3 Intersection)> colliders = new(), colliders2 = new();
                 var translatedBounds = Bounds + Position;
                 var extendedBounds = translatedBounds + vel; //AABB.Containing(translatedBounds, translatedBounds + vel);
                 foreach (var pos in extendedBounds.GetIntersectedBlockPositions())
@@ -246,14 +247,14 @@ namespace DigBuild.Behaviors
                     var collider = block.Get(world, pos, BlockAttributes.Collider);
                     var relativeBounds = translatedBounds - (Vector3) pos;
 
-                    if (collider.Collide(relativeBounds, vel, out var intersection))
-                        colliders.Add((collider, relativeBounds, intersection));
+                    if (collider.Collide(relativeBounds, vel, out var delta, out var intersection))
+                        colliders.Add((collider, relativeBounds, delta, intersection));
                 }
 
 
                 while (colliders.Count > 0)
                 {
-                    colliders.Sort((a, b) => a.Intersection.LengthSquared().CompareTo(b.Intersection.LengthSquared()));
+                    colliders.Sort((a, b) => a.Delta.CompareTo(b.Delta));
                     
                     var intersection = colliders[^1].Intersection;
                     if (intersection.Y > 0)
@@ -263,11 +264,11 @@ namespace DigBuild.Behaviors
 
                     colliders2.Clear();
                     colliders.RemoveAt(colliders.Count - 1);
-                    foreach (var (collider, relativeBounds, _) in colliders)
+                    foreach (var (collider, relativeBounds, _, _) in colliders)
                     {
-                        if (!collider.Collide(relativeBounds, vel, out var intersection2))
+                        if (!collider.Collide(relativeBounds, vel, out var delta, out var intersection2))
                             continue;
-                        colliders2.Add((collider, relativeBounds, intersection2));
+                        colliders2.Add((collider, relativeBounds, delta, intersection2));
                     }
 
                     (colliders, colliders2) = (colliders2, colliders);
@@ -290,7 +291,7 @@ namespace DigBuild.Behaviors
                     LoadSurroundingChunks();
             }
 
-            private void LoadSurroundingChunks()
+            internal void LoadSurroundingChunks()
             {
                 var chunkPos = new BlockPos(Position).ChunkPos;
                 var chunksToLoad = new HashSet<ChunkPos>();
