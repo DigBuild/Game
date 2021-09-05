@@ -6,17 +6,35 @@ using DigBuild.Platform.Render;
 
 namespace DigBuild.Ui
 {
+    /// <summary>
+    /// A basic user interface with helpers and callbacks.
+    /// </summary>
     public class SimpleUi : IUi
     {
         private readonly IUiElement _root;
         private Context _context = null!;
 
+        /// <summary>
+        /// Whether to pass events through to the next UI. Defaults to true.
+        /// </summary>
         public bool PassEventsThrough { get; set; } = true;
 
+        /// <summary>
+        /// Fired when the render surface is resized.
+        /// </summary>
         public Action<IRenderTarget>? Resized = null;
+        /// <summary>
+        /// Fired when the UI is closed.
+        /// </summary>
         public Action? Closed = null;
 
+        /// <summary>
+        /// Fired when a UI is opened above this UI.
+        /// </summary>
         public Action? LayerAdded = null;
+        /// <summary>
+        /// Fired when the UI above this one is closed.
+        /// </summary>
         public Action? LayerRemoved = null;
 
         public CursorMode CursorMode { get; set; } = CursorMode.Normal;
@@ -92,7 +110,7 @@ namespace DigBuild.Ui
             LayerRemoved?.Invoke();
         }
 
-        public sealed class Context : IUiElementContext
+        internal sealed class Context : IUiElementContext
         {
             private readonly IUi _owner;
             private readonly UiManager _manager;

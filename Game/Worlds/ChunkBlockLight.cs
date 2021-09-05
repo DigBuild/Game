@@ -10,9 +10,12 @@ using DigBuild.Registries;
 
 namespace DigBuild.Worlds
 {
+    /// <summary>
+    /// A chunk block lighting implementation.
+    /// </summary>
     public class ChunkBlockLight : IChunkBlockLight
     {
-        private const uint ChunkSize = 16;
+        private const uint ChunkSize = WorldDimensions.ChunkWidth;
 
         // private readonly byte[,,] _values = new byte[ChunkSize, ChunkSize, ChunkSize];
         private readonly Octree<int>[] _values = new Octree<int>[WorldDimensions.ChunkVerticalSubdivisions];
@@ -31,6 +34,11 @@ namespace DigBuild.Worlds
             return (byte) ((clusterValue >> (4 * (((pos.X & 1) << 2) | ((pos.Y & 1) << 1) | ((pos.Z & 1) << 0)))) & 0xF);
         }
 
+        /// <summary>
+        /// Sets the light value at a given position.
+        /// </summary>
+        /// <param name="pos">The position</param>
+        /// <param name="value">The light value</param>
         public void Set(ChunkBlockPos pos, byte value)
         {
             var clusterValue = _values[pos.Y >> 4][pos.X >> 1, (pos.Y & 15) >> 1, pos.Z >> 1];
@@ -62,16 +70,22 @@ namespace DigBuild.Worlds
             if (block == null)
                 return GetCurrent(world, offset);
 
-            return block.Get(world, offset, BlockAttributes.LightEmission).Get(direction.GetOpposite());
+            return block.Get(world, offset, GameBlockAttributes.LightEmission).Get(direction.GetOpposite());
 
         }
         
+        /// <summary>
+        /// Computes the light value at a given position.
+        /// </summary>
+        /// <param name="world">The world</param>
+        /// <param name="pos">The position</param>
+        /// <returns>The light value</returns>
         public static byte Compute(IReadOnlyWorld world, BlockPos pos)
         {
             var block = world.GetBlock(pos);
             // TODO: Implement light absorption
             if (block != null)
-                return block.Get(world, pos, BlockAttributes.LightEmission).Local;
+                return block.Get(world, pos, GameBlockAttributes.LightEmission).Local;
             
             var negX = Get(world, pos, Direction.NegX);
             var posX = Get(world, pos, Direction.PosX);
@@ -92,6 +106,11 @@ namespace DigBuild.Worlds
             ) - 1);
         }
         
+        /// <summary>
+        /// Begins a recursive light propagation update.
+        /// </summary>
+        /// <param name="world">The world</param>
+        /// <param name="pos">The position</param>
         public static void Update(IWorld world, BlockPos pos)
         {
             var current = GetCurrent(world, pos);
@@ -112,6 +131,9 @@ namespace DigBuild.Worlds
                 Update(world, pos.Offset(direction));
         }
 
+        /// <summary>
+        /// The serdes.
+        /// </summary>
         public static ISerdes<IChunkBlockLight> Serdes { get; } = new SimpleSerdes<IChunkBlockLight>(
             (stream, light) => { },
             (stream, context) => new ChunkBlockLight()

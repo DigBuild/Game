@@ -7,6 +7,9 @@ using DigBuild.Render.Models.Geometry;
 
 namespace DigBuild.Render.Models.Json
 {
+    /// <summary>
+    /// A basic JSON item and block model.
+    /// </summary>
     public sealed class JsonModel : IBlockModel, IItemModel
     {
         private readonly IEnumerable<(JsonModelRule Rule, IGeometry Geometry)> _geometry;

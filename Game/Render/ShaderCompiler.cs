@@ -7,6 +7,9 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Render
 {
+    /// <summary>
+    /// A resource compiler that invokes <c>shaderc</c> to compile shaders automatically at runtime.
+    /// </summary>
     public sealed class ShaderCompiler : IResourceProvider
     {
         private readonly string _outputDir;

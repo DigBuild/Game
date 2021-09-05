@@ -1,19 +1,21 @@
 ﻿using System.Collections.Generic;
+using DigBuild.Registries;
 
 namespace DigBuild.Crafting
 {
-    public sealed class CraftingRecipeLookup
+    /// <summary>
+    /// A recipe lookup helper.
+    /// </summary>
+    public static class CraftingRecipeLookup
     {
-        private readonly IEnumerable<ICraftingRecipe> _recipes;
-
-        public CraftingRecipeLookup(IEnumerable<ICraftingRecipe> recipes)
+        /// <summary>
+        /// Tries to find a recipe matching the given input.
+        /// </summary>
+        /// <param name="input">The crafting input</param>
+        /// <returns>The recipe and its output if found, otherwise null</returns>
+        public static (ICraftingRecipe Recipe, CraftingOutput Output)? Find(ICraftingInput input)
         {
-            _recipes = recipes;
-        }
-
-        public (ICraftingRecipe Recipe, CraftingOutput Output)? Find(ICraftingInput input)
-        {
-            foreach (var recipe in _recipes)
+            foreach (var recipe in GameRegistries.CraftingRecipes.Values)
             {
                 if (!recipe.GetCatalystInput().Test(input.GetCatalyst()))
                     continue;

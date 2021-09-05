@@ -15,9 +15,15 @@ using DigBuild.Registries;
 
 namespace DigBuild.Ui.Elements
 {
-    // TODO: Scroll behavior - Pick up/drop 1
+    /// <summary>
+    /// A basic inventory slot UI element.
+    /// Supports transfering items in and out of the slot, as well as locking.
+    /// </summary>
     public sealed class UiInventorySlot : IUiElement
     {
+        /// <summary>
+        /// The scaling factor.
+        /// </summary>
         public const uint Scale = 32;
 
         internal static readonly Matrix4x4 ItemTransform =
@@ -113,7 +119,7 @@ namespace DigBuild.Ui.Elements
                 }
                 else if (current.Equals(currentPicked, true)) // Ensure they're stackable
                 {
-                    var maxStackSize = current.Get(ItemAttributes.MaxStackSize);
+                    var maxStackSize = current.Get(GameItemAttributes.MaxStackSize);
 
                     var newItem = current.Copy();
                     var total = current.Count + currentPicked.Count;

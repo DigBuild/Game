@@ -5,15 +5,21 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Registries
 {
+    /// <summary>
+    /// The game's jobs.
+    /// </summary>
     public static class GameJobs
     {
-        public static Job<IPhysicalEntity> PhysicalEntityMove { get; private set; } = null!;
+        /// <summary>
+        /// The physics entity movement job.
+        /// </summary>
+        public static Job<IPhysicsEntity> PhysicsEntityMove { get; private set; } = null!;
 
         internal static void Register(RegistryBuilder<IJob> registry)
         {
-            PhysicalEntityMove = registry.RegisterParallel<IPhysicalEntity>(
-                new ResourceName(DigBuildGame.Domain, "physical_entity_move"),
-                PhysicalEntityBehavior.Update
+            PhysicsEntityMove = registry.RegisterParallel<IPhysicsEntity>(
+                new ResourceName(DigBuildGame.Domain, "physics_entity_move"),
+                PhysicsEntityBehavior.Update
             );
         }
     }

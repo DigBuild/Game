@@ -12,6 +12,9 @@ using DigBuild.Engine.Worlds.Impl;
 
 namespace DigBuild.Worlds
 {
+    /// <summary>
+    /// The game's storage handler.
+    /// </summary>
     public sealed class RegionStorageHandler : IRegionStorageHandler
     {
         private readonly IWorld _world;
@@ -19,6 +22,9 @@ namespace DigBuild.Worlds
 
         private readonly HashSet<Chunk> _savedChunks = new();
 
+        /// <summary>
+        /// The region position.
+        /// </summary>
         public RegionPos Position { get; }
 
         public RegionStorageHandler(IWorld world, RegionPos position, ITickSource tickSource)

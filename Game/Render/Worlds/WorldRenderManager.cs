@@ -17,6 +17,9 @@ using UniformBufferSet = DigBuild.Engine.Render.UniformBufferSet;
 
 namespace DigBuild.Render.Worlds
 {
+    /// <summary>
+    /// The main world render manager.
+    /// </summary>
     public sealed class WorldRenderManager : IDisposable
     {
         private readonly IEnumerable<IRenderLayer> _layers;
@@ -61,6 +64,12 @@ namespace DigBuild.Render.Worlds
             _selectionBoxRenderer.Dispose();
         }
         
+        /// <summary>
+        /// Sets up all the resources needed for world rendering.
+        /// </summary>
+        /// <param name="context">The render context</param>
+        /// <param name="resourceManager">The resource manager</param>
+        /// <param name="stage">The render stage</param>
         public void Setup(RenderContext context, ResourceManager resourceManager, RenderStage stage)
         {
             _commandBuffer = context.CreateCommandBuffer();
@@ -69,17 +78,34 @@ namespace DigBuild.Render.Worlds
             _uniforms.Setup(context);
         }
 
+        /// <summary>
+        /// Updates the framebuffer when the surface is created/resized.
+        /// </summary>
+        /// <param name="context">The render context</param>
+        /// <param name="format">The format</param>
+        /// <param name="width">The width</param>
+        /// <param name="height">The height</param>
+        /// <returns>The new framebuffer</returns>
         public Framebuffer UpdateFramebuffer(RenderContext context, FramebufferFormat format, uint width, uint height)
         {
             return _framebuffer = context.CreateFramebuffer(format, width, height);
         }
 
+        /// <summary>
+        /// Initializes all the render layer bindings.
+        /// </summary>
+        /// <param name="context">The render context</param>
         public void InitLayerBindings(RenderContext context)
         {
             foreach (var layer in _layers)
                 layer.InitBindings(context, _bindingSet);
         }
 
+        /// <summary>
+        /// Gets the projection matrix for the given camera.
+        /// </summary>
+        /// <param name="camera">The camera</param>
+        /// <returns>The projection matrix</returns>
         public Matrix4x4 GetProjectionMatrix(ICamera camera)
         {
             var viewDist = (DigBuildGame.ViewRadius + 1) * WorldDimensions.ChunkWidth * MathF.Sqrt(2);
@@ -88,6 +114,12 @@ namespace DigBuild.Render.Worlds
             );
         }
         
+        /// <summary>
+        /// Updates all systems as needed and draws the world.
+        /// </summary>
+        /// <param name="context">The render context</param>
+        /// <param name="camera">The camera</param>
+        /// <param name="partialTick">The tick delta</param>
         public void UpdateAndRender(RenderContext context, ICamera camera, float partialTick)
         {
             var physicalProjMat = GetProjectionMatrix(camera);
@@ -123,7 +155,7 @@ namespace DigBuild.Render.Worlds
                 foreach (var renderer in _worldRenderers)
                     renderer.AfterDraw(context, cmd, worldView, partialTick);
 
-                _selectionBoxRenderer.Record(context, cmd);
+                _selectionBoxRenderer.Draw(context, cmd);
                 
                 _uniforms.Upload(context);
             }

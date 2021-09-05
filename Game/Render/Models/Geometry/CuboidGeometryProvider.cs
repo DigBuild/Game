@@ -13,6 +13,9 @@ using DigBuild.Serialization;
 
 namespace DigBuild.Render.Models.Geometry
 {
+    /// <summary>
+    /// A basic cuboid geometry provider.
+    /// </summary>
     public sealed class CuboidGeometryProvider : IGeometryProvider
     {
         public IPartialGeometry Provide(
@@ -122,7 +125,7 @@ namespace DigBuild.Render.Models.Geometry
                 }
             }
 
-            public IGeometry Build()
+            public IGeometry Bake()
             {
                 var vertices = new WorldVertex[6][];
                 foreach (var direction in Directions.All)

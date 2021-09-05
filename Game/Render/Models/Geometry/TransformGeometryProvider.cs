@@ -14,6 +14,9 @@ using DigBuild.Serialization;
 
 namespace DigBuild.Render.Models.Geometry
 {
+    /// <summary>
+    /// A geometry provider that applies a 3D transform to a nested geometry.
+    /// </summary>
     public sealed class TransformGeometryProvider : IGeometryProvider
     {
         public IPartialGeometry Provide(
@@ -132,9 +135,9 @@ namespace DigBuild.Render.Models.Geometry
                 _rawGeometry.LoadTextures(loader);
             }
 
-            public IGeometry Build()
+            public IGeometry Bake()
             {
-                var geometry = _rawGeometry.Build();
+                var geometry = _rawGeometry.Bake();
                 return new TransformGeometry(geometry, _transformGetter);
             }
         }

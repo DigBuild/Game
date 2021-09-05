@@ -13,7 +13,7 @@ namespace DigBuild.Content.Behaviors
         public void Build(BlockBehaviorBuilder<object, object> block)
         {
             block.Add(ModelData.BlockAttribute, GetModelData);
-            block.Add(BlockAttributes.Water, (_, _, _) => true);
+            block.Add(GameBlockAttributes.Water, (_, _, _) => true);
         }
 
         private static ModelData GetModelData(IReadOnlyBlockContext context, object _, Func<ModelData> next)

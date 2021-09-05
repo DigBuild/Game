@@ -9,6 +9,7 @@ using DigBuild.Engine.Registries;
 using DigBuild.Engine.Worldgen;
 using DigBuild.Events;
 using DigBuild.Modding;
+using DigBuild.Particles;
 using DigBuild.Registries;
 using DigBuild.Worldgen.Biomes;
 using GameEntities = DigBuild.Content.Registries.GameEntities;

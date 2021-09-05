@@ -2,6 +2,9 @@
 
 namespace DigBuild.Items
 {
+    /// <summary>
+    /// Flags that determine an item's equippability.
+    /// </summary>
     [Flags]
     public enum EquippableFlags : byte
     {

@@ -15,7 +15,7 @@ namespace DigBuild.Content.Behaviors
 
         public void Build(BlockBehaviorBuilder<object, object> block)
         {
-            block.Add(BlockAttributes.Collider, (_, _, _) => _collider);
+            block.Add(GameBlockAttributes.Collider, (_, _, _) => _collider);
         }
     }
 }

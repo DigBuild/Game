@@ -4,6 +4,9 @@ using DigBuild.Engine.Render;
 
 namespace DigBuild.Players
 {
+    /// <summary>
+    /// A player camera.
+    /// </summary>
     public sealed class PlayerCamera : Camera, IPlayerCamera
     {
         public PlayerCamera(Vector3 position, float pitch, float yaw, float fieldOfView, bool underwater) :

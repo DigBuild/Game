@@ -6,13 +6,28 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Modding
 {
+    /// <summary>
+    /// A mod container.
+    /// </summary>
     public sealed class ModContainer
     {
+        /// <summary>
+        /// The assembly containing the mod.
+        /// </summary>
         public Assembly Assembly { get; }
         
+        /// <summary>
+        /// The mod's domain.
+        /// </summary>
         public string Domain { get; }
+        /// <summary>
+        /// The mod's instance.
+        /// </summary>
         public IMod Instance { get; }
 
+        /// <summary>
+        /// The mod's resource provider.
+        /// </summary>
         public IResourceProvider Resources { get; }
 
         private ModContainer(Assembly assembly)
@@ -92,6 +107,11 @@ namespace DigBuild.Modding
             }
         }
 
+        /// <summary>
+        /// Creates a new mod container from a file path.
+        /// </summary>
+        /// <param name="path">The path</param>
+        /// <returns>The mod container</returns>
         public static ModContainer FromFile(string path)
         {
             return new ModContainer(Assembly.LoadFile(Path.GetFullPath(path)));

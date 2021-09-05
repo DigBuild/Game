@@ -10,10 +10,13 @@ using DigBuild.Engine.Worlds.Impl;
 
 namespace DigBuild.Worlds
 {
+    /// <summary>
+    /// The game's world.
+    /// </summary>
     public sealed class World : WorldBase
     {
         public const float GravityValue = 2.5f * TickSource.TickDurationSeconds;
-        public const ulong DayDuration = 1000; // Ticks
+        public const ulong DayDuration = 10000; // Ticks
 
         private readonly EventBus _eventBus;
         private readonly Action<ChunkPos> _notifyChunkReRender;

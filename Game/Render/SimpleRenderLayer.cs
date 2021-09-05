@@ -9,6 +9,10 @@ using DigBuild.Render.GeneratedUniforms;
 
 namespace DigBuild.Render
 {
+    /// <summary>
+    /// A basic render layer implementation.
+    /// </summary>
+    /// <typeparam name="TVertex">The vertex type</typeparam>
     public sealed class SimpleRenderLayer<TVertex> : IRenderLayer<TVertex, SimpleRenderLayer<TVertex>.Bindings>
         where TVertex : unmanaged
     {
@@ -66,8 +70,8 @@ namespace DigBuild.Render
         public void SetupCommand(CommandBufferRecorder cmd, RenderLayerBindingSet bindings, IReadOnlyUniformBufferSet uniforms, IReadOnlyTextureSet textures)
         {
             var b = bindings.Get(this);
-            b.UniformBinding.Update(uniforms.Get(RenderUniforms.ModelViewTransform));
-            b.WorldTimeUniformBinding.Update(uniforms.Get(RenderUniforms.WorldTime));
+            b.UniformBinding.Update(uniforms.Get(UniformTypes.ModelViewProjectionTransform));
+            b.WorldTimeUniformBinding.Update(uniforms.Get(UniformTypes.WorldTime));
             b.TextureBinding.Update(textures.DefaultSampler, textures.Get(_textureType));
             cmd.Using(_resources.Pipeline, b.TextureBinding);
         }
@@ -75,8 +79,8 @@ namespace DigBuild.Render
         public void Draw(CommandBufferRecorder cmd, RenderLayerBindingSet bindings, IReadOnlyUniformBufferSet uniforms, VertexBuffer<TVertex> vertexBuffer)
         {
             var b = bindings.Get(this);
-            cmd.Using(_resources.Pipeline, b.UniformBinding, uniforms.GetIndex(RenderUniforms.ModelViewTransform));
-            cmd.Using(_resources.Pipeline, b.WorldTimeUniformBinding, uniforms.GetIndex(RenderUniforms.WorldTime));
+            cmd.Using(_resources.Pipeline, b.UniformBinding, uniforms.GetIndex(UniformTypes.ModelViewProjectionTransform));
+            cmd.Using(_resources.Pipeline, b.WorldTimeUniformBinding, uniforms.GetIndex(UniformTypes.WorldTime));
             cmd.Draw(_resources.Pipeline, vertexBuffer);
         }
 

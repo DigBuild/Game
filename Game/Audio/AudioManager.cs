@@ -7,6 +7,9 @@ using DigBuild.Registries;
 
 namespace DigBuild.Audio
 {
+    /// <summary>
+    /// An audio manager system.
+    /// </summary>
     public class AudioManager
     {
         private readonly ResourceManager _resourceManager;
@@ -62,22 +65,39 @@ namespace DigBuild.Audio
             _audioSystem.Dispose();
         }
 
+        /// <summary>
+        /// Tells the audio system to shutdown as soon as possible.
+        /// </summary>
         public void Stop()
         {
             _shouldStop = true;
         }
         
+        /// <summary>
+        /// Starts playing a sound.
+        /// </summary>
+        /// <param name="sound">The sound</param>
+        /// <param name="loop">Whether to loop or not</param>
+        /// <param name="gain">The gain</param>
+        /// <param name="pitch">The pitch</param>
+        /// <returns>The playing sound</returns>
         public PlayingSound Play(Sound sound, bool loop = false, float gain = 1, float pitch = 1)
         {
-            return Play(sound, new SoundProperties()
+            return Play(sound, new PlaybackProperties()
             {
                 Loop = loop,
                 Gain = gain,
                 Pitch = pitch
             });
         }
-
-        public PlayingSound Play(Sound sound, SoundProperties properties)
+        
+        /// <summary>
+        /// Starts playing a sound.
+        /// </summary>
+        /// <param name="sound">The sound</param>
+        /// <param name="properties">The playback properties</param>
+        /// <returns>The playing sound</returns>
+        public PlayingSound Play(Sound sound, PlaybackProperties properties)
         {
             var playingSound = new PlayingSound(sound, properties);
             _queuedSounds.Enqueue(playingSound);

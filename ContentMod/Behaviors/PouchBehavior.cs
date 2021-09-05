@@ -19,7 +19,7 @@ namespace DigBuild.Content.Behaviors
     {
         public void Build(ItemBehaviorBuilder<IPouch, IPouch> item)
         {
-            item.Add(ItemCapabilities.InventoryExtension, (_, data, _) => new InventoryExtension(data));
+            item.Add(GameItemCapabilities.InventoryExtension, (_, data, _) => new InventoryExtension(data));
 
             item.Subscribe(OnActivate);
             item.Subscribe(OnEquipmentActivate);

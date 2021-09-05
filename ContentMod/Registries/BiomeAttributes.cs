@@ -15,9 +15,9 @@ namespace DigBuild.Content.Registries
         
         internal static void Register(RegistryBuilder<IBiomeAttribute> builder)
         {
-            SurfaceBlock = builder.Create<Block>(new ResourceName(DigBuildGame.Domain, "surface_block"));
-            TerrainType = builder.Create<TerrainType>(new ResourceName(DigBuildGame.Domain, "terrain_type"));
-            TerrainHeightRange = builder.Create<RangeT<ushort>>(new ResourceName(DigBuildGame.Domain, "terrain_height_range"));
+            SurfaceBlock = builder.Register<Block>(new ResourceName(DigBuildGame.Domain, "surface_block"));
+            TerrainType = builder.Register<TerrainType>(new ResourceName(DigBuildGame.Domain, "terrain_type"));
+            TerrainHeightRange = builder.Register<RangeT<ushort>>(new ResourceName(DigBuildGame.Domain, "terrain_height_range"));
         }
     }
 }

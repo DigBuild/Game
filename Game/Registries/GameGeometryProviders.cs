@@ -3,6 +3,9 @@ using DigBuild.Render.Models.Geometry;
 
 namespace DigBuild.Registries
 {
+    /// <summary>
+    /// The game's geometry providers.
+    /// </summary>
     public static class GameGeometryProviders
     {
         internal static void Register(RegistryBuilder<IGeometryProvider> registry)

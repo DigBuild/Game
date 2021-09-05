@@ -2,12 +2,39 @@
 
 namespace DigBuild.Blocks
 {
+    /// <summary>
+    /// A block's light emission pattern.
+    /// </summary>
     public readonly struct LightEmission
     {
+        /// <summary>
+        /// The local light value.
+        /// </summary>
         public readonly byte Local;
-        public readonly byte NegX, PosX;
-        public readonly byte NegY, PosY;
-        public readonly byte NegZ, PosZ;
+        /// <summary>
+        /// The emission on the negative X direction.
+        /// </summary>
+        public readonly byte NegX;
+        /// <summary>
+        /// The emission on the positive X direction.
+        /// </summary>
+        public readonly byte PosX;
+        /// <summary>
+        /// The emission on the negative Y direction.
+        /// </summary>
+        public readonly byte NegY;
+        /// <summary>
+        /// The emission on the positive Y direction.
+        /// </summary>
+        public readonly byte PosY;
+        /// <summary>
+        /// The emission on the negative Z direction.
+        /// </summary>
+        public readonly byte NegZ;
+        /// <summary>
+        /// The emission on the positive Z direction.
+        /// </summary>
+        public readonly byte PosZ;
 
         public LightEmission(byte local, byte negX, byte posX, byte negY, byte posY, byte negZ, byte posZ)
         {
@@ -25,6 +52,11 @@ namespace DigBuild.Blocks
         {
         }
 
+        /// <summary>
+        /// Gets the emission in a given direction.
+        /// </summary>
+        /// <param name="direction">The direction</param>
+        /// <returns>The emission</returns>
         public byte Get(Direction direction)
         {
             return direction switch
@@ -35,7 +67,7 @@ namespace DigBuild.Blocks
                 Direction.PosY => PosY,
                 Direction.NegZ => NegZ,
                 Direction.PosZ => PosZ,
-                _ => 0
+                _ => Local
             };
         }
     }

@@ -5,9 +5,18 @@ using System.Linq.Expressions;
 
 namespace DigBuild.Render.Models.Expressions
 {
+    /// <summary>
+    /// An expression representing a string or numeric literal.
+    /// </summary>
     public sealed class LiteralModelExpression : IModelExpression
     {
+        /// <summary>
+        /// The numeric value.
+        /// </summary>
         public double DoubleValue { get; }
+        /// <summary>
+        /// The string value.
+        /// </summary>
         public string StringValue { get; }
         
         public IEnumerable<string> RequiredVariables => Array.Empty<string>();

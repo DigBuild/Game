@@ -13,42 +13,117 @@ using DigBuild.Engine.Worldgen;
 using DigBuild.Engine.Worlds;
 using DigBuild.Entities;
 using DigBuild.Items;
+using DigBuild.Particles;
 using DigBuild.Render.Models.Geometry;
 using DigBuild.Worldgen.Biomes;
 
 namespace DigBuild.Registries
 {
+    /// <summary>
+    /// The game's registries.
+    /// </summary>
     public static class GameRegistries
     {
+        /// <summary>
+        /// The world storage type registry.
+        /// </summary>
         public static Registry<IDataHandle<IWorld>> WorldStorageTypes { get; private set; } = null!;
+        /// <summary>
+        /// The chunk storage type registry.
+        /// </summary>
         public static Registry<IDataHandle<IChunk>> ChunkStorageTypes { get; private set; } = null!;
 
+        /// <summary>
+        /// The job registry.
+        /// </summary>
         public static Registry<IJob> Jobs { get; private set; } = null!;
 
+        /// <summary>
+        /// The block event registry.
+        /// </summary>
         public static TypeRegistry<IBlockEvent, BlockEventInfo> BlockEvents { get; private set; } = null!;
+        /// <summary>
+        /// The block attribute registry.
+        /// </summary>
         public static Registry<IBlockAttribute> BlockAttributes { get; private set; } = null!;
+        /// <summary>
+        /// The block capability registry.
+        /// </summary>
         public static Registry<IBlockCapability> BlockCapabilities { get; private set; } = null!;
+        /// <summary>
+        /// The block registry.
+        /// </summary>
         public static Registry<Block> Blocks { get; private set; } = null!;
 
+        /// <summary>
+        /// The item event registry.
+        /// </summary>
         public static TypeRegistry<IItemEvent, ItemEventInfo> ItemEvents { get; private set; } = null!;
+        /// <summary>
+        /// The item attribute registry
+        /// </summary>
         public static Registry<IItemAttribute> ItemAttributes { get; private set; } = null!;
+        /// <summary>
+        /// The item capability registry.
+        /// </summary>
         public static Registry<IItemCapability> ItemCapabilities { get; private set; } = null!;
+        /// <summary>
+        /// The item registry.
+        /// </summary>
         public static Registry<Item> Items { get; private set; } = null!;
 
+        /// <summary>
+        /// The entity event registry.
+        /// </summary>
         public static TypeRegistry<IEntityEvent, EntityEventInfo> EntityEvents { get; private set; } = null!;
+        /// <summary>
+        /// The entity attribute registry.
+        /// </summary>
         public static Registry<IEntityAttribute> EntityAttributes { get; private set; } = null!;
+        /// <summary>
+        /// The entity capability registry.
+        /// </summary>
         public static Registry<IEntityCapability> EntityCapabilities { get; private set; } = null!;
+        /// <summary>
+        /// The entity registry.
+        /// </summary>
         public static Registry<Entity> Entities { get; private set; } = null!;
 
-
+        /// <summary>
+        /// The worldgen attribute registry.
+        /// </summary>
         public static Registry<IWorldgenAttribute> WorldgenAttributes { get; private set; } = null!;
+        /// <summary>
+        /// The worldgen feature registry.
+        /// </summary>
         public static Registry<IWorldgenFeature> WorldgenFeatures { get; private set; } = null!;
+        /// <summary>
+        /// The biome attribute registry.
+        /// </summary>
         public static Registry<IBiomeAttribute> BiomeAttributes { get; private set; } = null!;
+        /// <summary>
+        /// The biome registry.
+        /// </summary>
         public static Registry<IBiome> Biomes { get; private set; } = null!;
 
+        /// <summary>
+        /// The crafting recipe registry.
+        /// </summary>
         public static Registry<ICraftingRecipe> CraftingRecipes { get; private set; } = null!;
+
+        /// <summary>
+        /// The particle system registry.
+        /// </summary>
         public static Registry<IParticleSystemData> ParticleSystems { get; private set; } = null!;
+
+        /// <summary>
+        /// The sound registry.
+        /// </summary>
         public static Registry<Sound> Sounds { get; private set; } = null!;
+        
+        /// <summary>
+        /// The geometry provider registry.
+        /// </summary>
         public static Registry<IGeometryProvider> GeometryProviders { get; private set; } = null!;
 
         internal static void Initialize(EventBus eventBus)
@@ -97,7 +172,7 @@ namespace DigBuild.Registries
             MakeRegistry<IBlockAttribute>(
                 "block_attributes",
                 reg => BlockAttributes = reg,
-                Registries.BlockAttributes.Register
+                Registries.GameBlockAttributes.Register
             );
             MakeRegistry<IBlockCapability>(
                 "block_capabilities",
@@ -116,12 +191,12 @@ namespace DigBuild.Registries
             MakeRegistry<IItemAttribute>(
                 "item_attributes",
                 reg => ItemAttributes = reg,
-                Registries.ItemAttributes.Register
+                Registries.GameItemAttributes.Register
             );
             MakeRegistry<IItemCapability>(
                 "item_capabilities",
                 reg => ItemCapabilities = reg,
-                Registries.ItemCapabilities.Register
+                Registries.GameItemCapabilities.Register
             );
             MakeRegistry<Item>(
                 "items",
@@ -136,12 +211,12 @@ namespace DigBuild.Registries
             MakeRegistry<IEntityAttribute>(
                 "entity_attributes",
                 reg => EntityAttributes = reg,
-                Registries.EntityAttributes.Register
+                Registries.GameEntityAttributes.Register
             );
             MakeRegistry<IEntityCapability>(
                 "entity_capabilities",
                 reg => EntityCapabilities = reg,
-                Registries.EntityCapabilities.Register
+                Registries.GameEntityCapabilities.Register
             );
             MakeRegistry<Entity>(
                 "entities",

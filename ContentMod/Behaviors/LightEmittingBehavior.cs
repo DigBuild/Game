@@ -15,7 +15,7 @@ namespace DigBuild.Content.Behaviors
 
         public void Build(BlockBehaviorBuilder<object, object> block)
         {
-            block.Add(BlockAttributes.LightEmission, (_, _, _) => new LightEmission(Value));
+            block.Add(GameBlockAttributes.LightEmission, (_, _, _) => new LightEmission(Value));
         }
     }
 }

@@ -6,12 +6,28 @@ using DigBuild.Worlds;
 
 namespace DigBuild.Events
 {
+    /// <summary>
+    /// Fired when a block's wireframe is being drawn so a custom one can be provided.
+    /// </summary>
     public sealed class BlockHighlightEvent : IEvent
     {
+        /// <summary>
+        /// The vertex consumer.
+        /// </summary>
         public IVertexConsumer<Vertex3> VertexConsumer { get; }
+        /// <summary>
+        /// The world.
+        /// </summary>
         public IReadOnlyWorld World { get; }
+        /// <summary>
+        /// The raycast hit.
+        /// </summary>
         public WorldRayCastContext.Hit? Hit { get; }
 
+        /// <summary>
+        /// Whether the event was handled or not.
+        /// If true, the default wireframe won't render.
+        /// </summary>
         public bool Handled { get; set; }
 
         public BlockHighlightEvent(

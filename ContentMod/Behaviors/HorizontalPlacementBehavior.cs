@@ -17,8 +17,8 @@ namespace DigBuild.Content.Behaviors
     {
         public void Build(BlockBehaviorBuilder<IHorizontalPlacementBehavior, IHorizontalPlacementBehavior> block)
         {
-            block.Add(BlockAttributes.HorizontalDirection, (_, data, _) => data.Direction);
-            block.Add(BlockAttributes.Direction, (_, data, _) => data.Direction);
+            block.Add(GameBlockAttributes.HorizontalDirection, (_, data, _) => data.Direction);
+            block.Add(GameBlockAttributes.Direction, (_, data, _) => data.Direction);
             block.Subscribe(OnPlaced);
         }
 

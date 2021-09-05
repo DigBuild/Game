@@ -5,6 +5,9 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Serialization
 {
+    /// <summary>
+    /// A <see cref="ResourceName"/> JSON serdes.
+    /// </summary>
     public class JsonStringResourceNameConverter : JsonConverter<ResourceName>
     {
         public override ResourceName Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

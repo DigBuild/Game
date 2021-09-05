@@ -6,15 +6,28 @@ using DigBuild.Engine.Events;
 
 namespace DigBuild.Modding
 {
-    public class ModLoader
+    /// <summary>
+    /// A mod loader and manager.
+    /// </summary>
+    public sealed class ModLoader
     {
+        /// <summary>
+        /// The instance.
+        /// </summary>
         public static ModLoader Instance { get; } = new();
 
         private readonly List<ModContainer> _mods = new();
         private bool _loaded;
 
+        /// <summary>
+        /// The currently loaded mods.
+        /// </summary>
         public IEnumerable<ModContainer> Mods => _mods;
 
+        /// <summary>
+        /// Looks for and loads all the mods.
+        /// </summary>
+        /// <param name="eventBus">The event bus</param>
         public void LoadMods(EventBus eventBus)
         {
             if (_loaded)

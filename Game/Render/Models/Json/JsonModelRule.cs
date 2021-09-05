@@ -2,6 +2,9 @@
 
 namespace DigBuild.Render.Models.Json
 {
+    /// <summary>
+    /// A JSON model rule.
+    /// </summary>
     public sealed class JsonModelRule
     {
         private readonly IReadOnlyDictionary<string, string>? _singleMatches;
@@ -16,6 +19,11 @@ namespace DigBuild.Render.Models.Json
             _multiMatches = multiMatches;
         }
 
+        /// <summary>
+        /// Tests if some model data matches the rule.
+        /// </summary>
+        /// <param name="data">The data</param>
+        /// <returns>Whether it matches the rule or not</returns>
         public bool Test(JsonModelData data)
         {
             if (_singleMatches != null)

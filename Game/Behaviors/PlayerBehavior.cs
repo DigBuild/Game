@@ -7,6 +7,9 @@ using DigBuild.Registries;
 
 namespace DigBuild.Behaviors
 {
+    /// <summary>
+    /// The contract and data class for the player behavior.
+    /// </summary>
     public sealed class PlayerBehaviorData : IData<PlayerBehaviorData>, IPlayerEntity, IItemPickup
     {
         public PlayerInventory Inventory { get; init; } = new();
@@ -20,7 +23,7 @@ namespace DigBuild.Behaviors
             get {
                 if (Inventory.Hand.Item.Count > 0)
                 {
-                    var inventoryExtension = Inventory.Hand.Item.Get(ItemCapabilities.InventoryExtension);
+                    var inventoryExtension = Inventory.Hand.Item.Get(GameItemCapabilities.InventoryExtension);
                     if (inventoryExtension != null)
                         return inventoryExtension.Inventory;
                 }
@@ -28,7 +31,7 @@ namespace DigBuild.Behaviors
                 {
                     if (slot.Item.Count > 0)
                     {
-                        var inventoryExtension = slot.Item.Get(ItemCapabilities.InventoryExtension);
+                        var inventoryExtension = slot.Item.Get(GameItemCapabilities.InventoryExtension);
                         if (inventoryExtension != null)
                             return inventoryExtension.Inventory;
                     }
@@ -47,18 +50,33 @@ namespace DigBuild.Behaviors
         }
     }
 
+    /// <summary>
+    /// The player behavior. Contract: <see cref="PlayerBehaviorData"/>.
+    /// <para>
+    /// Exposes the player's data storage.
+    /// </para>
+    /// </summary>
     public sealed class PlayerBehavior : IEntityBehavior<PlayerBehaviorData>
     {
         public void Build(EntityBehaviorBuilder<PlayerBehaviorData, PlayerBehaviorData> entity)
         {
-            entity.Add(EntityCapabilities.PlayerEntity, (_, data, _) => data);
+            entity.Add(GameEntityCapabilities.PlayerEntity, (_, data, _) => data);
         }
     }
 
+    /// <summary>
+    /// The player entity capability interface.
+    /// </summary>
     public interface IPlayerEntity
     {
+        /// <summary>
+        /// The inventory.
+        /// </summary>
         PlayerInventory Inventory { get; }
-
+        
+        /// <summary>
+        /// The state
+        /// </summary>
         PlayerState State { get; }
     }
 }

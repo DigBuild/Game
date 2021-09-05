@@ -4,11 +4,19 @@ using System.Text.RegularExpressions;
 
 namespace DigBuild.Render.Models.Expressions
 {
+    /// <summary>
+    /// A utility class for parsing expression strings.
+    /// </summary>
     public static class ModelExpressionParser
     {
         private static readonly Regex VariableRegex = new(@"^\$\{([\w\/]+)(?:\|([\s\w.,_\-\:]+))?\}", RegexOptions.Compiled);
         private static readonly Regex NumberRegex = new(@"^[+-]?(?:\d+(?:\.\d+)?|\.\d+)", RegexOptions.Compiled);
 
+        /// <summary>
+        /// Parses an expression from a string.
+        /// </summary>
+        /// <param name="expressionString">The string</param>
+        /// <returns>The expression</returns>
         public static IModelExpression Parse(string expressionString)
         {
             return ParseConcatenated(expressionString);

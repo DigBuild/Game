@@ -5,12 +5,21 @@ using DigBuild.Platform.Util;
 
 namespace DigBuild.Render.Post
 {
+    /// <summary>
+    /// A basic HDR post-processing pipeline.
+    /// </summary>
     public sealed class HDRPostProcessingEffect : IPostProcessingEffect
     {
         private Framebuffer _framebuffer = null!;
         private CommandBuffer _commandBuffer = null!;
-
+        
+        /// <summary>
+        /// The input texture.
+        /// </summary>
         public Texture Input { get; set; } = null!;
+        /// <summary>
+        /// The output texture.
+        /// </summary>
         public Texture Output => _framebuffer.Get(_framebuffer.Format.Attachments[0]);
         
         public void Setup(

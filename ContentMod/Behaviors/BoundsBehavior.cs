@@ -20,9 +20,9 @@ namespace DigBuild.Content.Behaviors
 
         public void Build(BlockBehaviorBuilder<object, object> block)
         {
-            block.Add(BlockAttributes.Bounds, (_, _, _) => _bounds);
-            block.Add(BlockAttributes.Collider, (_, _, _) => _collider);
-            block.Add(BlockAttributes.RayCollider, (_, _, _) => _rayCollider);
+            block.Add(GameBlockAttributes.Bounds, (_, _, _) => _bounds);
+            block.Add(GameBlockAttributes.Collider, (_, _, _) => _collider);
+            block.Add(GameBlockAttributes.RayCollider, (_, _, _) => _rayCollider);
         }
     }
 }

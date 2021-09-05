@@ -15,6 +15,9 @@ using DigBuild.Worlds;
 
 namespace DigBuild.Render.Worlds
 {
+    /// <summary>
+    /// The selection box renderer.
+    /// </summary>
     public sealed class SelectionBoxRenderer
     {
         private readonly IGridAlignedRayCastingContext<WorldRayCastContext.Hit> _rayCastingContext;
@@ -51,6 +54,12 @@ namespace DigBuild.Render.Worlds
             _uniformNativeBuffer.Dispose();
         }
 
+        /// <summary>
+        /// Sets up the resources for drawing the selection box.
+        /// </summary>
+        /// <param name="context">The render context</param>
+        /// <param name="resourceManager">The resource manager</param>
+        /// <param name="renderStage">The render stage</param>
         public void Setup(RenderContext context, ResourceManager resourceManager, RenderStage renderStage)
         {
             var vsResource = resourceManager.Get<Shader>(DigBuildGame.Domain, "world/special/outline.vert")!;
@@ -68,6 +77,12 @@ namespace DigBuild.Render.Worlds
             _uniformBinding = context.CreateUniformBinding(uniform, _uniformBuffer);
         }
         
+        /// <summary>
+        /// Updates the state of selection box rendering.
+        /// </summary>
+        /// <param name="context">The render context</param>
+        /// <param name="worldView">The world view</param>
+        /// <param name="partialTick">The tick delta</param>
         public void Update(RenderContext context, WorldView worldView, float partialTick)
         {
             if (worldView.Camera is not IPlayerCamera playerCamera)
@@ -95,7 +110,12 @@ namespace DigBuild.Render.Worlds
             _uniformBuffer.Write(_uniformNativeBuffer);
         }
         
-        public void Record(RenderContext context, CommandBufferRecorder cmd)
+        /// <summary>
+        /// Draws the selection box.
+        /// </summary>
+        /// <param name="context">The render context</param>
+        /// <param name="cmd">The command buffer recorder</param>
+        public void Draw(RenderContext context, CommandBufferRecorder cmd)
         {
             if (_vertexNativeBuffer.Count == 0)
                 return;
@@ -104,6 +124,11 @@ namespace DigBuild.Render.Worlds
             cmd.Draw(_pipeline, _vertexBuffer); 
         }
 
+        /// <summary>
+        /// Generates the outline of a box.
+        /// </summary>
+        /// <param name="buffer">The vertex consumer</param>
+        /// <param name="aabb">The bounding box</param>
         public static void GenerateBoundingBoxGeometry(IVertexConsumer<Vertex3> buffer, AABB aabb)
         {
             var offset = new Vector3(0.005f);

@@ -4,8 +4,15 @@ using DigBuild.Render;
 
 namespace DigBuild.Ui
 {
+    /// <summary>
+    /// The pause menu user interface.
+    /// </summary>
     public static class MenuUi
     {
+        /// <summary>
+        /// Creates a new instance of the pause menu.
+        /// </summary>
+        /// <returns>The UI</returns>
         public static IUi Create()
         {
             var container = new UiContainer();

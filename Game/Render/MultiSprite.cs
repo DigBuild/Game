@@ -3,10 +3,19 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Render
 {
+    /// <summary>
+    /// A combination color + bloom sprite.
+    /// </summary>
     public sealed class MultiSprite
     {
+        /// <summary>
+        /// The color sprite.
+        /// </summary>
         public ISprite Color { get; init; }
 
+        /// <summary>
+        /// The bloom sprite.
+        /// </summary>
         public ISprite Bloom { get; init; }
 
         public MultiSprite(ISprite color, ISprite bloom)
@@ -14,18 +23,28 @@ namespace DigBuild.Render
             Color = color;
             Bloom = bloom;
         }
-
-        public static MultiSpriteLoader Loader(ResourceManager manager, TextureStitcher stitcher)
-        {
-            return new(manager, stitcher);
-        }
-
-        public static MultiSprite? Load(ResourceManager manager, TextureStitcher stitcher, string domain, string path)
+        
+        /// <summary>
+        /// Loads a multi-sprite.
+        /// </summary>
+        /// <param name="manager">The resource manager</param>
+        /// <param name="stitcher">The stitcher</param>
+        /// <param name="domain">The domain</param>
+        /// <param name="path">The path</param>
+        /// <returns>The multi-sprite if successful, otherwise null</returns>
+        internal static MultiSprite? Load(ResourceManager manager, TextureStitcher stitcher, string domain, string path)
         {
             return Load(manager, stitcher, new ResourceName(domain, path));
         }
-
-        public static MultiSprite? Load(ResourceManager manager, TextureStitcher stitcher, ResourceName name)
+        
+        /// <summary>
+        /// Loads a multi-sprite.
+        /// </summary>
+        /// <param name="manager">The resource manager</param>
+        /// <param name="stitcher">The stitcher</param>
+        /// <param name="name">The name</param>
+        /// <returns>The multi-sprite if successful, otherwise null</returns>
+        internal static MultiSprite? Load(ResourceManager manager, TextureStitcher stitcher, ResourceName name)
         {
             var actualPath = name;
             if (!actualPath.Path.EndsWith(".png"))
@@ -39,28 +58,6 @@ namespace DigBuild.Render
                 bloomTexture = manager.Get<BitmapTexture>(DigBuildGame.Domain, "textures/noglow.png")!;
                 
             return new MultiSprite(stitcher.Add(colorTexture), stitcher.Add(bloomTexture));
-        }
-    }
-
-    public sealed class MultiSpriteLoader
-    {
-        private readonly ResourceManager _manager;
-        private readonly TextureStitcher _stitcher;
-
-        internal MultiSpriteLoader(ResourceManager manager, TextureStitcher stitcher)
-        {
-            _manager = manager;
-            _stitcher = stitcher;
-        }
-
-        public MultiSprite? Load(string domain, string path)
-        {
-            return MultiSprite.Load(_manager, _stitcher, domain, path);
-        }
-
-        public MultiSprite? Load(ResourceName name)
-        {
-            return MultiSprite.Load(_manager, _stitcher, name);
         }
     }
 }

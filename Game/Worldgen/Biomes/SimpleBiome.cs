@@ -4,17 +4,27 @@ using DigBuild.Engine.Worldgen;
 
 namespace DigBuild.Worldgen.Biomes
 {
+    /// <summary>
+    /// A simple biome implementation.
+    /// </summary>
     public sealed class SimpleBiome : IBiome
     {
+        /// <summary>
+        /// A set of worldgen attribute constraints.
+        /// </summary>
         public IReadOnlyWorldgenRangeSet Constraints { get; init; } = new WorldgenRangeSet();
+
+        /// <summary>
+        /// A set of biome attributes.
+        /// </summary>
         public IReadOnlyBiomeAttributeSet Attributes { get; init; } = new BiomeAttributeSet();
         
-        public Grid<float> GetScores(ChunkDescriptionContext context)
+        public Grid<float> ComputeScores(ChunkDescriptionContext context)
         {
             return Constraints.GetScores(context);
         }
 
-        public bool TryGetAttribute<T>(BiomeAttribute<T> attribute, [MaybeNullWhen(false)] out T value)
+        public bool TryGet<T>(BiomeAttribute<T> attribute, [MaybeNullWhen(false)] out T value)
             where T : notnull
         {
             return Attributes.TryGet(attribute, out value);

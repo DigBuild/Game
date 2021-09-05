@@ -13,6 +13,9 @@ using ObjLoader.Loader.Loaders;
 
 namespace DigBuild.Render.Models.Geometry
 {
+    /// <summary>
+    /// A geometry provider that loads a geometry OBJ.
+    /// </summary>
     public class IncludeObjGeometryProvider : IGeometryProvider
     {
         private static readonly Vector3 VertexOffset = new(0.5f, 0, 0.5f);
@@ -76,7 +79,7 @@ namespace DigBuild.Render.Models.Geometry
                 }
             }
 
-            public IGeometry Build()
+            public IGeometry Bake()
             {
                 var vertices = new List<WorldVertex>();
                 foreach (var objGroup in _rawObj.Groups)

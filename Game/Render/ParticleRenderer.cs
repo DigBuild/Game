@@ -112,9 +112,18 @@ namespace DigBuild.Render
         }
     }
 
+    /// <summary>
+    /// A particle uniform type made up of a modelview matrix and a flattening matrix.
+    /// </summary>
     public interface IParticleUniform : IUniform<ParticleUniform>
     {
+        /// <summary>
+        /// The modelview matrix.
+        /// </summary>
         Matrix4x4 Matrix { get; set; }
+        /// <summary>
+        /// The flattening matrix.
+        /// </summary>
         Matrix4x4 FlattenMatrix { get; set; }
     }
 }

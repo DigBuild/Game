@@ -9,17 +9,32 @@ using DigBuild.Serialization;
 
 namespace DigBuild
 {
+    /// <summary>
+    /// A game configuration.
+    /// </summary>
     public sealed class Config
     {
         [JsonIgnore]
         private string _path = null!;
 
+        /// <summary>
+        /// The world generation seed.
+        /// </summary>
         public long Seed { get; set; } = RandomLong();
 
+        /// <summary>
+        /// The world generation options.
+        /// </summary>
         public WorldgenT Worldgen { get; set; } = new();
 
+        /// <summary>
+        /// A set of world generation options.
+        /// </summary>
         public sealed class WorldgenT
         {
+            /// <summary>
+            /// The active features.
+            /// </summary>
             public List<IWorldgenFeature> Features { get; set; } = new()
             {
                 // WorldgenFeatures.Terrain,
@@ -29,6 +44,9 @@ namespace DigBuild
             };
         }
 
+        /// <summary>
+        /// Saves the config to disk.
+        /// </summary>
         public void Save()
         {
             var fileContents = JsonSerializer.Serialize(this, new JsonSerializerOptions
@@ -47,6 +65,11 @@ namespace DigBuild
             File.WriteAllText(_path, fileContents);
         }
 
+        /// <summary>
+        /// Loads a config from disk or creates a new one.
+        /// </summary>
+        /// <param name="path">The path to the config</param>
+        /// <returns>The config</returns>
         public static Config Load(string path)
         {
             var cfg = default(Config);

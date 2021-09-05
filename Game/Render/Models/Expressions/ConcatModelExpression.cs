@@ -7,10 +7,16 @@ using System.Reflection;
 
 namespace DigBuild.Render.Models.Expressions
 {
+    /// <summary>
+    /// An expression that concatenates several other string expressions.
+    /// </summary>
     public sealed class ConcatModelExpression : IModelExpression
     {
         private static readonly MethodInfo StringConcat = typeof(string).GetMethod("Concat", new []{ typeof(IEnumerator<string>) })!;
 
+        /// <summary>
+        /// The children expressions.
+        /// </summary>
         public ImmutableList<IModelExpression> Children { get; }
 
         public IEnumerable<string> RequiredVariables { get; }

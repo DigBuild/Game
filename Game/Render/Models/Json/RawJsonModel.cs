@@ -8,6 +8,9 @@ using DigBuild.Serialization;
 
 namespace DigBuild.Render.Models.Json
 {
+    /// <summary>
+    /// A raw JSON model resource.
+    /// </summary>
     public class RawJsonModel : ICustomResource, IRawModel<IBlockModel>, IRawModel<IItemModel>
     {
         private readonly IReadOnlyList<(JsonModelRule Rule, IRawGeometry RawGeometry)> _variants;
@@ -32,19 +35,19 @@ namespace DigBuild.Render.Models.Json
                 rawGeometry.LoadTextures(loader);
         }
 
-        IItemModel IRawModel<IItemModel>.Build()
+        IItemModel IRawModel<IItemModel>.Bake()
         {
             var geometry = new List<(JsonModelRule Rule, IGeometry Geometry)>();
             foreach (var (rule, rawGeometry) in _variants)
-                geometry.Add((rule, rawGeometry.Build()));
+                geometry.Add((rule, rawGeometry.Bake()));
             return new JsonModel(geometry, _dynamic);
         }
 
-        IBlockModel IRawModel<IBlockModel>.Build()
+        IBlockModel IRawModel<IBlockModel>.Bake()
         {
             var geometry = new List<(JsonModelRule Rule, IGeometry Geometry)>();
             foreach (var (rule, rawGeometry) in _variants)
-                geometry.Add((rule, rawGeometry.Build()));
+                geometry.Add((rule, rawGeometry.Bake()));
             return new JsonModel(geometry, _dynamic);
         }
 

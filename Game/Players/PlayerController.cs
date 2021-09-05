@@ -7,10 +7,16 @@ using DigBuild.Worlds;
 
 namespace DigBuild.Players
 {
-    
+    /// <summary>
+    /// A player controller.
+    /// </summary>
     public sealed class PlayerController
     {
         private readonly IPlayer _player;
+
+        /// <summary>
+        /// Whether a hotbar transfer is currently taking place.
+        /// </summary>
         public bool HotbarTransfer { get; set; }
 
         public PlayerController(IPlayer player)
@@ -18,15 +24,23 @@ namespace DigBuild.Players
             _player = player;
         }
         
+        /// <summary>
+        /// Updates the player's movement.
+        /// </summary>
+        /// <param name="input">The game's input</param>
         public void UpdateMovement(GameInput input)
         {
-            var physicalEntity = _player.PhysicalEntity;
+            var physicalEntity = _player.PhysicsEntity;
             physicalEntity.Rotate(input.PitchDelta, input.YawDelta);
             physicalEntity.ApplyMotion(input.ForwardDelta, input.SidewaysDelta);
             if (input.Jump)
                 physicalEntity.ApplyJumpMotion(input.ForwardDelta);
         }
 
+        /// <summary>
+        /// Updates the player's hotbar.
+        /// </summary>
+        /// <param name="input">The game's input</param>
         public void UpdateHotbar(GameInput input)
         {
             _player.Inventory.CycleHotbar(
@@ -39,6 +53,12 @@ namespace DigBuild.Players
                 TransferHotbarDown();
         }
 
+        /// <summary>
+        /// Updates the player's interactions.
+        /// </summary>
+        /// <param name="input">The game's input</param>
+        /// <param name="hit">The player's raycast hit</param>
+        /// <returns>Whether the operation was successful or not</returns>
         public bool UpdateInteraction(GameInput input, WorldRayCastContext.Hit? hit)
         {
             var world = _player.Entity.World;
@@ -47,7 +67,7 @@ namespace DigBuild.Players
             if (!input.PrevActivate && input.Activate)
             {
                 var itemResult = hand.Item.Count > 0 ?
-                    hand.Item.Type.OnActivate(hand.Item, _player, hit) :
+                    hand.Item.OnActivate(_player, hit) :
                     ItemEvent.Activate.Result.Fail;
 
                 if (itemResult == ItemEvent.Activate.Result.Success)
@@ -65,7 +85,7 @@ namespace DigBuild.Players
             if (!input.PrevPunch && input.Punch)
             {
                 var itemResult = hand.Item.Count > 0 ?
-                    hand.Item.Type.OnPunch(hand.Item, _player, hit) :
+                    hand.Item.OnPunch(_player, hit) :
                     ItemEvent.Punch.Result.Fail;
 
                 if (itemResult == ItemEvent.Punch.Result.Success)
@@ -83,6 +103,9 @@ namespace DigBuild.Players
             return false;
         }
 
+        /// <summary>
+        /// Transfers an item out of the hotbar.
+        /// </summary>
         public void TransferHotbarUp()
         {
             if (_player.Inventory.PickedItem.Item.Count > 0) return;
@@ -91,6 +114,9 @@ namespace DigBuild.Players
             HotbarTransfer = true;
         }
 
+        /// <summary>
+        /// Transfers an item into the hotbar.
+        /// </summary>
         public void TransferHotbarDown()
         {
             if (_player.Inventory.PickedItem.Item.Count == 0) return;

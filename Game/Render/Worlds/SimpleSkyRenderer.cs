@@ -11,6 +11,9 @@ using DigBuild.Worlds;
 
 namespace DigBuild.Render.Worlds
 {
+    /// <summary>
+    /// A basic shader-based sky renderer implementation.
+    /// </summary>
     public class SimpleSkyRenderer : ISkyRenderer
     {
         private readonly NativeBuffer<SimpleSkyVertexUniform> _vertUniformNativeBuffer = new();
@@ -87,13 +90,25 @@ namespace DigBuild.Render.Worlds
         }
     }
     
+    /// <summary>
+    /// A sky vertex uniform.
+    /// </summary>
     public interface ISimpleSkyVertexUniform : IUniform<SimpleSkyVertexUniform>
     {
+        /// <summary>
+        /// The transform matrix.
+        /// </summary>
         Matrix4x4 Matrix { get; set; }
     }
     
+    /// <summary>
+    /// A sky fragment uniform.
+    /// </summary>
     public interface ISimpleSkyFragmentUniform : IUniform<SimpleSkyFragmentUniform>
     {
+        /// <summary>
+        /// The time factor.
+        /// </summary>
         float TimeFactor { get; set; }
     }
 }

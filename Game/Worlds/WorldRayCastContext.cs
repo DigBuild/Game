@@ -10,6 +10,9 @@ using DigBuild.Registries;
 
 namespace DigBuild.Worlds
 {
+    /// <summary>
+    /// A world-based ray casting context.
+    /// </summary>
     public sealed class WorldRayCastContext : IGridAlignedRayCastingContext<WorldRayCastContext.Hit>
     {
         private readonly IWorld _world;
@@ -29,7 +32,7 @@ namespace DigBuild.Worlds
                 return false;
             }
 
-            var rayCollider = block.Get(_world, pos, BlockAttributes.RayCollider);
+            var rayCollider = block.Get(_world, pos, GameBlockAttributes.RayCollider);
             if (!rayCollider.TryCollide(ray - (Vector3) gridPosition, out var colliderHit))
             {
                 hit = null;
@@ -40,13 +43,31 @@ namespace DigBuild.Worlds
             return true;
         }
 
+        /// <summary>
+        /// A hit in the world.
+        /// </summary>
         public sealed class Hit
         {
-            public readonly Vector3 Position;
-            public readonly BlockPos BlockPos;
-            public readonly Direction Face;
-            public readonly uint Index;
-            public readonly AABB Bounds;
+            /// <summary>
+            /// The exact position.
+            /// </summary>
+            public Vector3 Position { get; }
+            /// <summary>
+            /// The block position.
+            /// </summary>
+            public BlockPos BlockPos { get; }
+            /// <summary>
+            /// The block face.
+            /// </summary>
+            public Direction Face { get; }
+            /// <summary>
+            /// The AABB index.
+            /// </summary>
+            public uint Index { get; }
+            /// <summary>
+            /// The bounding box.
+            /// </summary>
+            public AABB Bounds { get; }
 
             public Hit(Vector3 position, Direction face, uint index, AABB bounds)
             {

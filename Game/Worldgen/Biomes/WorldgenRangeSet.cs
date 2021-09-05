@@ -8,13 +8,11 @@ using DigBuild.Engine.Worldgen;
 
 namespace DigBuild.Worldgen.Biomes
 {
+    /// <summary>
+    /// A range set of worldgen attributes.
+    /// </summary>
     public interface IReadOnlyWorldgenRangeSet : IEnumerable<KeyValuePair<IWorldgenAttribute, IRangeT>>
     {
-        int Count { get; }
-
-        RangeT<T>? Get<T>(WorldgenAttribute<Grid<T>> attribute);
-        bool TryGet<T>(WorldgenAttribute<Grid<T>> attribute, [MaybeNullWhen(false)] out RangeT<T> range);
-
         Grid<float> GetScores(ChunkDescriptionContext context);
     }
 
@@ -26,6 +24,12 @@ namespace DigBuild.Worldgen.Biomes
         public int Count => _ranges.Count;
         public bool IsReadOnly => false;
 
+        /// <summary>
+        /// Adds a range for a float grid attribute.
+        /// </summary>
+        /// <param name="attribute">The attribute</param>
+        /// <param name="start">The range start</param>
+        /// <param name="end">The range end</param>
         public void Add(WorldgenAttribute<Grid<float>> attribute, float start, float end)
         {
             _ranges.Add(attribute, new RangeT<float>(start, end));
@@ -45,7 +49,13 @@ namespace DigBuild.Worldgen.Biomes
                 return scores.Build();
             });
         }
-
+        
+        /// <summary>
+        /// Adds a range for an unsigned short grid attribute.
+        /// </summary>
+        /// <param name="attribute">The attribute</param>
+        /// <param name="start">The range start</param>
+        /// <param name="end">The range end</param>
         public void Add(WorldgenAttribute<Grid<ushort>> attribute, ushort start, ushort end)
         {
             _ranges.Add(attribute, new RangeT<ushort>(start, end));
@@ -65,24 +75,7 @@ namespace DigBuild.Worldgen.Biomes
                 return scores.Build();
             });
         }
-
-        public RangeT<T>? Get<T>(WorldgenAttribute<Grid<T>> attribute)
-        {
-            return _ranges.TryGetValue(attribute, out var range) ? (RangeT<T>) range : null;
-        }
-
-        public bool TryGet<T>(WorldgenAttribute<Grid<T>> attribute, [MaybeNullWhen(false)] out RangeT<T> range)
-        {
-            if (_ranges.TryGetValue(attribute, out var r))
-            {
-                range = (RangeT<T>) r;
-                return true;
-            }
-
-            range = default;
-            return false;
-        }
-
+        
         public Grid<float> GetScores(ChunkDescriptionContext context)
         {
             var scores = Grid<float>.Builder(WorldDimensions.ChunkWidth);

@@ -4,14 +4,30 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace DigBuild.Worldgen.Biomes
 {
+    /// <summary>
+    /// A set of biome attributes and their values.
+    /// </summary>
     public interface IReadOnlyBiomeAttributeSet : IEnumerable<KeyValuePair<IBiomeAttribute, object>>
     {
+        /// <summary>
+        /// The amount of attributes.
+        /// </summary>
         int Count { get; }
         
+        /// <summary>
+        /// Tries to get the value of an attribute.
+        /// </summary>
+        /// <typeparam name="T">The attribute type</typeparam>
+        /// <param name="attribute">The attribute</param>
+        /// <param name="value">The value</param>
+        /// <returns>Whether it was found or not</returns>
         bool TryGet<T>(BiomeAttribute<T> attribute, [MaybeNullWhen(false)] out T value)
             where T : notnull;
     }
 
+    /// <summary>
+    /// A dictionary-backed collection of biome attributes and their values.
+    /// </summary>
     public sealed class BiomeAttributeSet : IReadOnlyBiomeAttributeSet, ICollection<KeyValuePair<IBiomeAttribute, object>>
     {
         private readonly Dictionary<IBiomeAttribute, object> _values = new();
@@ -19,6 +35,12 @@ namespace DigBuild.Worldgen.Biomes
         public int Count => _values.Count;
         public bool IsReadOnly => false;
         
+        /// <summary>
+        /// Adds a new attribute and value pair.
+        /// </summary>
+        /// <typeparam name="T">The attribute type</typeparam>
+        /// <param name="attribute">The attribute</param>
+        /// <param name="value">The value</param>
         public void Add<T>(BiomeAttribute<T> attribute, T value)
             where T : notnull
         {

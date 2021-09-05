@@ -7,11 +7,17 @@ using DigBuild.Worlds;
 
 namespace DigBuild.Registries
 {
+    /// <summary>
+    /// The game's chunk-local data storage.
+    /// </summary>
     public static class GameChunkStorages
     {
+        /// <summary>
+        /// Biome storage.
+        /// </summary>
         public static DataHandle<IChunk, IReadOnlyChunkBiomes, ChunkBiomes> Biomes { get; private set; } = null!;
 
-        public static void Register(RegistryBuilder<IDataHandle<IChunk>> registry)
+        internal static void Register(RegistryBuilder<IDataHandle<IChunk>> registry)
         {
             IChunkBlockLight.Type = registry.Register<IChunk, IReadOnlyChunkBlockLight, IChunkBlockLight>(
                 new ResourceName(DigBuildGame.Domain, "block_light"),

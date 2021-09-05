@@ -5,21 +5,30 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Render
 {
+    /// <summary>
+    /// The game's UI render layers.
+    /// </summary>
     public static class UiRenderLayers
     {
+        /// <summary>
+        /// The text render layer.
+        /// </summary>
         public static IRenderLayer<UiVertex> Text { get; } = new SimpleRenderLayer<UiVertex>(
             UiVertex.CreateTransformer,
             new ResourceName(DigBuildGame.Domain, "ui.vert"),
             new ResourceName(DigBuildGame.Domain, "ui.frag"),
-            TextureHandles.UiText,
+            TextureTypes.UiText,
             false
         );
 
+        /// <summary>
+        /// The base UI render layer.
+        /// </summary>
         public static IRenderLayer<UiVertex> Ui { get; } = new SimpleRenderLayer<UiVertex>(
             UiVertex.CreateTransformer,
             new ResourceName(DigBuildGame.Domain, "ui.vert"),
             new ResourceName(DigBuildGame.Domain, "ui.frag"),
-            TextureHandles.UiMain,
+            TextureTypes.UiMain,
             false, true,
             new BlendOptions
             {
@@ -29,11 +38,14 @@ namespace DigBuild.Render
             }
         );
 
+        /// <summary>
+        /// The overlay render layer.
+        /// </summary>
         public static IRenderLayer<UiVertex> UiOverlay { get; } = new SimpleRenderLayer<UiVertex>(
             UiVertex.CreateTransformer,
             new ResourceName(DigBuildGame.Domain, "ui.vert"),
             new ResourceName(DigBuildGame.Domain, "ui.frag"),
-            TextureHandles.UiMain,
+            TextureTypes.UiMain,
             false, true,
             new BlendOptions
             {

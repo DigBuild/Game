@@ -10,7 +10,7 @@ namespace DigBuild.Content.Registries
         internal static void Register(RegistryBuilder<ICraftingRecipe> registry)
         {
             var stoneIngredient = new CraftingIngredient(GameItems.Stone);
-            registry.Add(new ResourceName(DigBuildGame.Domain, "stone_to_stairs"),
+            registry.Register(new ResourceName(DigBuildGame.Domain, "stone_to_stairs"),
                 new CraftingRecipe(
                     new[]
                     {

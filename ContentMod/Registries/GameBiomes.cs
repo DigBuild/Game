@@ -26,7 +26,7 @@ namespace DigBuild.Content.Registries
 
         internal static void Register(RegistryBuilder<IBiome> registry)
         {
-            Grassland = registry.Add(new ResourceName(DigBuildGame.Domain, "grassland"), new SimpleBiome
+            Grassland = registry.Register(new ResourceName(DigBuildGame.Domain, "grassland"), new SimpleBiome
             {
                 Constraints = new WorldgenRangeSet
                 {
@@ -41,7 +41,7 @@ namespace DigBuild.Content.Registries
                 }
             });
 
-            Pasture = registry.Add(new ResourceName(DigBuildGame.Domain, "pasture"), new SimpleBiome
+            Pasture = registry.Register(new ResourceName(DigBuildGame.Domain, "pasture"), new SimpleBiome
             {
                 Constraints = new WorldgenRangeSet
                 {
@@ -56,7 +56,7 @@ namespace DigBuild.Content.Registries
                 }
             });
 
-            Tundra = registry.Add(new ResourceName(DigBuildGame.Domain, "tundra"), new SimpleBiome
+            Tundra = registry.Register(new ResourceName(DigBuildGame.Domain, "tundra"), new SimpleBiome
             {
                 Constraints = new WorldgenRangeSet
                 {
@@ -71,7 +71,7 @@ namespace DigBuild.Content.Registries
                 }
             });
 
-            Plateau = registry.Add(new ResourceName(DigBuildGame.Domain, "plateau"), new SimpleBiome
+            Plateau = registry.Register(new ResourceName(DigBuildGame.Domain, "plateau"), new SimpleBiome
             {
                 Constraints = new WorldgenRangeSet
                 {
@@ -86,7 +86,7 @@ namespace DigBuild.Content.Registries
                 }
             });
             
-            Beach = registry.Add(new ResourceName(DigBuildGame.Domain, "beach"), new SimpleBiome
+            Beach = registry.Register(new ResourceName(DigBuildGame.Domain, "beach"), new SimpleBiome
             {
                 Constraints = new WorldgenRangeSet
                 {
@@ -101,7 +101,7 @@ namespace DigBuild.Content.Registries
                 }
             });
 
-            GravelBeach = registry.Add(new ResourceName(DigBuildGame.Domain, "gravel_beach"), new SimpleBiome
+            GravelBeach = registry.Register(new ResourceName(DigBuildGame.Domain, "gravel_beach"), new SimpleBiome
             {
                 Constraints = new WorldgenRangeSet
                 {
@@ -116,7 +116,7 @@ namespace DigBuild.Content.Registries
                 }
             });
             
-            Ocean = registry.Add(new ResourceName(DigBuildGame.Domain, "ocean"), new SimpleBiome
+            Ocean = registry.Register(new ResourceName(DigBuildGame.Domain, "ocean"), new SimpleBiome
             {
                 Constraints = new WorldgenRangeSet
                 {
@@ -131,7 +131,7 @@ namespace DigBuild.Content.Registries
                 }
             });
 
-            FrozenOcean = registry.Add(new ResourceName(DigBuildGame.Domain, "frozen_ocean"), new SimpleBiome
+            FrozenOcean = registry.Register(new ResourceName(DigBuildGame.Domain, "frozen_ocean"), new SimpleBiome
             {
                 Constraints = new WorldgenRangeSet
                 {

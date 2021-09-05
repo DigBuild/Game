@@ -13,10 +13,16 @@ using DigBuild.Serialization;
 
 namespace DigBuild.Render.Models.Geometry
 {
+    /// <summary>
+    /// A geometry JSON resource.
+    /// </summary>
     public sealed class GeometryJson : ICustomResource
     {
         public ResourceName Name { get; }
 
+        /// <summary>
+        /// The partial geometry.
+        /// </summary>
         public IPartialGeometry Geometry { get; }
 
         private GeometryJson(ResourceName name, IPartialGeometry geometry)
@@ -60,6 +66,14 @@ namespace DigBuild.Render.Models.Geometry
             return new GeometryJson(name, geometry);
         }
 
+        /// <summary>
+        /// Parses a JSON element into a partial geometry.
+        /// </summary>
+        /// <param name="json">The JSON element</param>
+        /// <param name="jsonOptions">The serializer options</param>
+        /// <param name="resourceManager">The resource manager</param>
+        /// <param name="name">The resource name</param>
+        /// <returns>The partial geometry</returns>
         public static IPartialGeometry ParseElement(
             JsonElement json, JsonSerializerOptions jsonOptions,
             ResourceManager resourceManager, ResourceName name
@@ -116,9 +130,9 @@ namespace DigBuild.Render.Models.Geometry
                     rawGeometry.LoadTextures(loader);
             }
 
-            public IGeometry Build()
+            public IGeometry Bake()
             {
-                return new MergedGeometry(_elements.Select(e => e.Build()).ToList());
+                return new MergedGeometry(_elements.Select(e => e.Bake()).ToList());
             }
         }
 

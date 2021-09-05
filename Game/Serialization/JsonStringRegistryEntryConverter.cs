@@ -6,6 +6,9 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Serialization
 {
+    /// <summary>
+    /// A registry entry JSON serdes.
+    /// </summary>
     public class JsonStringRegistryEntryConverter<T> : JsonConverter<T?> where T : notnull
     {
         private readonly Registry<T> _registry;

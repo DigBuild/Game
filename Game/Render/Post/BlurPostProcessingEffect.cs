@@ -6,6 +6,9 @@ using DigBuild.Render.Post.GeneratedUniforms;
 
 namespace DigBuild.Render.Post
 {
+    /// <summary>
+    /// A basic blur post-processing effect.
+    /// </summary>
     public sealed class BlurPostProcessingEffect : IPostProcessingEffect
     {
         private readonly BlurDirection _direction;
@@ -14,7 +17,13 @@ namespace DigBuild.Render.Post
         private Framebuffer _framebuffer = null!;
         private CommandBuffer _commandBuffer = null!;
 
+        /// <summary>
+        /// The input texture.
+        /// </summary>
         public Texture Input { get; set; } = null!;
+        /// <summary>
+        /// The output texture.
+        /// </summary>
         public Texture Output => _framebuffer.Get(_framebuffer.Format.Attachments[0]);
 
         public BlurPostProcessingEffect(BlurDirection direction, uint sizeDivider)
@@ -71,14 +80,23 @@ namespace DigBuild.Render.Post
         }
     }
 
+    /// <summary>
+    /// A blur direction.
+    /// </summary>
     public enum BlurDirection
     {
         Vertical,
         Horizontal,
     }
 
+    /// <summary>
+    /// A pixel size uniform.
+    /// </summary>
     public interface IPixelSizeUniform : IUniform<PixelSizeUniform>
     {
+        /// <summary>
+        /// The size multiplier for a pixel.
+        /// </summary>
         float PixelSize { get; set; }
     }
 }

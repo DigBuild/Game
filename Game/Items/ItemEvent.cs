@@ -5,19 +5,31 @@ using DigBuild.Worlds;
 
 namespace DigBuild.Items
 {
+    /// <summary>
+    /// The game's item events.
+    /// </summary>
     public static class ItemEvent
     {
-        public static void Register(TypeRegistryBuilder<IItemEvent, ItemEventInfo> registry)
+        internal static void Register(TypeRegistryBuilder<IItemEvent, ItemEventInfo> registry)
         {
             registry.Register((Activate _) => Activate.Result.Fail);
             registry.Register((Punch _) => Punch.Result.Fail);
             registry.Register((EquipmentActivate _) => { });
             registry.Register((Use _) => { });
         }
-
+        
+        /// <summary>
+        /// Fired when an item is left-clicked.
+        /// </summary>
         public sealed class Activate : ItemEventBase, IItemEvent<Activate.Result>
         {
+            /// <summary>
+            /// The player that activated the item.
+            /// </summary>
             public IPlayer Player { get; }
+            /// <summary>
+            /// The raycast hit in the world.
+            /// </summary>
             public WorldRayCastContext.Hit? Hit { get; }
 
             public Activate(ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit) : base(instance)
@@ -25,16 +37,28 @@ namespace DigBuild.Items
                 Player = player;
                 Hit = hit;
             }
-
+            
+            /// <summary>
+            /// The result state of the event.
+            /// </summary>
             public enum Result
             {
                 Success, Fail
             }
         }
 
+        /// <summary>
+        /// Fired when an item is right-clicked.
+        /// </summary>
         public sealed class Punch : ItemEventBase, IItemEvent<Punch.Result>
         {
+            /// <summary>
+            /// The player that punched with the item.
+            /// </summary>
             public IPlayer Player { get; }
+            /// <summary>
+            /// The raycast hit in the world.
+            /// </summary>
             public WorldRayCastContext.Hit? Hit { get; }
 
             public Punch(ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit) : base(instance)
@@ -42,15 +66,24 @@ namespace DigBuild.Items
                 Player = player;
                 Hit = hit;
             }
-
+            
+            /// <summary>
+            /// The result state of the event.
+            /// </summary>
             public enum Result
             {
                 Success, Fail
             }
         }
 
+        /// <summary>
+        /// Fired when the item is equipped and the corresponding key is pressed.
+        /// </summary>
         public sealed class EquipmentActivate : ItemEventBase
         {
+            /// <summary>
+            /// The player that activated the item.
+            /// </summary>
             public IPlayer Player { get; }
 
             public EquipmentActivate(ItemInstance instance, IPlayer player) : base(instance)
@@ -58,9 +91,15 @@ namespace DigBuild.Items
                 Player = player;
             }
         }
-
+        
+        /// <summary>
+        /// Fired when the item is used inside the inventory.
+        /// </summary>
         public sealed class Use : ItemEventBase
         {
+            /// <summary>
+            /// The player that used the item.
+            /// </summary>
             public IPlayer Player { get; }
 
             public Use(ItemInstance instance, IPlayer player) : base(instance)
@@ -69,9 +108,19 @@ namespace DigBuild.Items
             }
         }
     }
-
+    
+    /// <summary>
+    /// Registration/subscription extensions for item events.
+    /// </summary>
     public static class ItemEventExtensions
     {
+        /// <summary>
+        /// Subscribes to the activated event.
+        /// </summary>
+        /// <typeparam name="TReadOnlyData">The read-only data type</typeparam>
+        /// <typeparam name="TData">The read-write data type</typeparam>
+        /// <param name="builder">The builder</param>
+        /// <param name="onActivate">The handler</param>
         public static void Subscribe<TReadOnlyData, TData>(
             this IItemBehaviorBuilder<TReadOnlyData, TData> builder,
             ItemEventDelegate<TData, ItemEvent.Activate, ItemEvent.Activate.Result> onActivate
@@ -80,17 +129,25 @@ namespace DigBuild.Items
         {
             builder.Subscribe(onActivate);
         }
-
-        public static ItemEvent.Activate.Result OnActivate(this Item item, ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit)
-        {
-            return item.Post<ItemEvent.Activate, ItemEvent.Activate.Result>(new ItemEvent.Activate(instance, player, hit));
-        }
-
+        
+        /// <summary>
+        /// Fires the activated event.
+        /// </summary>
+        /// <param name="instance">The item instance</param>
+        /// <param name="hit">The raycast hit</param>
+        /// <param name="player">The player</param>
         public static ItemEvent.Activate.Result OnActivate(this ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit)
         {
-            return instance.Type.OnActivate(instance, player, hit);
+            return instance.Type.Post<ItemEvent.Activate, ItemEvent.Activate.Result>(new ItemEvent.Activate(instance, player, hit));
         }
-
+        
+        /// <summary>
+        /// Subscribes to the punched event.
+        /// </summary>
+        /// <typeparam name="TReadOnlyData">The read-only data type</typeparam>
+        /// <typeparam name="TData">The read-write data type</typeparam>
+        /// <param name="builder">The builder</param>
+        /// <param name="onPunch">The handler</param>
         public static void Subscribe<TReadOnlyData, TData>(
             this IItemBehaviorBuilder<TReadOnlyData, TData> builder,
             ItemEventDelegate<TData, ItemEvent.Punch, ItemEvent.Punch.Result> onPunch
@@ -99,17 +156,25 @@ namespace DigBuild.Items
         {
             builder.Subscribe(onPunch);
         }
-
-        public static ItemEvent.Punch.Result OnPunch(this Item item, ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit)
-        {
-            return item.Post<ItemEvent.Punch, ItemEvent.Punch.Result>(new ItemEvent.Punch(instance, player, hit));
-        }
-
+        
+        /// <summary>
+        /// Fires the punched event.
+        /// </summary>
+        /// <param name="instance">The item instance</param>
+        /// <param name="hit">The raycast hit</param>
+        /// <param name="player">The player</param>
         public static ItemEvent.Punch.Result OnPunch(this ItemInstance instance, IPlayer player, WorldRayCastContext.Hit? hit)
         {
-            return instance.Type.OnPunch(instance, player, hit);
+            return instance.Type.Post<ItemEvent.Punch, ItemEvent.Punch.Result>(new ItemEvent.Punch(instance, player, hit));
         }
-
+        
+        /// <summary>
+        /// Subscribes to the equipment activated event.
+        /// </summary>
+        /// <typeparam name="TReadOnlyData">The read-only data type</typeparam>
+        /// <typeparam name="TData">The read-write data type</typeparam>
+        /// <param name="builder">The builder</param>
+        /// <param name="onEquipmentActivate">The handler</param>
         public static void Subscribe<TReadOnlyData, TData>(
             this IItemBehaviorBuilder<TReadOnlyData, TData> builder,
             ItemEventDelegate<TData, ItemEvent.EquipmentActivate> onEquipmentActivate
@@ -118,17 +183,24 @@ namespace DigBuild.Items
         {
             builder.Subscribe(onEquipmentActivate);
         }
-
-        public static void OnEquipmentActivate(this Item item, ItemInstance instance, IPlayer player)
-        {
-            item.Post(new ItemEvent.EquipmentActivate(instance, player));
-        }
-
+        
+        /// <summary>
+        /// Fires the equipment activated event.
+        /// </summary>
+        /// <param name="instance">The item instance</param>
+        /// <param name="player">The player</param>
         public static void OnEquipmentActivate(this ItemInstance instance, IPlayer player)
         {
-            instance.Type.OnEquipmentActivate(instance, player);
+            instance.Type.Post(new ItemEvent.EquipmentActivate(instance, player));
         }
-
+        
+        /// <summary>
+        /// Subscribes to the used event.
+        /// </summary>
+        /// <typeparam name="TReadOnlyData">The read-only data type</typeparam>
+        /// <typeparam name="TData">The read-write data type</typeparam>
+        /// <param name="builder">The builder</param>
+        /// <param name="onUse">The handler</param>
         public static void Subscribe<TReadOnlyData, TData>(
             this IItemBehaviorBuilder<TReadOnlyData, TData> builder,
             ItemEventDelegate<TData, ItemEvent.Use> onUse
@@ -137,15 +209,15 @@ namespace DigBuild.Items
         {
             builder.Subscribe(onUse);
         }
-
-        public static void OnUse(this Item item, ItemInstance instance, IPlayer player)
-        {
-            item.Post(new ItemEvent.Use(instance, player));
-        }
-
+        
+        /// <summary>
+        /// Fires the used event.
+        /// </summary>
+        /// <param name="instance">The item instance</param>
+        /// <param name="player">The player</param>
         public static void OnUse(this ItemInstance instance, IPlayer player)
         {
-            instance.Type.OnUse(instance, player);
+            instance.Type.Post(new ItemEvent.Use(instance, player));
         }
     }
 }

@@ -10,16 +10,39 @@ using DigBuild.Registries;
 
 namespace DigBuild.Behaviors
 {
+    /// <summary>
+    /// The contract for the item pickup behavior.
+    /// </summary>
     public interface IItemPickup
     {
+        /// <summary>
+        /// Whether the entity is in-world or not.
+        /// </summary>
         bool InWorld { get; set; }
 
+        /// <summary>
+        /// The target inventory for picked up items.
+        /// </summary>
         IInventory PickupTarget { get; }
     }
 
+    /// <summary>
+    /// An item pickup behavior for entities. Contract: <see cref="IItemPickup"/>
+    /// <para>
+    /// Attracts items within the <see cref="AttractionBounds"/> and tries to put
+    /// them into the inventory when within the <see cref="PickupBounds"/>.
+    /// </para>
+    /// </summary>
     public sealed class ItemPickupBehavior : IEntityBehavior<IItemPickup>
     {
+        /// <summary>
+        /// The attraction bounding box.
+        /// </summary>
         public AABB AttractionBounds { get; set; } = AABB.FullBlock - (Vector3.One / 2);
+
+        /// <summary>
+        /// The pickup bounding box.
+        /// </summary>
         public AABB PickupBounds { get; set; } = AABB.FullBlock - (Vector3.One / 2);
 
         public void Build(EntityBehaviorBuilder<IItemPickup, IItemPickup> entity)
@@ -46,11 +69,11 @@ namespace DigBuild.Behaviors
         {
             if (!data.InWorld) return;
 
-            var pos = entity.Get(EntityAttributes.Position) + PickupBounds.Center;
+            var pos = entity.Get(GameEntityAttributes.Position) + PickupBounds.Center;
 
             foreach (var itemEntity in entity.World.GetEntities(GameEntities.Item))
             {
-                var itemPos = itemEntity.Get(EntityAttributes.Position);
+                var itemPos = itemEntity.Get(GameEntityAttributes.Position);
                 var relPos = itemPos - pos;
 
                 if (!AttractionBounds.Contains(relPos))
@@ -58,7 +81,7 @@ namespace DigBuild.Behaviors
 
                 if (PickupBounds.Contains(relPos))
                 {
-                    var item = itemEntity.Get(EntityAttributes.Item)!.Copy();
+                    var item = itemEntity.Get(GameEntityAttributes.Item)!.Copy();
                     
                     var t = data.PickupTarget.BeginTransaction();
                     if (t.Insert(item).Count == 0)
@@ -73,7 +96,7 @@ namespace DigBuild.Behaviors
                     var unitMotion = -relPos / distance;
                     var motion = unitMotion * MathF.Exp(-distance * 0.75f);
 
-                    itemEntity.Get(EntityCapabilities.PhysicalEntity)!.Velocity += motion;
+                    itemEntity.Get(GameEntityCapabilities.PhysicsEntity)!.Velocity += motion;
                 }
             }
             

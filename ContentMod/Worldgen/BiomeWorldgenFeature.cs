@@ -18,7 +18,7 @@ namespace DigBuild.Content.Worldgen
 
             foreach (var biome in GameRegistries.Biomes.Values)
             {
-                var biomeScores = biome.GetScores(context);
+                var biomeScores = biome.ComputeScores(context);
                 for (var i = 0; i < biomeScores.Size; i++)
                 for (var j = 0; j < biomeScores.Size; j++)
                 {

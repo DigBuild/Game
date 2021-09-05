@@ -5,8 +5,14 @@ using DigBuild.Registries;
 
 namespace DigBuild
 {
+    /// <summary>
+    /// Main bootstrap class. The entry point for the game.
+    /// </summary>
     public static class Bootstrap
     {
+        /// <summary>
+        /// The entry point for the game.
+        /// </summary>
         public static void Main()
         {
             var eventBus = new EventBus();

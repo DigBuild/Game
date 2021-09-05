@@ -5,6 +5,9 @@ using DigBuild.Platform.Render;
 
 namespace DigBuild.Render.Worlds
 {
+    /// <summary>
+    /// A world renderer that delegates work to particle renderers.
+    /// </summary>
     public sealed class ParticleWorldRenderer : IWorldRenderer
     {
         private readonly IEnumerable<IParticleRenderer> _particleRenderers;

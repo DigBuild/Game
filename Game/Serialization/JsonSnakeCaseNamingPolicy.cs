@@ -3,6 +3,9 @@ using System.Text.RegularExpressions;
 
 namespace DigBuild.Serialization
 {
+    /// <summary>
+    /// A snake case JSON naming policy.
+    /// </summary>
     public class JsonSnakeCaseNamingPolicy : JsonNamingPolicy
     {
         private static readonly Regex Regex = new("(?<!^)([A-Z])");

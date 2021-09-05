@@ -5,6 +5,9 @@ using DigBuild.Ui;
 
 namespace DigBuild.Controller
 {
+    /// <summary>
+    /// The main game input handler.
+    /// </summary>
     public class GameInput
     {
         private Platform.Input.Controller? _controller;
@@ -27,6 +30,11 @@ namespace DigBuild.Controller
 
         public bool CloseUi, PrevCloseUi;
 
+        /// <summary>
+        /// Handles key presses.
+        /// </summary>
+        /// <param name="code">Key code</param>
+        /// <param name="action">Key action</param>
         public void OnKeyboardEvent(uint code, KeyboardAction action)
         {
             if (code == 17)
@@ -41,12 +49,22 @@ namespace DigBuild.Controller
                 _keySpace = action == KeyboardAction.Press || (action != KeyboardAction.Release && _keySpace);
         }
 
+        /// <summary>
+        /// Handles cursor movement.
+        /// </summary>
+        /// <param name="x">The X position</param>
+        /// <param name="y">The Y position</param>
         public void OnCursorMoved(uint x, uint y)
         {
             _cursorX = x;
             _cursorY = y;
         }
 
+        /// <summary>
+        /// Handles mouse button events.
+        /// </summary>
+        /// <param name="button">The button</param>
+        /// <param name="action">The action</param>
         public void OnMouseEvent(uint button, MouseAction action)
         {
             if (button == 0)
@@ -55,11 +73,20 @@ namespace DigBuild.Controller
                 _btnR = action == MouseAction.Press;
         }
 
+        /// <summary>
+        /// Handles scroll events.
+        /// </summary>
+        /// <param name="xOffset">The X scroll offset</param>
+        /// <param name="yOffset">The Y scroll offset</param>
         public void OnScrollEvent(double xOffset, double yOffset)
         {
             _accumulatedScroll += yOffset;
         }
 
+        /// <summary>
+        /// Updates the game input and checks for controller data.
+        /// </summary>
+        /// <param name="uiManager">The UI manager</param>
         public void Update(UiManager uiManager)
         {
             Platform.Platform.InputContext.Update();

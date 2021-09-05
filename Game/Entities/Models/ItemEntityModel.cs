@@ -8,6 +8,13 @@ using DigBuild.Engine.Render.Models;
 
 namespace DigBuild.Entities.Models
 {
+    /// <summary>
+    /// The model for item entities.
+    /// Consumes <see cref="PhysicalEntityModelData"/> and <see cref="ItemEntityModelData"/>.
+    /// <para>
+    /// Spins and bobs in place constantly.
+    /// </para>
+    /// </summary>
     public sealed class ItemEntityModel : IEntityModel
     {
         private readonly IReadOnlyDictionary<Item, IItemModel> _itemModels;
@@ -17,10 +24,10 @@ namespace DigBuild.Entities.Models
             _itemModels = itemModels;
         }
 
-        private Matrix4x4 GetTransform(long joinWorldTime, Vector3 position)
+        private Matrix4x4 GetTransform(ulong worldTime, ulong joinWorldTime, float partialTick, Vector3 position)
         {
-            const double rate = 0.25;
-            var time = (float) ((DateTime.Now.Ticks - joinWorldTime) * rate % TimeSpan.TicksPerSecond / TimeSpan.TicksPerSecond);
+            const float rate = 0.02f;
+            var time = (float) (((double) (worldTime - joinWorldTime) + partialTick)) * rate;
             
             return Matrix4x4.CreateTranslation(-0.5f, MathF.Sin(time * MathF.PI * 2) - 0.5f, -0.5f) * 
                    Matrix4x4.CreateRotationY(time * MathF.PI * 2) *
@@ -38,7 +45,7 @@ namespace DigBuild.Entities.Models
             if (!_itemModels.TryGetValue(itemInfo.Item.Type, out var model))
                 return;
             
-            buffer.Transform = GetTransform(itemInfo.JoinWorldTime, position) * buffer.Transform;
+            buffer.Transform = GetTransform(itemInfo.WorldTime, itemInfo.JoinWorldTime, partialTick, position) * buffer.Transform;
             var itemData = itemInfo.Item.Get(ModelData.ItemAttribute);
             model.AddGeometry(buffer, itemData, ItemModelTransform.None, partialTick);
         }

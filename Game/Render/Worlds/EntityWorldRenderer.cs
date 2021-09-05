@@ -14,6 +14,9 @@ using DigBuild.Platform.Util;
 
 namespace DigBuild.Render.Worlds
 {
+    /// <summary>
+    /// A world-level renderer for the active entities.
+    /// </summary>
     public sealed class EntityWorldRenderer : IWorldRenderer
     {
         private readonly EventBus _eventBus;
@@ -87,7 +90,7 @@ namespace DigBuild.Render.Worlds
 
         public void BeforeDraw(RenderContext context, CommandBufferRecorder cmd, UniformBufferSet uniforms, WorldView worldView, float partialTick)
         {
-            uniforms.Push(RenderUniforms.ModelViewTransform,
+            uniforms.Push(UniformTypes.ModelViewProjectionTransform,
                 new SimpleTransform
                 {
                     ModelView = worldView.Camera.Transform,

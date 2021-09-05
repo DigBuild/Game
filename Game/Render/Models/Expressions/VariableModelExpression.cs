@@ -5,9 +5,18 @@ using System.Linq.Expressions;
 
 namespace DigBuild.Render.Models.Expressions
 {
+    /// <summary>
+    /// An expression representing a variable with an optional default value.
+    /// </summary>
     public sealed class VariableModelExpression : IModelExpression
     {
+        /// <summary>
+        /// The variable name.
+        /// </summary>
         public string Name { get; }
+        /// <summary>
+        /// The default value literal.
+        /// </summary>
         public LiteralModelExpression? DefaultValue { get; }
         
         public IEnumerable<string> RequiredVariables { get; }

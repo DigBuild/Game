@@ -30,14 +30,24 @@ using PlayerController = DigBuild.Players.PlayerController;
 
 namespace DigBuild.Controller
 {
+    /// <summary>
+    /// The controller in charge of gameplay.
+    /// Manages all the game state.
+    /// </summary>
     public sealed class GameplayController : IGameController
     {
-        private static readonly List<IRenderLayer> WorldRenderLayers = new(){
+        /// <summary>
+        /// The render layers used for world rendering in order.
+        /// </summary>
+        public static readonly List<IRenderLayer> WorldRenderLayers = new(){
             Render.Worlds.WorldRenderLayers.Opaque,
             Render.Worlds.WorldRenderLayers.Cutout,
             Render.Worlds.WorldRenderLayers.Water,
         };
-        private static readonly List<IRenderLayer> UiRenderLayers = new(){
+        /// <summary>
+        /// The render layers used for UI rendering in order.
+        /// </summary>
+        public static readonly List<IRenderLayer> UiRenderLayers = new(){
             Render.UiRenderLayers.Ui,
             Render.Worlds.WorldRenderLayers.Opaque,
             Render.Worlds.WorldRenderLayers.Cutout,
@@ -46,9 +56,12 @@ namespace DigBuild.Controller
             Render.UiRenderLayers.UiOverlay
         };
 
-        private static readonly ImmutableList<IUniformType> UniformTypes = ImmutableList.Create<IUniformType>(
-            RenderUniforms.ModelViewTransform,
-            RenderUniforms.WorldTime
+        /// <summary>
+        /// The uniform types.
+        /// </summary>
+        public static readonly ImmutableList<IUniformType> UniformTypes = ImmutableList.Create<IUniformType>(
+            Render.UniformTypes.ModelViewProjectionTransform,
+            Render.UniformTypes.WorldTime
         );
         
         private readonly DigBuildGame _game;
@@ -65,17 +78,41 @@ namespace DigBuild.Controller
 
         private readonly TextureSet _textures;
         
+        /// <summary>
+        /// The game instance.
+        /// </summary>
         public DigBuildGame Game => _game;
 
+        /// <summary>
+        /// The world.
+        /// </summary>
         public IWorld World => _world;
+        /// <summary>
+        /// The world's raycast context.
+        /// </summary>
         public WorldRayCastContext RayCastContext { get; }
+        /// <summary>
+        /// The player.
+        /// </summary>
         public IPlayer Player { get; }
         
+        /// <summary>
+        /// The input controller.
+        /// </summary>
         public GameInput InputController { get; } = new();
 
+        /// <summary>
+        /// The world render manager.
+        /// </summary>
         public WorldRenderManager WorldRenderManager { get; }
+        /// <summary>
+        /// The UI manager.
+        /// </summary>
         public UiManager UiManager { get; }
 
+        /// <summary>
+        /// The main texture set.
+        /// </summary>
         public IReadOnlyTextureSet Textures => _textures;
 
         public GameplayController(DigBuildGame game)
@@ -157,6 +194,9 @@ namespace DigBuild.Controller
             WorldRenderManager.Dispose();
         }
 
+        /// <summary>
+        /// Plays a "boop" sound.
+        /// </summary>
         public void Boop()
         {
             _game.AudioManager.Play(GameSounds.Boop, pitch: 0.8f - (float) (new Random().NextDouble() * 0.05), gain: 0.1f);
@@ -179,7 +219,7 @@ namespace DigBuild.Controller
                 Boop();
             }
 
-            // var z = Player.PhysicalEntity.Position.Z;
+            // var z = Player.PhysicsEntity.Position.Z;
             // const float distance = 30;
             // const float halfDist = distance / 2;
             //
@@ -263,7 +303,7 @@ namespace DigBuild.Controller
             var stitcher = new TextureStitcher();
             var loader = new MultiSpriteLoader(_game.ResourceManager, stitcher);
             _game.ModelManager.LoadTextures(loader);
-            _game.EventBus.Post(new TextureStitchingEvent(TextureHandles.Main, stitcher, _game.ResourceManager));
+            _game.EventBus.Post(new TextureStitchingEvent(TextureTypes.WorldMain, stitcher, _game.ResourceManager));
             var spriteSheet = stitcher.Stitch(new ResourceName(DigBuildGame.Domain, "texturemap"));
             _textures.TextureSheet = context.CreateTexture(spriteSheet.Bitmap);
 
@@ -534,7 +574,7 @@ namespace DigBuild.Controller
 
             public Texture Get(TextureType textureType)
             {
-                if (textureType == TextureHandles.Main)
+                if (textureType == TextureTypes.WorldMain)
                     return TextureSheet;
                 throw new ArgumentException("Invalid render textureType.", nameof(textureType));
             }

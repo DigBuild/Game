@@ -5,6 +5,9 @@ using System.Text.Json.Serialization;
 
 namespace DigBuild.Serialization
 {
+    /// <summary>
+    /// A <see cref="Vector3"/> JSON serdes.
+    /// </summary>
     public class JsonArrayVector3Converter : JsonConverter<Vector3>
     {
         public override Vector3 Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

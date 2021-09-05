@@ -15,23 +15,64 @@ using GameWindow = DigBuild.Render.GameWindow;
 
 namespace DigBuild
 {
+    /// <summary>
+    /// The main game class.
+    /// </summary>
     public sealed class DigBuildGame : IDisposable
     {
+        /// <summary>
+        /// The game's domain.
+        /// </summary>
         public const string Domain = "digbuild";
+
+        /// <summary>
+        /// The render view radius.
+        /// </summary>
         public const ushort ViewRadius = 4;
 
+        /// <summary>
+        /// The instance of the game.
+        /// </summary>
         public static DigBuildGame Instance { get; internal set; } = null!;
         
+        /// <summary>
+        /// The resoruce manager.
+        /// </summary>
         public ResourceManager ResourceManager { get; }
 
+        /// <summary>
+        /// The shared native buffer pool.
+        /// </summary>
         public NativeBufferPool BufferPool { get; } = new();
-        public EventBus EventBus { get; }
 
+        /// <summary>
+        /// The event bus.
+        /// </summary>
+        public EventBus EventBus { get; }
+        
+        /// <summary>
+        /// The audio manager.
+        /// </summary>
         public AudioManager AudioManager { get; }
+
+        /// <summary>
+        /// The model manager.
+        /// </summary>
         public ModelManager ModelManager { get; } = new();
 
+        /// <summary>
+        /// The active game controller.
+        /// </summary>
         public IGameController Controller { get; private set; }
+
+        /// <summary>
+        /// The tick source.
+        /// </summary>
         public TickSource TickSource { get; } = new();
+
+        /// <summary>
+        /// The game window.
+        /// </summary>
         public GameWindow Window { get; }
         
         internal DigBuildGame(EventBus eventBus)
@@ -65,6 +106,9 @@ namespace DigBuild
             Controller.Dispose();
         }
         
+        /// <summary>
+        /// Starts the game.
+        /// </summary>
         public void Start()
         {
             if (TickSource.Running)
@@ -74,6 +118,9 @@ namespace DigBuild
             Window.Open().Wait();
         }
 
+        /// <summary>
+        /// Exits the game.
+        /// </summary>
         public void Exit()
         {
             if (!TickSource.Running)
@@ -83,6 +130,9 @@ namespace DigBuild
             Window.Close().Wait();
         }
 
+        /// <summary>
+        /// Waits for everything within the game to have exited safely.
+        /// </summary>
         public void Await()
         {
             Window.Surface.Closed.Wait();

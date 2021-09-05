@@ -5,6 +5,9 @@ using DigBuild.Render.Worlds;
 
 namespace DigBuild.Render.Models.Geometry
 {
+    /// <summary>
+    /// A simple geometry composed of world vertices and a layer.
+    /// </summary>
     public sealed class SimpleGeometry : IGeometry
     {
         private readonly WorldVertex[] _vertices;

@@ -8,6 +8,9 @@ using DigBuild.Worlds;
 
 namespace DigBuild.Render.Worlds
 {
+    /// <summary>
+    /// A "cheat" world renderer that injects world time uniforms.
+    /// </summary>
     public sealed class WorldTimeInjector : IWorldRenderer
     {
         private readonly IReadOnlyWorld _world;
@@ -29,7 +32,7 @@ namespace DigBuild.Render.Worlds
         {
             var timeOfDay = (_world.AbsoluteTime % World.DayDuration) / (float) World.DayDuration;
             var timeFactor = MathF.Sin(timeOfDay * 2 * MathF.PI) * 0.5f + 0.5f;
-            uniforms.Push(RenderUniforms.WorldTime, new WorldTimeUniform {WorldTime = timeFactor});
+            uniforms.Push(UniformTypes.WorldTime, new WorldTimeUniform {WorldTime = timeFactor});
         }
 
         public void Draw(

@@ -5,6 +5,9 @@ using System.Reflection;
 
 namespace DigBuild.Render.Models.Expressions
 {
+    /// <summary>
+    /// A model expression compilation context that substitutes variables with map lookups.
+    /// </summary>
     public sealed class ModelExpressionCompilationContext
     {
         private static readonly MethodInfo ParseDouble = typeof(double).GetMethod(
@@ -28,8 +31,16 @@ namespace DigBuild.Render.Models.Expressions
         }
     }
 
+    /// <summary>
+    /// Model expression compilation utilities.
+    /// </summary>
     public static class ModelExpressionCompilationExtensions
     {
+        /// <summary>
+        /// Compiles the expression into a Dictionary->string function.
+        /// </summary>
+        /// <param name="expression">The expression</param>
+        /// <returns>The funtion</returns>
         public static Func<IReadOnlyDictionary<string, string>, string> CompileString(this IModelExpression expression)
         {
             var par = Expression.Parameter(typeof(IReadOnlyDictionary<string, string>));
@@ -38,6 +49,11 @@ namespace DigBuild.Render.Models.Expressions
             return lambda.Compile();
         }
         
+        /// <summary>
+        /// Compiles the expression into a Dictionary->double function.
+        /// </summary>
+        /// <param name="expression">The expression</param>
+        /// <returns>The funtion</returns>
         public static Func<IReadOnlyDictionary<string, string>, double> CompileDouble(this IModelExpression expression)
         {
             var par = Expression.Parameter(typeof(IReadOnlyDictionary<string, string>));

@@ -16,7 +16,7 @@ namespace DigBuild.Content.Behaviors
 
         public void Build(ItemBehaviorBuilder<object, object> item)
         {
-            item.Add(ItemAttributes.MaxStackSize, (_, _, _) => _max);
+            item.Add(GameItemAttributes.MaxStackSize, (_, _, _) => _max);
         }
     }
 }

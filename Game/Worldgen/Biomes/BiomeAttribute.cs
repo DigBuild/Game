@@ -3,8 +3,15 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Worldgen.Biomes
 {
+    /// <summary>
+    /// A biome attribute.
+    /// </summary>
     public interface IBiomeAttribute { }
 
+    /// <summary>
+    /// A biome attribute.
+    /// </summary>
+    /// <typeparam name="T">The attribute type</typeparam>
     public sealed class BiomeAttribute<T> : IBiomeAttribute
         where T : notnull
     {
@@ -13,12 +20,22 @@ namespace DigBuild.Worldgen.Biomes
         }
     }
 
+    /// <summary>
+    /// Registry extensions for biome attributes.
+    /// </summary>
     public static class BiomeAttributeRegistryBuilderExtensions
     {
-        public static BiomeAttribute<TStorage> Create<TStorage>(this IRegistryBuilder<IBiomeAttribute> registry, ResourceName name)
-            where TStorage : notnull
+        /// <summary>
+        /// Registers a new biome attribute.
+        /// </summary>
+        /// <typeparam name="T">The attribute type</typeparam>
+        /// <param name="registry">The registry</param>
+        /// <param name="name">The name</param>
+        /// <returns>The attribute</returns>
+        public static BiomeAttribute<T> Register<T>(this IRegistryBuilder<IBiomeAttribute> registry, ResourceName name)
+            where T : notnull
         {
-            var attribute = new BiomeAttribute<TStorage>();
+            var attribute = new BiomeAttribute<T>();
             registry.Add(name, attribute);
             return attribute;
         }

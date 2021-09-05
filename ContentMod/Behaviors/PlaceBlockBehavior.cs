@@ -32,15 +32,15 @@ namespace DigBuild.Content.Behaviors
             var block = _blockSupplier();
             var world = evt.Player.Entity.World;
 
-            var bounds = block.Get(world, pos, BlockAttributes.Bounds);
+            var bounds = block.Get(world, pos, GameBlockAttributes.Bounds);
             if (bounds.HasValue)
             {
                 var blockAABB = bounds.Value + (Vector3)pos;
 
                 foreach (var entity in world.GetEntities())
                 {
-                    var entityBounds = entity.Get(EntityAttributes.Bounds);
-                    var entityPos = entity.Get(EntityAttributes.Position);
+                    var entityBounds = entity.Get(GameEntityAttributes.Bounds);
+                    var entityPos = entity.Get(GameEntityAttributes.Position);
                     if (entityBounds.HasValue && (entityBounds.Value + entityPos).Intersects(blockAABB))
                         return next();
                 }

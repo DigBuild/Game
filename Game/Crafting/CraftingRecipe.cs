@@ -3,6 +3,9 @@ using DigBuild.Engine.Items;
 
 namespace DigBuild.Crafting
 {
+    /// <summary>
+    /// A basic crafting recipe implementation.
+    /// </summary>
     public sealed class CraftingRecipe : ICraftingRecipe
     {
         private readonly ICraftingIngredient[] _shaped;
@@ -42,31 +45,6 @@ namespace DigBuild.Crafting
         public CraftingOutput? GetOutput(ICraftingInput input)
         {
             return new CraftingOutput(_catalystOutput(input.GetCatalyst()), _output);
-        }
-    }
-
-    public sealed class CraftingIngredient : ICraftingIngredient
-    {
-        public static readonly ICraftingIngredient None = new NoIngredient();
-
-        private readonly Item _item;
-
-        public CraftingIngredient(Item item)
-        {
-            _item = item;
-        }
-
-        public bool Test(ItemInstance item)
-        {
-            return item.Count > 0 && item.Type == _item;
-        }
-
-        private sealed class NoIngredient : ICraftingIngredient
-        {
-            public bool Test(ItemInstance item)
-            {
-                return item.Count == 0;
-            }
         }
     }
 }

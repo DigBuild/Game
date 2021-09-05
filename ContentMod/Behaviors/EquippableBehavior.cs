@@ -15,7 +15,7 @@ namespace DigBuild.Content.Behaviors
 
         public void Build(ItemBehaviorBuilder<object, object> item)
         {
-            item.Add(ItemAttributes.Equippable, (_, _, _) => Flags);
+            item.Add(GameItemAttributes.Equippable, (_, _, _) => Flags);
         }
     }
 }

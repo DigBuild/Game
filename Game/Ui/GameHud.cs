@@ -16,19 +16,31 @@ using DigBuild.Worlds;
 
 namespace DigBuild.Ui
 {
+    /// <summary>
+    /// The game HUD user interface.
+    /// </summary>
     public sealed class GameHud : IUi
     {
         private static ISprite EquipmentButtonSprite { get; set; } = null!;
         private static ISprite EquipmentButtonSprite2 { get; set; } = null!;
         private static ISprite EquipmentButtonSprite3 { get; set; } = null!;
         
+        /// <summary>
+        /// The default inventory slot sprite.
+        /// </summary>
         public static ISprite InventorySlotSprite { get; set; } = null!;
+        /// <summary>
+        /// The default active inventory slot sprite.
+        /// </summary>
         public static ISprite InventorySlotActiveSprite { get; set; } = null!;
+        /// <summary>
+        /// The pouch background sprite.
+        /// </summary>
         public static ISprite PouchBackgroundSprite { get; set; } = null!;
 
-        public static void OnTextureStitching(TextureStitchingEvent evt)
+        internal static void OnTextureStitching(TextureStitchingEvent evt)
         {
-            if (evt.TextureType != TextureHandles.UiMain)
+            if (evt.TextureType != TextureTypes.UiMain)
                 return;
 
             var stitcher = evt.Stitcher;
@@ -156,7 +168,7 @@ namespace DigBuild.Ui
             var player = _controller.Player;
             var hit = RayCaster.TryCast(_controller.RayCastContext, player.GetCamera(partialTick).Ray, out var h) ? h : null;
 
-            var blockPos = new BlockPos(player.PhysicalEntity.Position);
+            var blockPos = new BlockPos(player.PhysicsEntity.Position);
             var biome = player.Entity.World.GetBiome(blockPos);
 
             _positionLabel.Text = $"Position: {blockPos}";

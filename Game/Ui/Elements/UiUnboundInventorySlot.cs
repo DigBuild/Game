@@ -9,6 +9,9 @@ using DigBuild.Platform.Render;
 
 namespace DigBuild.Ui.Elements
 {
+    /// <summary>
+    /// An unbound inventory slot UI element.
+    /// </summary>
     public sealed class UiUnboundInventorySlot : IUiElement
     {
         private const uint Scale = UiInventorySlot.Scale;
@@ -17,7 +20,13 @@ namespace DigBuild.Ui.Elements
         private readonly IReadOnlyDictionary<Item, IItemModel> _models;
         private readonly ITextRenderer _textRenderer;
 
+        /// <summary>
+        /// The X position.
+        /// </summary>
         public int PosX { get; set; }
+        /// <summary>
+        /// The Y position.
+        /// </summary>
         public int PosY { get; set; }
 
         public UiUnboundInventorySlot(IInventorySlot slot, IReadOnlyDictionary<Item, IItemModel> models, ITextRenderer textRenderer = null!)

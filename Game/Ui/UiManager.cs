@@ -17,8 +17,14 @@ using DigBuild.Render.GeneratedUniforms;
 
 namespace DigBuild.Ui
 {
+    /// <summary>
+    /// The user interface manager.
+    /// </summary>
     public sealed class UiManager
     {
+        /// <summary>
+        /// The gameplay controller.
+        /// </summary>
         public GameplayController Controller { get; }
 
         private readonly IEnumerable<IRenderLayer> _layers;
@@ -34,9 +40,15 @@ namespace DigBuild.Ui
         private Framebuffer _framebuffer = null!;
         
         private readonly Stack<IUi> _uis = new();
-
+        
+        /// <summary>
+        /// The user interface stack.
+        /// </summary>
         public IEnumerable<IUi> Uis => _uis;
 
+        /// <summary>
+        /// The current cursor mode as dictated by the UIs.
+        /// </summary>
         public CursorMode CursorMode => _uis.Peek().CursorMode;
 
         public UiManager(
@@ -64,6 +76,10 @@ namespace DigBuild.Ui
             Controller.Game.TickSource.Paused = _uis.Any(ui => ui.Pause);
         }
 
+        /// <summary>
+        /// Opens a new UI.
+        /// </summary>
+        /// <param name="ui">The UI</param>
         public void Open(IUi ui)
         {
             var hasTop = _uis.TryPeek(out var top);
@@ -80,6 +96,10 @@ namespace DigBuild.Ui
             UpdatePauseState();
         }
 
+        /// <summary>
+        /// Closes a UI and all the ones opened after it.
+        /// </summary>
+        /// <param name="ui">The UI</param>
         public void Close(IUi ui)
         {
             if (!_uis.Contains(ui))
@@ -94,12 +114,21 @@ namespace DigBuild.Ui
             UpdatePauseState();
         }
 
+        /// <summary>
+        /// Closes the topmost UI.
+        /// </summary>
         public void CloseTop()
         {
             if (_uis.Count > 1)
                 Close(_uis.First());
         }
 
+        /// <summary>
+        /// Sets up all the render resources for UI rendering.
+        /// </summary>
+        /// <param name="context">The render context</param>
+        /// <param name="resourceManager">The resource manager</param>
+        /// <param name="renderStage">The render stage</param>
         public void Setup(RenderContext context, ResourceManager resourceManager, RenderStage renderStage)
         {
             _commandBuffer = context.CreateCommandBuffer();
@@ -111,7 +140,7 @@ namespace DigBuild.Ui
 
             var uiStitcher = new TextureStitcher();
             uiStitcher.Add(resourceManager.GetResource(DigBuildGame.Domain, "textures/ui/white.png")!);
-            Controller.Game.EventBus.Post(new TextureStitchingEvent(TextureHandles.UiMain, uiStitcher, resourceManager));
+            Controller.Game.EventBus.Post(new TextureStitchingEvent(TextureTypes.UiMain, uiStitcher, resourceManager));
             _textureSet.UiTexture = context.CreateTexture(uiStitcher.Stitch(new ResourceName(DigBuildGame.Domain, "ui_texturemap")).Bitmap);
 
             IUiElement.GlobalTextRenderer = new TextRenderer(UiRenderLayers.Text);
@@ -119,6 +148,14 @@ namespace DigBuild.Ui
             _uniforms.Setup(context);
         }
 
+        /// <summary>
+        /// Updates the framebuffer when the surface is created or resized.
+        /// </summary>
+        /// <param name="context">The render context</param>
+        /// <param name="format">The framebuffer format</param>
+        /// <param name="width">The width</param>
+        /// <param name="height">The height</param>
+        /// <returns>The framebuffer</returns>
         public Framebuffer UpdateFramebuffer(RenderContext context, FramebufferFormat format, uint width, uint height)
         {
             _framebuffer = context.CreateFramebuffer(format, width, height);
@@ -127,12 +164,21 @@ namespace DigBuild.Ui
             return _framebuffer;
         }
 
+        /// <summary>
+        /// Initializes the render layer bindings.
+        /// </summary>
+        /// <param name="context">The render context</param>
         public void InitLayerBindings(RenderContext context)
         {
             foreach (var layer in _layers)
                 layer.InitBindings(context, _bindingSet);
         }
 
+        /// <summary>
+        /// Updates the UIs and renders them.
+        /// </summary>
+        /// <param name="context">The render context</param>
+        /// <param name="partialTick">The tick delta</param>
         public void UpdateAndRender(RenderContext context, float partialTick)
         {
             _geometryBuffer.Clear();
@@ -148,12 +194,12 @@ namespace DigBuild.Ui
                                Matrix4x4.CreateTranslation(-1, -1, 0);
 
             _uniforms.Clear();
-            _uniforms.Push(RenderUniforms.ModelViewTransform, new SimpleTransform
+            _uniforms.Push(UniformTypes.ModelViewProjectionTransform, new SimpleTransform
             {
                 ModelView = Matrix4x4.Identity,
                 Projection = uiProjection
             });
-            _uniforms.Push(RenderUniforms.WorldTime, new WorldTimeUniform
+            _uniforms.Push(UniformTypes.WorldTime, new WorldTimeUniform
             {
                 WorldTime = 1
             });
@@ -174,6 +220,12 @@ namespace DigBuild.Ui
             context.Enqueue(_framebuffer, _commandBuffer);
         }
 
+        /// <summary>
+        /// Handles cursor movement.
+        /// </summary>
+        /// <param name="x">The cursor X coordinate</param>
+        /// <param name="y">The cursor Y coordinate</param>
+        /// <param name="action">The cursor action</param>
         public void OnCursorMoved(uint x, uint y, CursorAction action)
         {
             foreach (var ui in _uis)
@@ -181,6 +233,11 @@ namespace DigBuild.Ui
                     break;
         }
 
+        /// <summary>
+        /// Handles mouse button events.
+        /// </summary>
+        /// <param name="button">The button</param>
+        /// <param name="action">The action</param>
         public void OnMouseEvent(uint button, MouseAction action)
         {
             foreach (var ui in _uis)
@@ -188,6 +245,11 @@ namespace DigBuild.Ui
                     break;
         }
 
+        /// <summary>
+        /// Handles mouse scroll events.
+        /// </summary>
+        /// <param name="xOffset">The scroll X offset</param>
+        /// <param name="yOffset">The scroll Y offset</param>
         public void OnScrollEvent(double xOffset, double yOffset)
         {
             foreach (var ui in _uis)
@@ -195,6 +257,11 @@ namespace DigBuild.Ui
                     break;
         }
 
+        /// <summary>
+        /// Handles keyboard events.
+        /// </summary>
+        /// <param name="code">The keycode</param>
+        /// <param name="action">The action</param>
         public void OnKeyboardEvent(uint code, KeyboardAction action)
         {
             foreach (var ui in _uis)
@@ -202,7 +269,7 @@ namespace DigBuild.Ui
                     break;
         }
 
-        public sealed class TextureSet : IReadOnlyTextureSet
+        private sealed class TextureSet : IReadOnlyTextureSet
         {
             private readonly UiManager _manager;
 
@@ -218,9 +285,9 @@ namespace DigBuild.Ui
 
             public Texture Get(TextureType textureType)
             {
-                if (textureType == TextureHandles.UiMain)
+                if (textureType == TextureTypes.UiMain)
                     return UiTexture;
-                if (textureType == TextureHandles.UiText)
+                if (textureType == TextureTypes.UiText)
                     return FontTexture;
                 return _manager.Controller.Textures.Get(textureType);
             }

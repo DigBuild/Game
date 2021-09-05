@@ -4,9 +4,12 @@ using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Registries
 {
+    /// <summary>
+    /// The game's world storages.
+    /// </summary>
     public static class GameWorldStorages
     {
-        public static void Register(RegistryBuilder<IDataHandle<IWorld>> registry)
+        internal static void Register(RegistryBuilder<IDataHandle<IWorld>> registry)
         {
         }
     }

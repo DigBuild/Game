@@ -3,8 +3,14 @@ using DigBuild.Engine.Render;
 
 namespace DigBuild.Render
 {
+    /// <summary>
+    /// A basic 3D vertex with a position.
+    /// </summary>
     public readonly struct Vertex3
     {
+        /// <summary>
+        /// The position.
+        /// </summary>
         public readonly Vector3 Pos;
 
         public Vertex3(Vector3 pos)
@@ -20,13 +26,6 @@ namespace DigBuild.Render
         public override string ToString()
         {
             return $"Vertex({Pos})";
-        }
-
-        public static VertexTransformer<Vertex3> CreateTransformer(IVertexConsumer<Vertex3> next, Matrix4x4 transform)
-        {
-            return new(next, v => new Vertex3(
-                Vector3.Transform(v.Pos, transform)
-            ));
         }
     }
 }

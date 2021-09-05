@@ -6,10 +6,22 @@ using System.Linq.Expressions;
 
 namespace DigBuild.Render.Models.Expressions
 {
+    /// <summary>
+    /// An expression representing a mathematical operation between two operand numeric expressions.
+    /// </summary>
     public sealed class OperationModelExpression : IModelExpression
     {
+        /// <summary>
+        /// The first operand.
+        /// </summary>
         public IModelExpression First { get; }
+        /// <summary>
+        /// The second operand.
+        /// </summary>
         public IModelExpression Second { get; }
+        /// <summary>
+        /// The operation.
+        /// </summary>
         public NumericOperationType Operation { get; }
         
         public IEnumerable<string> RequiredVariables { get; }
@@ -101,6 +113,9 @@ namespace DigBuild.Render.Models.Expressions
         }
     }
 
+    /// <summary>
+    /// A numeric operation type.
+    /// </summary>
     public enum NumericOperationType : byte
     {
         Add,

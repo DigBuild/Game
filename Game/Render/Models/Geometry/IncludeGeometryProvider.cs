@@ -6,6 +6,9 @@ using DigBuild.Serialization;
 
 namespace DigBuild.Render.Models.Geometry
 {
+    /// <summary>
+    /// A geometry provider that loads another geometry JSON.
+    /// </summary>
     public class IncludeGeometryProvider : IGeometryProvider
     {
         public IPartialGeometry Provide(
