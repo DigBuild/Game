@@ -37,10 +37,14 @@ namespace DigBuild
             /// </summary>
             public List<IWorldgenFeature> Features { get; set; } = new()
             {
-                // WorldgenFeatures.Terrain,
-                // WorldgenFeatures.Water,
-                // WorldgenFeatures.Lushness,
-                // WorldgenFeatures.Trees
+                GameRegistries.WorldgenFeatures.GetOrNull(DigBuildGame.Domain, "constraints")!,
+                GameRegistries.WorldgenFeatures.GetOrNull(DigBuildGame.Domain, "biome")!,
+                GameRegistries.WorldgenFeatures.GetOrNull(DigBuildGame.Domain, "terrain")!,
+                GameRegistries.WorldgenFeatures.GetOrNull(DigBuildGame.Domain, "terrain_smoothing")!,
+                GameRegistries.WorldgenFeatures.GetOrNull(DigBuildGame.Domain, "water")!,
+                GameRegistries.WorldgenFeatures.GetOrNull(DigBuildGame.Domain, "tall_grass")!,
+                GameRegistries.WorldgenFeatures.GetOrNull(DigBuildGame.Domain, "barley")!,
+                GameRegistries.WorldgenFeatures.GetOrNull(DigBuildGame.Domain, "trees")!,
             };
         }
 
