@@ -154,7 +154,7 @@ namespace DigBuild.Ui
         public void UpdateAndDraw(RenderContext context, IGeometryBuffer buffer, float partialTick)
         {
             var player = _controller.Player;
-            var hit = Raycast.Cast(_controller.RayCastContext, player.GetCamera(partialTick).Ray);
+            var hit = RayCaster.TryCast(_controller.RayCastContext, player.GetCamera(partialTick).Ray, out var h) ? h : null;
 
             var blockPos = new BlockPos(player.PhysicalEntity.Position);
             var biome = player.Entity.World.GetBiome(blockPos);

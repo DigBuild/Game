@@ -19,7 +19,7 @@ namespace DigBuild.Worlds
             _world = world;
         }
 
-        public bool Visit(Vector3I gridPosition, Vector3 position, Raycast.Ray ray, [NotNullWhen(true)] out Hit? hit)
+        public bool TryCollide(Vector3I gridPosition, Vector3 position, RayCaster.Ray ray, [NotNullWhen(true)] out Hit? hit)
         {
             var pos = new BlockPos(gridPosition);
             var block = _world.GetBlock(pos);

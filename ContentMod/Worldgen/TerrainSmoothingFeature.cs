@@ -32,7 +32,7 @@ namespace DigBuild.Content.Worldgen
             for (var z = 0; z < terrainHeight.Size; z++)
                 terrainHeight[x, z] = (ushort) BlurKernel.Select((t, i) => inTerrainHeight[x + BlurStart + i, z] * t).Sum();
 
-            var xBlurTerrainHeight = new ExtendedGrid<ushort>(terrainHeight.Build(), inTerrainHeight);
+            var xBlurTerrainHeight = new ExtendedWorldgenGrid<ushort>(terrainHeight.Build(), inTerrainHeight);
 
             // Apply blur on Z
             for (var x = 0; x < terrainHeight.Size; x++)

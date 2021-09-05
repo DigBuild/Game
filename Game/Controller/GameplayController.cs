@@ -97,7 +97,7 @@ namespace DigBuild.Controller
             RayCastContext = new WorldRayCastContext(World);
             
             _game.EventBus.Subscribe<BuiltInChunkEvent.Loaded>(WorldEntities.OnChunkLoaded);
-            _game.EventBus.Subscribe<BuiltInChunkEvent.Unloaded>(WorldEntities.OnChunkUnloaded);
+            _game.EventBus.Subscribe<BuiltInChunkEvent.Unloading>(WorldEntities.OnChunkUnloaded);
             
             _particleSystems = GameRegistries.ParticleSystems.Values.Select(d => d.System).ToImmutableList();
             _particleRenderers = GameRegistries.ParticleSystems.Values.Select(d => d.Renderer).ToImmutableList();
@@ -174,7 +174,7 @@ namespace DigBuild.Controller
         {
             _playerController.UpdateMovement(InputController);
             _playerController.UpdateHotbar(InputController);
-            var hit = Raycast.Cast(RayCastContext, Player.GetCamera(0).Ray);
+            var hit = RayCaster.TryCast(RayCastContext, Player.GetCamera(0).Ray, out var h) ? h : null;
             var interacted = _playerController.UpdateInteraction(InputController, hit);
 
             if (interacted)

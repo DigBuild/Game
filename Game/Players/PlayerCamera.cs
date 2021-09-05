@@ -12,7 +12,7 @@ namespace DigBuild.Players
             IsUnderwater = underwater;
         }
 
-        public Raycast.Ray Ray => new(Position, Forward * 5f);
+        public RayCaster.Ray Ray => new(Position, Forward * 5f);
 
         public bool IsUnderwater { get; }
     }

@@ -8,7 +8,7 @@ namespace DigBuild.Render
 {
     public static class RenderUniforms
     {
-        public static RenderUniform<SimpleTransform> ModelViewTransform => BuiltInRenderUniforms.ModelViewTransform;
+        public static RenderUniform<SimpleTransform> ModelViewTransform => BuiltInRenderUniforms.ModelViewProjectionTransform;
 
         public static RenderUniform<WorldTimeUniform> WorldTime { get; } = new();
     }

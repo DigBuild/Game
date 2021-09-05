@@ -37,10 +37,10 @@ namespace DigBuild.Content.Registries
         
         internal static void Register(RegistryBuilder<Block> registry)
         {
-            Dirt = registry.Create(DigBuildGame.Domain, "dirt",
+            Dirt = registry.Register(DigBuildGame.Domain, "dirt",
                 Drops(() => GameItems.Dirt)
             );
-            Grass = registry.Create(DigBuildGame.Domain, "grass", builder =>
+            Grass = registry.Register(DigBuildGame.Domain, "grass", builder =>
                 {
                     builder.Attach(new ReplaceOnFaceCoveredBehavior(Direction.PosY, () => Dirt));
                     builder.Attach(new CustomBlockModelDataBehavior<JsonModelData>((ctx, data) =>
@@ -51,7 +51,7 @@ namespace DigBuild.Content.Registries
                 },
                 Drops(() => GameItems.Dirt)
             );
-            Sand = registry.Create(DigBuildGame.Domain, "sand", builder =>
+            Sand = registry.Register(DigBuildGame.Domain, "sand", builder =>
                 {
                     builder.Attach(new CustomBlockModelDataBehavior<JsonModelData>((ctx, data) =>
                     {
@@ -61,7 +61,7 @@ namespace DigBuild.Content.Registries
                 },
                 Drops(() => GameItems.Sand)
             );
-            Water = registry.Create(DigBuildGame.Domain, "water", builder =>
+            Water = registry.Register(DigBuildGame.Domain, "water", builder =>
                 {
                     builder.Attach(new BoundsBehavior(null));
                     builder.Attach(new NoPunchBehavior());
@@ -69,25 +69,25 @@ namespace DigBuild.Content.Registries
                     builder.Attach(new WaterBehavior());
                 }
             );
-            Stone = registry.Create(DigBuildGame.Domain, "stone",
+            Stone = registry.Register(DigBuildGame.Domain, "stone",
                 Drops(() => GameItems.Stone)
             );
-            Gravel = registry.Create(DigBuildGame.Domain, "gravel",
+            Gravel = registry.Register(DigBuildGame.Domain, "gravel",
                 Drops(() => GameItems.Gravel)
             );
-            Ice = registry.Create(DigBuildGame.Domain, "ice",
+            Ice = registry.Register(DigBuildGame.Domain, "ice",
                 Drops(() => GameItems.Ice)
             );
-            Snow = registry.Create(DigBuildGame.Domain, "snow",
+            Snow = registry.Register(DigBuildGame.Domain, "snow",
                 Drops(() => GameItems.Snow)
             );
-            Log = registry.Create(DigBuildGame.Domain, "log", builder =>
+            Log = registry.Register(DigBuildGame.Domain, "log", builder =>
             {
                 builder.Attach(new VerticalSupportBehavior());
             },
                 Drops(() => GameItems.Log)
             );
-            LogSmall = registry.Create(DigBuildGame.Domain, "log_small", builder =>
+            LogSmall = registry.Register(DigBuildGame.Domain, "log_small", builder =>
                 {
                     var aabb = new AABB(0.25f, 0, 0.25f, 0.75f, 1, 0.75f);
                     builder.Attach(new BoundsBehavior(aabb));
@@ -98,7 +98,7 @@ namespace DigBuild.Content.Registries
                 Drops(() => GameItems.Log)
             );
 
-            Leaves = registry.Create(DigBuildGame.Domain, "leaves", builder =>
+            Leaves = registry.Register(DigBuildGame.Domain, "leaves", builder =>
             {
                 builder.Attach(new DecayBehavior(
                     3,
@@ -112,7 +112,7 @@ namespace DigBuild.Content.Registries
                 Drops(() => GameItems.Twig, 1, 0.2f)
             );
 
-            StoneStairs = registry.Create(DigBuildGame.Domain, "stone_stairs", builder =>
+            StoneStairs = registry.Register(DigBuildGame.Domain, "stone_stairs", builder =>
                 {
                     builder.Attach(new ColliderBehavior(new MultiVoxelCollider(StoneStairAABBs)));
                     builder.Attach(new RayColliderBehavior(new VoxelRayCollider(StoneStairAABBs)));
@@ -129,7 +129,7 @@ namespace DigBuild.Content.Registries
                 Drops(() => GameItems.StoneStairs)
             );
 
-            Crafter = registry.Create(DigBuildGame.Domain, "crafter", builder =>
+            Crafter = registry.Register(DigBuildGame.Domain, "crafter", builder =>
                 {
                     var data = builder.Add(
                         new ResourceName(DigBuildGame.Domain, "crafter"),
@@ -144,7 +144,7 @@ namespace DigBuild.Content.Registries
                 Drops(() => GameItems.Crafter)
             );
 
-            Campfire = registry.Create(DigBuildGame.Domain, "campfire", builder =>
+            Campfire = registry.Register(DigBuildGame.Domain, "campfire", builder =>
                 {
                     builder.Attach(new ColliderBehavior(ICollider.None));
                     builder.Attach(new RayColliderBehavior(new VoxelRayCollider(new AABB(0.125f, 0, 0.125f, 0.875f, 0.5f, 0.875f))));
@@ -158,14 +158,14 @@ namespace DigBuild.Content.Registries
                 Drops(() => GameItems.Campfire)
             );
             
-            Tallgrass = registry.Create(DigBuildGame.Domain, "tallgrass", builder =>
+            Tallgrass = registry.Register(DigBuildGame.Domain, "tallgrass", builder =>
             {
                 builder.Attach(new ColliderBehavior(ICollider.None));
                 builder.Attach(new RayColliderBehavior(new VoxelRayCollider(new AABB(0.125f, 0, 0.125f, 0.875f, 0.5f, 0.875f))));
                 builder.Attach(new BoundsBehavior(null));
                 builder.Attach(new NonSolidBehavior());
             });
-            Barley = registry.Create(DigBuildGame.Domain, "barley", builder =>
+            Barley = registry.Register(DigBuildGame.Domain, "barley", builder =>
             {
                 builder.Attach(new ColliderBehavior(ICollider.None));
                 builder.Attach(new RayColliderBehavior(new VoxelRayCollider(new AABB(0.125f, 0, 0.125f, 0.875f, 0.5f, 0.875f))));

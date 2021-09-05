@@ -76,7 +76,7 @@ namespace DigBuild.Render.Worlds
                 return;
             }
 
-            _hit = Raycast.Cast(_rayCastingContext, playerCamera.Ray);
+            _hit = RayCaster.TryCast(_rayCastingContext, playerCamera.Ray, out var h) ? h : null;
             
             _vertexNativeBuffer.Clear();
 
