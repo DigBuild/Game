@@ -17,7 +17,7 @@ namespace DigBuild.Render
         private readonly VertexTransformerProviderDelegate _transformerProvider;
         private readonly ResourceName _vertexShader;
         private readonly ResourceName _fragmentShader;
-        private readonly RenderTexture _texture;
+        private readonly TextureType _textureType;
         private readonly bool _depthTest;
         private readonly bool _writeDepth;
         private readonly BlendOptions? _blend;
@@ -28,7 +28,7 @@ namespace DigBuild.Render
             VertexTransformerProviderDelegate transformerProvider,
             ResourceName vertexShader,
             ResourceName fragmentShader,
-            RenderTexture texture,
+            TextureType textureType,
             bool depthTest = true,
             bool writeDepth = true,
             BlendOptions? blend = null
@@ -37,7 +37,7 @@ namespace DigBuild.Render
             _transformerProvider = transformerProvider;
             _vertexShader = vertexShader;
             _fragmentShader = fragmentShader;
-            _texture = texture;
+            _textureType = textureType;
             _depthTest = depthTest;
             _writeDepth = writeDepth;
             _blend = blend;
@@ -68,7 +68,7 @@ namespace DigBuild.Render
             var b = bindings.Get(this);
             b.UniformBinding.Update(uniforms.Get(RenderUniforms.ModelViewTransform));
             b.WorldTimeUniformBinding.Update(uniforms.Get(RenderUniforms.WorldTime));
-            b.TextureBinding.Update(textures.DefaultSampler, textures.Get(_texture));
+            b.TextureBinding.Update(textures.DefaultSampler, textures.Get(_textureType));
             cmd.Using(_resources.Pipeline, b.TextureBinding);
         }
 
@@ -83,8 +83,8 @@ namespace DigBuild.Render
         internal sealed class RenderResources
         {
             public readonly RenderPipeline<TVertex> Pipeline;
-            public readonly UniformHandle<SimpleTransform> VertexUniform;
-            public readonly UniformHandle<WorldTimeUniform> WorldTime;
+            public readonly Platform.Render.UniformHandle<SimpleTransform> VertexUniform;
+            public readonly Platform.Render.UniformHandle<WorldTimeUniform> WorldTime;
             public readonly ShaderSamplerHandle TextureSampler;
 
             public RenderResources(

@@ -19,7 +19,7 @@ namespace DigBuild.Worlds
 
     public sealed class ChunkBiomes : IReadOnlyChunkBiomes, IData<ChunkBiomes>
     {
-        private const uint ChunkSize = WorldDimensions.ChunkSize;
+        private const uint ChunkSize = WorldDimensions.ChunkWidth;
 
         private readonly IBiome[,] _biomes = new IBiome[ChunkSize, ChunkSize];
 

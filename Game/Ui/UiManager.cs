@@ -42,7 +42,7 @@ namespace DigBuild.Ui
         public UiManager(
             GameplayController controller,
             IEnumerable<IRenderLayer> layers,
-            IEnumerable<IRenderUniform> uniforms,
+            IEnumerable<IUniformType> uniforms,
             NativeBufferPool bufferPool
         )
         {
@@ -111,7 +111,7 @@ namespace DigBuild.Ui
 
             var uiStitcher = new TextureStitcher();
             uiStitcher.Add(resourceManager.GetResource(DigBuildGame.Domain, "textures/ui/white.png")!);
-            Controller.Game.EventBus.Post(new TextureStitchingEvent(RenderTextures.UiMain, uiStitcher, resourceManager));
+            Controller.Game.EventBus.Post(new TextureStitchingEvent(TextureHandles.UiMain, uiStitcher, resourceManager));
             _textureSet.UiTexture = context.CreateTexture(uiStitcher.Stitch(new ResourceName(DigBuildGame.Domain, "ui_texturemap")).Bitmap);
 
             IUiElement.GlobalTextRenderer = new TextRenderer(UiRenderLayers.Text);
@@ -216,13 +216,13 @@ namespace DigBuild.Ui
                 _manager = manager;
             }
 
-            public Texture Get(RenderTexture texture)
+            public Texture Get(TextureType textureType)
             {
-                if (texture == RenderTextures.UiMain)
+                if (textureType == TextureHandles.UiMain)
                     return UiTexture;
-                if (texture == RenderTextures.UiText)
+                if (textureType == TextureHandles.UiText)
                     return FontTexture;
-                return _manager.Controller.Textures.Get(texture);
+                return _manager.Controller.Textures.Get(textureType);
             }
         }
     }

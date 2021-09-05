@@ -58,8 +58,8 @@ namespace DigBuild.Content.Data
 
         public static ISerdes<CrafterBlockData> Serdes { get; } = new CompositeSerdes<CrafterBlockData>()
         {
-            { 1u, data => data._shapedSlots, SimpleSerdes.OfList(InventorySlot.Serdes) },
-            { 2u, data => data._shapelessSlots, SimpleSerdes.OfList(InventorySlot.Serdes) },
+            { 1u, data => data._shapedSlots, new ListSerdes<InventorySlot>(InventorySlot.Serdes) },
+            { 2u, data => data._shapelessSlots, new ListSerdes<InventorySlot>(InventorySlot.Serdes) },
             { 3u, data => data._outputSlot, InventorySlot.Serdes },
         };
     }

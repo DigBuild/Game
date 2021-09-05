@@ -38,7 +38,7 @@ namespace DigBuild.Render.Worlds
             IGridAlignedRayCastingContext<WorldRayCastContext.Hit> rayCastingContext,
             Func<IReadOnlyWorld, ImmutableList<IWorldRenderer>> rendererProvider,
             IEnumerable<IRenderLayer> layers,
-            IEnumerable<IRenderUniform> uniforms,
+            IEnumerable<IUniformType> uniforms,
             IReadOnlyTextureSet textures,
             EventBus eventBus,
             NativeBufferPool bufferPool
@@ -82,7 +82,7 @@ namespace DigBuild.Render.Worlds
 
         public Matrix4x4 GetProjectionMatrix(ICamera camera)
         {
-            var viewDist = (DigBuildGame.ViewRadius + 1) * WorldDimensions.ChunkSize * MathF.Sqrt(2);
+            var viewDist = (DigBuildGame.ViewRadius + 1) * WorldDimensions.ChunkWidth * MathF.Sqrt(2);
             return Matrix4x4.CreatePerspectiveFieldOfView(
                 camera.FieldOfView, _framebuffer.Width / (float) _framebuffer.Height, 0.1f, viewDist
             );

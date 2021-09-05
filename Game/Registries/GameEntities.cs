@@ -14,7 +14,7 @@ namespace DigBuild.Registries
 
         internal static void Register(RegistryBuilder<Entity> registry)
         {
-            Item = registry.Create(new ResourceName(DigBuildGame.Domain, "item"), builder =>
+            Item = registry.Register(new ResourceName(DigBuildGame.Domain, "item"), builder =>
             {
                 var itemData = builder.Add<ItemEntityData>();
                 builder.Attach(new ItemEntityBehavior(), itemData);
@@ -22,7 +22,7 @@ namespace DigBuild.Registries
                 var physicalData = builder.Add<PhysicalEntityData>();
                 builder.Attach(new PhysicalEntityBehavior(new AABB(-0.2f, 0, -0.2f, 0.2f, 0.4f, 0.2f)), physicalData);
             });
-            Player = registry.Create(new ResourceName(DigBuildGame.Domain, "player"), builder =>
+            Player = registry.Register(new ResourceName(DigBuildGame.Domain, "player"), builder =>
             {
                 var physicalEntityData = builder.Add<PhysicalEntityData>();
                 builder.Attach(new PhysicalEntityBehavior(

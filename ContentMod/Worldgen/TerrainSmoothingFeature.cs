@@ -25,7 +25,7 @@ namespace DigBuild.Content.Worldgen
         public void Describe(ChunkDescriptionContext context)
         {
             var inTerrainHeight = context.GetExtendedGrid(WorldgenAttributes.TerrainHeight);
-            var terrainHeight = Grid<ushort>.Builder(WorldDimensions.ChunkSize);
+            var terrainHeight = Grid<ushort>.Builder(WorldDimensions.ChunkWidth);
 
             // Apply blur on X
             for (var x = 0; x < terrainHeight.Size; x++)

@@ -23,7 +23,7 @@ namespace DigBuild.Registries
         public static Registry<IDataHandle<IWorld>> WorldStorageTypes { get; private set; } = null!;
         public static Registry<IDataHandle<IChunk>> ChunkStorageTypes { get; private set; } = null!;
 
-        public static Registry<IJobHandle> Jobs { get; private set; } = null!;
+        public static Registry<IJob> Jobs { get; private set; } = null!;
 
         public static TypeRegistry<IBlockEvent, BlockEventInfo> BlockEvents { get; private set; } = null!;
         public static Registry<IBlockAttribute> BlockAttributes { get; private set; } = null!;
@@ -83,7 +83,7 @@ namespace DigBuild.Registries
                 GameChunkStorages.Register
             );
 
-            MakeRegistry<IJobHandle>(
+            MakeRegistry<IJob>(
                 "jobs",
                 reg => Jobs = reg,
                 GameJobs.Register

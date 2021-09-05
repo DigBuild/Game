@@ -28,7 +28,7 @@ namespace DigBuild.Ui
 
         public static void OnTextureStitching(TextureStitchingEvent evt)
         {
-            if (evt.Texture != RenderTextures.UiMain)
+            if (evt.TextureType != TextureHandles.UiMain)
                 return;
 
             var stitcher = evt.Stitcher;

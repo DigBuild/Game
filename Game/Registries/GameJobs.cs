@@ -7,11 +7,11 @@ namespace DigBuild.Registries
 {
     public static class GameJobs
     {
-        public static JobHandle<IPhysicalEntity> PhysicalEntityMove { get; private set; } = null!;
+        public static Job<IPhysicalEntity> PhysicalEntityMove { get; private set; } = null!;
 
-        internal static void Register(RegistryBuilder<IJobHandle> registry)
+        internal static void Register(RegistryBuilder<IJob> registry)
         {
-            PhysicalEntityMove = registry.CreateParallel<IPhysicalEntity>(
+            PhysicalEntityMove = registry.RegisterParallel<IPhysicalEntity>(
                 new ResourceName(DigBuildGame.Domain, "physical_entity_move"),
                 PhysicalEntityBehavior.Update
             );

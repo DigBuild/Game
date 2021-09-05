@@ -10,21 +10,21 @@ namespace DigBuild.Render.Worlds
             WorldVertex.CreateTransformer,
             new ResourceName(DigBuildGame.Domain, "world/base.vert"),
             new ResourceName(DigBuildGame.Domain, "world/opaque.frag"),
-            RenderTextures.Main
+            TextureHandles.Main
         );
         
         public static IRenderLayer<WorldVertex> Cutout { get; } = new SimpleRenderLayer<WorldVertex>(
             WorldVertex.CreateTransformer,
             new ResourceName(DigBuildGame.Domain, "world/base.vert"),
             new ResourceName(DigBuildGame.Domain, "world/cutout.frag"),
-            RenderTextures.Main
+            TextureHandles.Main
         );
         
         public static IRenderLayer<WorldVertex> Water { get; } = new SimpleRenderLayer<WorldVertex>(
             WorldVertex.CreateTransformer,
             new ResourceName(DigBuildGame.Domain, "world/water.vert"),
             new ResourceName(DigBuildGame.Domain, "world/water.frag"),
-            RenderTextures.Main,
+            TextureHandles.Main,
             writeDepth: false,
             blend: new BlendOptions
             { 

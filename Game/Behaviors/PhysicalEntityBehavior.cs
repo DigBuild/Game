@@ -111,7 +111,7 @@ namespace DigBuild.Behaviors
             private readonly IPhysicalEntityBehavior _data;
             private readonly PhysicalEntityBehavior _behavior;
             
-            private IChunkClaim? _chunkLoadingTicket;
+            private IChunkLoadingClaim? _chunkLoadingTicket;
 
             public PhysicalEntity(
                 EntityInstance entity,
@@ -300,7 +300,7 @@ namespace DigBuild.Behaviors
                     chunksToLoad.Add(new ChunkPos(chunkPos.X + x, chunkPos.Z + z));
 
                 var prevTicket = _chunkLoadingTicket;
-                if (!_entity.World.ChunkManager.TryLoad(chunksToLoad, false, out _chunkLoadingTicket))
+                if (!_entity.World.ChunkManager.TryClaim(chunksToLoad, false, out _chunkLoadingTicket))
                 {
                     throw new Exception("What.");
                 }

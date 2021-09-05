@@ -7,13 +7,13 @@ namespace DigBuild.Events
 {
     public sealed class TextureStitchingEvent : IEvent
     {
-        public RenderTexture Texture { get; }
+        public TextureType TextureType { get; }
         public TextureStitcher Stitcher { get; }
         public ResourceManager ResourceManager { get; }
 
-        public TextureStitchingEvent(RenderTexture texture, TextureStitcher stitcher, ResourceManager resourceManager)
+        public TextureStitchingEvent(TextureType textureType, TextureStitcher stitcher, ResourceManager resourceManager)
         {
-            Texture = texture;
+            TextureType = textureType;
             Stitcher = stitcher;
             ResourceManager = resourceManager;
         }

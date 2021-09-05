@@ -27,7 +27,7 @@ namespace DigBuild.Ui.Elements
         private readonly IReadOnlyDictionary<Item, IItemModel> _models;
         private readonly IRenderLayer<UiVertex> _layer;
         private readonly Func<bool>? _isActive;
-        private readonly TextRenderer _textRenderer;
+        private readonly ITextRenderer _textRenderer;
         private bool _hovered;
         
         private readonly UiVertex[] _vertices, _verticesActive;
@@ -37,7 +37,7 @@ namespace DigBuild.Ui.Elements
             IReadOnlyDictionary<Item, IItemModel> models,
             IRenderLayer<UiVertex> layer,
             ISprite? background, ISprite? backgroundActive = null,
-            Func<bool>? isActive = null, TextRenderer textRenderer = null!
+            Func<bool>? isActive = null, ITextRenderer textRenderer = null!
         )
         {
             _slot = slot;

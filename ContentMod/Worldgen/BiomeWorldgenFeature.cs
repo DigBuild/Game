@@ -13,8 +13,8 @@ namespace DigBuild.Content.Worldgen
     {
         public void Describe(ChunkDescriptionContext context)
         {
-            var biomes = Grid<IBiome>.Builder(WorldDimensions.ChunkSize, GameBiomes.Grassland);
-            var scores = Grid<float>.Builder(WorldDimensions.ChunkSize, float.MinValue);
+            var biomes = Grid<IBiome>.Builder(WorldDimensions.ChunkWidth, GameBiomes.Grassland);
+            var scores = Grid<float>.Builder(WorldDimensions.ChunkWidth, float.MinValue);
 
             foreach (var biome in GameRegistries.Biomes.Values)
             {

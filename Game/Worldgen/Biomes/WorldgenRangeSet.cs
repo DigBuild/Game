@@ -35,7 +35,7 @@ namespace DigBuild.Worldgen.Biomes
                 var sigma = end - center;
 
                 var values = context.Get(attribute);
-                var scores = Grid<float>.Builder(WorldDimensions.ChunkSize);
+                var scores = Grid<float>.Builder(WorldDimensions.ChunkWidth);
                 for (var i = 0; i < scores.Size; i++)
                 for (var j = 0; j < scores.Size; j++)
                 {
@@ -55,7 +55,7 @@ namespace DigBuild.Worldgen.Biomes
                 var sigma = end - center;
 
                 var values = context.Get(attribute);
-                var scores = Grid<float>.Builder(WorldDimensions.ChunkSize);
+                var scores = Grid<float>.Builder(WorldDimensions.ChunkWidth);
                 for (var i = 0; i < scores.Size; i++)
                 for (var j = 0; j < scores.Size; j++)
                 {
@@ -85,7 +85,7 @@ namespace DigBuild.Worldgen.Biomes
 
         public Grid<float> GetScores(ChunkDescriptionContext context)
         {
-            var scores = Grid<float>.Builder(WorldDimensions.ChunkSize);
+            var scores = Grid<float>.Builder(WorldDimensions.ChunkWidth);
             foreach (var provider in _scoreProviders.Values)
                 scores.Add(provider(context));
             return scores.Build();

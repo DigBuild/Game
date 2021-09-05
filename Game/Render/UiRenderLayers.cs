@@ -11,7 +11,7 @@ namespace DigBuild.Render
             UiVertex.CreateTransformer,
             new ResourceName(DigBuildGame.Domain, "ui.vert"),
             new ResourceName(DigBuildGame.Domain, "ui.frag"),
-            RenderTextures.UiText,
+            TextureHandles.UiText,
             false
         );
 
@@ -19,7 +19,7 @@ namespace DigBuild.Render
             UiVertex.CreateTransformer,
             new ResourceName(DigBuildGame.Domain, "ui.vert"),
             new ResourceName(DigBuildGame.Domain, "ui.frag"),
-            RenderTextures.UiMain,
+            TextureHandles.UiMain,
             false, true,
             new BlendOptions
             {
@@ -33,7 +33,7 @@ namespace DigBuild.Render
             UiVertex.CreateTransformer,
             new ResourceName(DigBuildGame.Domain, "ui.vert"),
             new ResourceName(DigBuildGame.Domain, "ui.frag"),
-            RenderTextures.UiMain,
+            TextureHandles.UiMain,
             false, true,
             new BlendOptions
             {

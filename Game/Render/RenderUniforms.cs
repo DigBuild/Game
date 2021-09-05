@@ -8,9 +8,9 @@ namespace DigBuild.Render
 {
     public static class RenderUniforms
     {
-        public static RenderUniform<SimpleTransform> ModelViewTransform => BuiltInRenderUniforms.ModelViewProjectionTransform;
+        public static Engine.Render.UniformType<SimpleTransform> ModelViewTransform => BuiltInRenderUniforms.ModelViewProjectionTransform;
 
-        public static RenderUniform<WorldTimeUniform> WorldTime { get; } = new();
+        public static Engine.Render.UniformType<WorldTimeUniform> WorldTime { get; } = new();
     }
 
     public interface IWorldTimeUniform : IUniform<WorldTimeUniform>

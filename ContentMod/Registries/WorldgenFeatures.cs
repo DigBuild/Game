@@ -23,17 +23,17 @@ namespace DigBuild.Content.Registries
 
         internal static void Register(RegistryBuilder<IWorldgenFeature> builder)
         {
-            Constraints = builder.Add(new ResourceName(DigBuildGame.Domain, "constraints"), new ConstraintsWorldgenFeature());
+            Constraints = builder.Register(new ResourceName(DigBuildGame.Domain, "constraints"), new ConstraintsWorldgenFeature());
 
-            Biome = builder.Add(new ResourceName(DigBuildGame.Domain, "biome"), new BiomeWorldgenFeature());
+            Biome = builder.Register(new ResourceName(DigBuildGame.Domain, "biome"), new BiomeWorldgenFeature());
             
-            Terrain = builder.Add(new ResourceName(DigBuildGame.Domain, "terrain"), new TerrainWorldgenFeature(GameBlocks.Dirt, GameBlocks.Grass));
-            TerrainSmoothing = builder.Add(new ResourceName(DigBuildGame.Domain, "terrain_smoothing"), new TerrainSmoothingFeature());
+            Terrain = builder.Register(new ResourceName(DigBuildGame.Domain, "terrain"), new TerrainWorldgenFeature(GameBlocks.Dirt, GameBlocks.Grass));
+            TerrainSmoothing = builder.Register(new ResourceName(DigBuildGame.Domain, "terrain_smoothing"), new TerrainSmoothingFeature());
 
-            Water = builder.Add(new ResourceName(DigBuildGame.Domain, "water"), new WaterWorldgenFeature(GameBlocks.Water, GameBlocks.Ice));
-            Trees = builder.Add(new ResourceName(DigBuildGame.Domain, "trees"), new TreeWorldgenFeature(new TreeStructure()));
+            Water = builder.Register(new ResourceName(DigBuildGame.Domain, "water"), new WaterWorldgenFeature(GameBlocks.Water, GameBlocks.Ice));
+            Trees = builder.Register(new ResourceName(DigBuildGame.Domain, "trees"), new TreeWorldgenFeature(new TreeStructure()));
             
-            TallGrass = builder.Add(new ResourceName(DigBuildGame.Domain, "tall_grass"), new LowCoverWorldgenFeature(
+            TallGrass = builder.Register(new ResourceName(DigBuildGame.Domain, "tall_grass"), new LowCoverWorldgenFeature(
                 GameBlocks.Tallgrass, WorldgenAttributes.TallGrass, 1658152135341, 0.075F, () => new []
                 {
                     GameBiomes.Grassland,
@@ -41,7 +41,7 @@ namespace DigBuild.Content.Registries
                     GameBiomes.Plateau
                 }
             ));
-            Barley = builder.Add(new ResourceName(DigBuildGame.Domain, "barley"), new LowCoverWorldgenFeature(
+            Barley = builder.Register(new ResourceName(DigBuildGame.Domain, "barley"), new LowCoverWorldgenFeature(
                 GameBlocks.Barley, WorldgenAttributes.Barley, 84685187164651, 0.05F, () => new []{ GameBiomes.Pasture }
             ));
         }

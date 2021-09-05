@@ -15,12 +15,12 @@ namespace DigBuild.Ui.Elements
         
         private readonly IInventorySlot _slot;
         private readonly IReadOnlyDictionary<Item, IItemModel> _models;
-        private readonly TextRenderer _textRenderer;
+        private readonly ITextRenderer _textRenderer;
 
         public int PosX { get; set; }
         public int PosY { get; set; }
 
-        public UiUnboundInventorySlot(IInventorySlot slot, IReadOnlyDictionary<Item, IItemModel> models, TextRenderer textRenderer = null!)
+        public UiUnboundInventorySlot(IInventorySlot slot, IReadOnlyDictionary<Item, IItemModel> models, ITextRenderer textRenderer = null!)
         {
             _slot = slot;
             _models = models;

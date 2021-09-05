@@ -46,7 +46,7 @@ namespace DigBuild.Controller
             Render.UiRenderLayers.UiOverlay
         };
 
-        private static readonly ImmutableList<IRenderUniform> UniformTypes = ImmutableList.Create<IRenderUniform>(
+        private static readonly ImmutableList<IUniformType> UniformTypes = ImmutableList.Create<IUniformType>(
             RenderUniforms.ModelViewTransform,
             RenderUniforms.WorldTime
         );
@@ -93,11 +93,8 @@ namespace DigBuild.Controller
             }
 
             var generator = new WorldGenerator(game.TickSource, config.Worldgen.Features, config.Seed);
-            _world = new World(game.TickSource, generator, (world, pos) => new RegionStorage(world, pos, game.TickSource), _game.EventBus, NotifyChunkReRender);
+            _world = new World(game.TickSource, generator, (world, pos) => new RegionStorageHandler(world, pos, game.TickSource), _game.EventBus, NotifyChunkReRender);
             RayCastContext = new WorldRayCastContext(World);
-            
-            _game.EventBus.Subscribe<BuiltInChunkEvent.Loaded>(WorldEntities.OnChunkLoaded);
-            _game.EventBus.Subscribe<BuiltInChunkEvent.Unloading>(WorldEntities.OnChunkUnloaded);
             
             _particleSystems = GameRegistries.ParticleSystems.Values.Select(d => d.System).ToImmutableList();
             _particleRenderers = GameRegistries.ParticleSystems.Values.Select(d => d.Renderer).ToImmutableList();
@@ -266,7 +263,7 @@ namespace DigBuild.Controller
             var stitcher = new TextureStitcher();
             var loader = new MultiSpriteLoader(_game.ResourceManager, stitcher);
             _game.ModelManager.LoadTextures(loader);
-            _game.EventBus.Post(new TextureStitchingEvent(RenderTextures.Main, stitcher, _game.ResourceManager));
+            _game.EventBus.Post(new TextureStitchingEvent(TextureHandles.Main, stitcher, _game.ResourceManager));
             var spriteSheet = stitcher.Stitch(new ResourceName(DigBuildGame.Domain, "texturemap"));
             _textures.TextureSheet = context.CreateTexture(spriteSheet.Bitmap);
 
@@ -535,11 +532,11 @@ namespace DigBuild.Controller
                 _controller = controller;
             }
 
-            public Texture Get(RenderTexture texture)
+            public Texture Get(TextureType textureType)
             {
-                if (texture == RenderTextures.Main)
+                if (textureType == TextureHandles.Main)
                     return TextureSheet;
-                throw new ArgumentException("Invalid render texture.", nameof(texture));
+                throw new ArgumentException("Invalid render textureType.", nameof(textureType));
             }
         }
     }

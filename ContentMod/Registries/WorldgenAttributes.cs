@@ -31,21 +31,21 @@ namespace DigBuild.Content.Registries
         internal static void Register(RegistryBuilder<IWorldgenAttribute> builder)
         {
             // Environment constraints
-            Inlandness = builder.Create<Grid<float>>(new ResourceName(DigBuildGame.Domain, "inlandness"));
-            Temperature = builder.Create<Grid<float>>(new ResourceName(DigBuildGame.Domain, "temperature"));
-            Lushness = builder.Create<Grid<float>>(new ResourceName(DigBuildGame.Domain, "lushness"));
+            Inlandness = builder.Register<Grid<float>>(new ResourceName(DigBuildGame.Domain, "inlandness"));
+            Temperature = builder.Register<Grid<float>>(new ResourceName(DigBuildGame.Domain, "temperature"));
+            Lushness = builder.Register<Grid<float>>(new ResourceName(DigBuildGame.Domain, "lushness"));
             
             // Generation attributes
             
-            Biome = builder.Create<Grid<IBiome>>(new ResourceName(DigBuildGame.Domain, "biome"));
+            Biome = builder.Register<Grid<IBiome>>(new ResourceName(DigBuildGame.Domain, "biome"));
 
-            TerrainHeight = builder.Create<Grid<ushort>>(new ResourceName(DigBuildGame.Domain, "terrain_height"));
-            TerrainType = builder.Create<Grid<TerrainType>>(new ResourceName(DigBuildGame.Domain, "terrain_type"));
+            TerrainHeight = builder.Register<Grid<ushort>>(new ResourceName(DigBuildGame.Domain, "terrain_height"));
+            TerrainType = builder.Register<Grid<TerrainType>>(new ResourceName(DigBuildGame.Domain, "terrain_type"));
             
-            Tree = builder.Create<Grid<ushort>>(new ResourceName(DigBuildGame.Domain, "tree"));
+            Tree = builder.Register<Grid<ushort>>(new ResourceName(DigBuildGame.Domain, "tree"));
             
-            TallGrass = builder.Create<Grid<bool>>(new ResourceName(DigBuildGame.Domain, "tall_grass"));
-            Barley = builder.Create<Grid<bool>>(new ResourceName(DigBuildGame.Domain, "barley"));
+            TallGrass = builder.Register<Grid<bool>>(new ResourceName(DigBuildGame.Domain, "tall_grass"));
+            Barley = builder.Register<Grid<bool>>(new ResourceName(DigBuildGame.Domain, "barley"));
         }
     }
 }

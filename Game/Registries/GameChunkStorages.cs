@@ -13,12 +13,12 @@ namespace DigBuild.Registries
 
         public static void Register(RegistryBuilder<IDataHandle<IChunk>> registry)
         {
-            IChunkBlockLight.Type = registry.Create<IChunk, IReadOnlyChunkBlockLight, IChunkBlockLight>(
+            IChunkBlockLight.Type = registry.Register<IChunk, IReadOnlyChunkBlockLight, IChunkBlockLight>(
                 new ResourceName(DigBuildGame.Domain, "block_light"),
                 () => new ChunkBlockLight(), ChunkBlockLight.Serdes
             );
             
-            Biomes = registry.Create<IChunk, IReadOnlyChunkBiomes, ChunkBiomes>(
+            Biomes = registry.Register<IChunk, IReadOnlyChunkBiomes, ChunkBiomes>(
                 new ResourceName(DigBuildGame.Domain, "biomes"),
                 () => new ChunkBiomes(), ChunkBiomes.Serdes
             );

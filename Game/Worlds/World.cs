@@ -27,7 +27,7 @@ namespace DigBuild.Worlds
         public World(
             IStableTickSource tickSource,
             IChunkProvider generator,
-            Func<IWorld, RegionPos, IRegionStorage> storageProvider,
+            Func<IWorld, RegionPos, IRegionStorageHandler> storageProvider,
             EventBus eventBus,
             Action<ChunkPos> notifyChunkReRender
         ) : base(tickSource, generator, storageProvider, eventBus)
@@ -79,12 +79,12 @@ namespace DigBuild.Worlds
 
             if (subX == 0)
                 MarkChunkForReRender(chunkPos.Offset(Direction.NegX));
-            else if (subX == WorldDimensions.ChunkSize - 1)
+            else if (subX == WorldDimensions.ChunkWidth - 1)
                 MarkChunkForReRender(chunkPos.Offset(Direction.PosX));
 
             if (subZ == 0)
                 MarkChunkForReRender(chunkPos.Offset(Direction.NegZ));
-            else if (subZ == WorldDimensions.ChunkSize - 1)
+            else if (subZ == WorldDimensions.ChunkWidth - 1)
                 MarkChunkForReRender(chunkPos.Offset(Direction.PosZ));
         }
     }
